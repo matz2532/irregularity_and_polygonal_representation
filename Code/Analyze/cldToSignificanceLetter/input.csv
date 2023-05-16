@@ -1,0 +1,29 @@
+,product_1,product_2,reject H0
+0,Amstel Weiss                         ,Blanche de Brussel                   ,TRUE
+1,Amstel Weiss                         ,Edelweiss Weissbier                  ,FALSE
+2,Amstel Weiss                         ,Erdinger Weiss                       ,FALSE
+3,Amstel Weiss                         ,Franziskaner Hefe-Weissbier NaturtrÃ¼b,FALSE
+4,Amstel Weiss                         ,Hoegaarden Blanc                     ,FALSE
+5,Amstel Weiss                         ,Khamovniki Weissbier                 ,FALSE
+6,Amstel Weiss                         ,Uzberg Weissbier                     ,FALSE
+7,Blanche de Brussel                   ,Edelweiss Weissbier                  ,FALSE
+8,Blanche de Brussel                   ,Erdinger Weiss                       ,FALSE
+9,Blanche de Brussel                   ,Franziskaner Hefe-Weissbier NaturtrÃ¼b,FALSE
+10,Blanche de Brussel                   ,Hoegaarden Blanc                     ,FALSE
+11,Blanche de Brussel                   ,Khamovniki Weissbier                 ,FALSE
+12,Blanche de Brussel                   ,Uzberg Weissbier                     ,FALSE
+13,Edelweiss Weissbier                  ,Erdinger Weiss                       ,TRUE
+14,Edelweiss Weissbier                  ,Franziskaner Hefe-Weissbier NaturtrÃ¼b,FALSE
+15,Edelweiss Weissbier                  ,Hoegaarden Blanc                     ,FALSE
+16,Edelweiss Weissbier                  ,Khamovniki Weissbier                 ,FALSE
+17,Edelweiss Weissbier                  ,Uzberg Weissbier                     ,FALSE
+18,Erdinger Weiss                       ,Franziskaner Hefe-Weissbier NaturtrÃ¼b,FALSE
+19,Erdinger Weiss                       ,Hoegaarden Blanc                     ,FALSE
+20,Erdinger Weiss                       ,Khamovniki Weissbier                 ,FALSE
+21,Erdinger Weiss                       ,Uzberg Weissbier                     ,FALSE
+22,Franziskaner Hefe-Weissbier NaturtrÃ¼b,Hoegaarden Blanc                     ,TRUE
+23,Franziskaner Hefe-Weissbier NaturtrÃ¼b,Khamovniki Weissbier                 ,FALSE
+24,Franziskaner Hefe-Weissbier NaturtrÃ¼b,Uzberg Weissbier                     ,FALSE
+25,Hoegaarden Blanc                     ,Khamovniki Weissbier                 ,FALSE
+26,Hoegaarden Blanc                     ,Uzberg Weissbier                     ,FALSE
+27,Khamovniki Weissbier                 ,Uzberg Weissbier                     ,FALSE
