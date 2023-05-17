@@ -94,7 +94,7 @@ def createAllAdjacencyListsFromLabelledImage(dataBaseFolder, allFolderContentsFi
 def checkTriWayJunctionPositioning(dataBaseFolder, allFolderContentsFilename, redoTriWayJunctionPositioning=True):
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
     for folderContent in multiFolderContent:
-        if not folderContent.IsKeyInFilenameDict("correctedTriWayJunctionFilenames") or redoTriWayJunctionPositioning:
+        if not folderContent.IsKeyInFilenameDict("finalJunctionFilename") or redoTriWayJunctionPositioning:
             checkFolderContentsJunctionPositioning(folderContent, dataBaseFolder, globalVerbosity=globalVerbosity)
             multiFolderContent.UpdateFolderContents()
             if globalVerbosity >= 2:
@@ -344,7 +344,7 @@ def calculateAndAddRelativeCompletenessOf(dataBaseFolder="Images/", tableResults
                                          relativeCompletenessFilenameKey=relativeCompletenessFilenameKey)
         multiFolderContent.UpdateFolderContents()
 
-def mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True, redoTriWayJunctionPositioning=True):
+def mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True, redoTriWayJunctionPositioning=False):
     from InputData import GetInputData, GetResolutions
     dataBaseFolder = "Images/Eng2021Cotyledons/"
     resultsFolder = "Results/Eng2021Cotyledons/"
