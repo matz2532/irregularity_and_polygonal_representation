@@ -211,13 +211,3 @@ class FolderContent (object):
         text += "the extractedFilesDict contains the keys {}\n".format(list(self.GetExtractedFilesDict().keys()))
         text += "the filenameDict contains the names {}\n".format(self.GetFilenameDict())
         return text
-
-def main():
-    selectedFolder = 0
-    allFolderContentsFilename = "Results/Test/allFolderContents.pkl"
-    allFolderContents = pickle.load(open(allFolderContentsFilename, "rb"))
-    folderContent = allFolderContents[selectedFolder]
-    myFolderContent = FolderContent(folderContent)
-
-if __name__ == '__main__':
-    main()

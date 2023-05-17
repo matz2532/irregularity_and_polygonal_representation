@@ -376,24 +376,6 @@ class MultiFolderContent:
     def SetAllFolderContentsFilename(self, allFolderContentsFilename):
         self.allFolderContentsFilename = allFolderContentsFilename
 
-def createDummyMultiFolderContentFromExisiting():
-    from copy import deepcopy
-    dataBaseFolder = "Data/Eng 2021 time lines/"
-    allFolderContentsFilename = "Results/Test/allFolderContents_WT_S2.pkl"
-    allFolderContents = MultiFolderContent(allFolderContentsFilename)
-    from FolderContent import FolderContent
-    folderContents = FolderContent(allFolderContents.rawFolderContents[0])
-    folderContents.folderContent["genotype"] = "col-0"
-    folderContents.folderContent["replicateId"] = "20170501 WT S2"
-    folderContents.folderContent["timePoint"] = "0h"
-    for newTimePoint in ["24h", "48h", "72h", "96h"]:
-        newContent = deepcopy(folderContents)
-        newContent.folderContent["timePoint"] = newTimePoint
-        allFolderContents.AppendFolderContent(newContent)
-    for c in allFolderContents:
-        print(c.GetTissueName())
-    allFolderContents.UpdateFolderContents()
-
 def convertFilenameDictPathsToStrings(allFolderContentsFilename):
     myMultiFolderContent = MultiFolderContent(allFolderContentsFilename)
     for folderContent in myMultiFolderContent:
@@ -403,59 +385,12 @@ def convertFilenameDictPathsToStrings(allFolderContentsFilename):
         folderContent.SetFilenameDict(filenameDict)
     myMultiFolderContent.UpdateFolderContents()
 
-def correctNrOfBeziers(allFolderContentsFilename, nrOfBeziersBaseName="nrOfBeziers_segment_",
-                      beziersOfSegmentBaseName="beziers_segment_",
-                      allAbbreviatedEndPointModes=["HLN", "LTL", "TRI"]):
-    myMultiFolderContent = MultiFolderContent(allFolderContentsFilename)
-    for folderContent in myMultiFolderContent:
-        extractedFilesDict = folderContent.GetExtractedFilesDict()
-        for abbreviatedEndPointModus in allAbbreviatedEndPointModes:
-            bezierNrKey = nrOfBeziersBaseName + abbreviatedEndPointModus
-            beziersOfSegmentKey = beziersOfSegmentBaseName + abbreviatedEndPointModus
-            bezierSegmentAggregates = extractedFilesDict[bezierNrKey]
-            extractedFilesDict[beziersOfSegmentKey] = bezierSegmentAggregates
-            if type(bezierSegmentAggregates) == dict:
-                correctedNrOfBeziers = {}
-                for cellLabels, ListOfBeziers in bezierSegmentAggregates.items():
-                    correctedNrOfBeziers[cellLabels] = [len(beziers) for beziers in ListOfBeziers]
-            else:
-                correctedNrOfBeziers = [len(beziers) for beziers in bezierSegmentAggregates]
-            extractedFilesDict[bezierNrKey] = correctedNrOfBeziers
-    myMultiFolderContent.UpdateFolderContents()
-
-def testTidyFrame():
-    allFolderContentsFilename = "Data/Eng 2021 time lines/allFolderContents_win.pkl"
-    myMultiFolderContent = MultiFolderContent(allFolderContentsFilename)
-    dataSets = {"cellularProperties": ["cellComplexity_LobeCount", "cellComplexity_rel graph density",
-                                        "cellComplexity_mean segment_HLN", "cellComplexity_mean segment_LTL",
-                                        "cellComplexity_cov segment_HLN", "cellComplexity_cov segment_LTL"], #"cellComplexity_cov segment_TRI", "cellComplexity_mean segment_TRI",
-                "cellularProperties_TRI": ["cellComplexity_cov segment_TRI", "cellComplexity_mean segment_TRI"], #,
-                "segment_HLN": ["complexity_segment_HLN", "fittingErrorOf_segment_HLN", "nrOfBeziers_segment_HLN"],
-                "segment_LTL": ["complexity_segment_LTL", "fittingErrorOf_segment_LTL", "nrOfBeziers_segment_LTL"],
-                "segment_TRI": ["complexity_segment_TRI", "fittingErrorOf_segment_TRI", "nrOfBeziers_segment_TRI"]}
-    for dataSetName, valueKeysToInclude in dataSets.items():
-        tidyDf = myMultiFolderContent.GetTidyDataFrameOf(valueKeysToInclude)
-        print(dataSetName, tidyDf.shape)
-
 def main():
-    allFolderContentsFilename = "Data/Eng 2021 time lines/allFolderContents_mac.pkl"
+    allFolderContentsFilename = "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"
     myMultiFolderContent = MultiFolderContent(allFolderContentsFilename)
     print(myMultiFolderContent)
-    # selectedReplicateId = "20170501 WT S2"
-    # for content in myMultiFolderContent.GetFolderContentsOfReplicate(selectedReplicateId):
-    #     print(content.GetTissueName())
-
-def mainAddFilenameToDictOf():
-    allFolderContentsFilename = "Images/allFolderContents.pkl"
-    selectedReplicateId = "20180618 ktn1-2 S6"
-    timePoint = "24h"
-    filenameKeyToAdd = "additionalJunctionsDict"
-    filenameValueToAdd = "Images/ktn1-2/20180618 ktn1-2 S6/24h/manuallyAddedJunctionPositionDict.json"
-    myMultiFolderContent = MultiFolderContent(allFolderContentsFilename)
-    folderContent = myMultiFolderContent.GetFolderContentOfReplicateAtTimePoint(selectedReplicateId, timePoint)
-    folderContent.AddDataToFilenameDict(filenameValueToAdd, filenameKeyToAdd)
-    myMultiFolderContent.UpdateFolderContents()
-    print(myMultiFolderContent)
+    selectedReplicateId = "20170501 WT S2"
+    print(myMultiFolderContent.GetFolderContentsOfReplicate(selectedReplicateId))
 
 def mainCreateAndAddAdjacencyList():
     import json
@@ -466,8 +401,8 @@ def mainCreateAndAddAdjacencyList():
     adjacencyListNameExtension = "{}{}_adjacencyList.json"
     adjacencyListFilenameKey = "labelledImageAdjacencyList"
     graphBaseName = "cellularConnectivityNetwork{}{}.csv"
-    allFolderContentsFilename = "Images/Matz2022SAM_multiFolderContent.pkl"
-    baseFolder = "Images/SAM/WT inflorescence meristem/"
+    allFolderContentsFilename = "Images/Matz2022SAM.pkl"
+    baseFolder = "Images/Matz2022SAM/"
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
     for folderContent in multiFolderContent:
         scenarioName, replicateName, timePoint = folderContent.GetTissueInfos()
@@ -485,7 +420,7 @@ def mainCreateAndAddAdjacencyList():
     multiFolderContent.UpdateFolderContents()
     print(multiFolderContent)
 
-def mainRemoveDuplicateMultiFolderContents(folderContensFilename="Images/full cotyledons/full cotyledons_multiFolderContent.pkl", previousVersionSuffix="_beforeRemovingDuplicates.pkl"):
+def mainRemoveDuplicateMultiFolderContents(folderContensFilename="Images/full cotyledons/full cotyledons.pkl", previousVersionSuffix="_beforeRemovingDuplicates.pkl"):
     multiFolderContent = MultiFolderContent(folderContensFilename)
     previousVersionFilename = Path(folderContensFilename).with_name(Path(folderContensFilename).stem + previousVersionSuffix)
     multiFolderContent.SaveFolderContents(previousVersionFilename)
@@ -501,11 +436,5 @@ def mainRemoveDuplicateMultiFolderContents(folderContensFilename="Images/full co
     multiFolderContent.UpdateFolderContents()
 
 if __name__ == '__main__':
-    # convertFilenameDictPathsToStrings("Data/Eng 2021 time lines/allFolderContents_mac.pkl"
-    # correctNrOfBeziers("Data/Eng 2021 time lines/allFolderContents_win.pkl")
-    # main()
-    # testTidyFrame()
-    # createDummyMultiFolderContentFromExisiting()
-    # mainAddFilenameToDictOf()
-    # mainCreateAndAddAdjacencyList()
+    main()
     mainRemoveDuplicateMultiFolderContents()

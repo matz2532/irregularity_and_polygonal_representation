@@ -64,7 +64,7 @@ class FolderContentPatchPlotter (PatchCreator):
         for i, entryIdentifier in enumerate(allEntryIdentifiersPlusFolderContents):#
             if figAxesParameterDict:
                 figAxesParameterDict["currentAxes"] = i + 1
-            if entryIdentifier[-1] == "Images/allFolderContents.pkl" and measureDataFilenameKey == "polygonalGeometricData":
+            if entryIdentifier[-1] == "Images/Eng2021Cotyledons.pkl" and measureDataFilenameKey == "polygonalGeometricData":
                 resultsTable = pd.read_csv("Results/combinedMeasures.csv")
             else:
                 resultsTable = None
@@ -326,12 +326,12 @@ def mainVisualiseFirstAndLastCotyledons():
     setAxesParameterInSinglePlots = True
 
     allEntryIdentifiersPlusFolderContents = [
-        ["col-0", "20170327 WT S1", "0h", "Images/allFolderContents.pkl"],
-        ["Oryzalin", "20170731 oryzalin S2", "0h", "Images/allFolderContents.pkl"],
-        ["ktn1-2", "20180618 ktn1-2 S2", "0h", "Images/allFolderContents.pkl"],
-        ["col-0", "20170327 WT S1", "96h", "Images/allFolderContents.pkl"],
-        ["Oryzalin", "20170731 oryzalin S2", "96h", "Images/allFolderContents.pkl"],
-        ["ktn1-2", "20180618 ktn1-2 S2", "96h", "Images/allFolderContents.pkl"],
+        ["col-0", "20170327 WT S1", "0h", "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"],
+        ["Oryzalin", "20170731 oryzalin S2", "0h", "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"],
+        ["ktn1-2", "20180618 ktn1-2 S2", "0h", "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"],
+        ["col-0", "20170327 WT S1", "96h", "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"],
+        ["Oryzalin", "20170731 oryzalin S2", "96h", "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"],
+        ["ktn1-2", "20180618 ktn1-2 S2", "96h", "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"],
     ]
     nrOfRows = 2
     nrOfCols = np.ceil(len(allEntryIdentifiersPlusFolderContents) / nrOfRows)
@@ -383,8 +383,8 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
         surfaceContourPerCellFilenameKey = "cellContours"
         overlaidContourEdgePerCellFilenameKey = "orderedJunctionsPerCellFilename"
     allEntryIdentifiersPlusFolderContents = [
-        ["WT inflorescence meristem", "P2", "T0", "Images/Matz2022SAM_multiFolderContent.pkl"],
-        ["WT", "20200220 WT S1", "120h", "Images/full cotyledons/full cotyledons_multiFolderContent.pkl"],
+        ["WT inflorescence meristem", "P2", "T0", "Images/Matz2022SAM/Matz2022SAM.pkl"],
+        ["WT", "20200220 WT S1", "120h", "Images/full cotyledons/full cotyledons.pkl"],
     ]
     selectedCellIds = {("WT inflorescence meristem", "P2"): [398, 381, 379, 417, 431],
                        ("WT", "20200220 WT S1"): [841860, 841670, 841855, 841669, 841666]}
@@ -436,7 +436,7 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
         else:
             scaleBarOffset = None
         if scenarioReplicateId == ("WT inflorescence meristem", "P2"):
-            backgroundFilename = "Images/SAM/WT inflorescence meristem/P2/T0/20190416 myr-yfp T0 P2 mesh3_full outlines other.ply"
+            backgroundFilename = "Images/Eng2021Cotyledons/WT inflorescence meristem/P2/T0/20190416 myr-yfp T0 P2 mesh3_full outlines other.ply"
             loadBackgroundFromKey = None
             is3DBackground = True
             backgroundImageOffset = np.array([0, 0, -0.25])
@@ -551,11 +551,11 @@ def mainFig3AOrB(save=True, showAllTogether=True, figA=False, resultsFolder="Res
     for scenarioName, replicateName in replicateNamesOfGenotypes.items():
         if type(replicateName) == str:
             for t in allTimePoints:
-                allEntryIdentifiersPlusFolderContents.append([scenarioName, replicateName, t, "Images/allFolderContents.pkl"])
+                allEntryIdentifiersPlusFolderContents.append([scenarioName, replicateName, t, "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"])
         else:
             for r in replicateName:
                 for t in allTimePoints:
-                    allEntryIdentifiersPlusFolderContents.append([scenarioName, r, t, "Images/allFolderContents.pkl"])
+                    allEntryIdentifiersPlusFolderContents.append([scenarioName, r, t, "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"])
     saveAsFilename = saveAsFilename.format(resultsFolder)
     allAxesParameter = {}
     if showAllTogether:
@@ -620,11 +620,11 @@ def determineValueRangeForMultipleSubMeasures(measureDataFilenameKey, selectedSu
     for scenarioName, replicateName in replicateNamesOfGenotypes.items():
         if type(replicateName) == str:
             for t in allTimePoints:
-                allEntryIdentifiersPlusFolderContents.append([scenarioName, replicateName, t, "Images/allFolderContents.pkl"])
+                allEntryIdentifiersPlusFolderContents.append([scenarioName, replicateName, t, "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"])
         else:
             for r in replicateName:
                 for t in allTimePoints:
-                    allEntryIdentifiersPlusFolderContents.append([scenarioName, r, t, "Images/allFolderContents.pkl"])
+                    allEntryIdentifiersPlusFolderContents.append([scenarioName, r, t, "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"])
     colorMapValueRange = []
     for subMeasureKey in selectedSubMeasures:
         parameter = dict(surfaceContourPerCellFilenameKey="orderedJunctionsPerCellFilename", measureDataFilenameKey=measureDataFilenameKey, selectedSubMeasure=subMeasureKey)

@@ -116,34 +116,36 @@ def checkIdAndLabelledImageProcess(folderContent, trackedCellId=None):
     plt.imshow(labelledImage)
     plt.show()
     return trackedCellId
-#
-# def mainInspectCellOverTime():
-#     folderContentsName = "Images/allFolderContents.pkl"
-#     tissueName = "20170327 WT S1"
-#     folderContents = MultiFolderContent(folderContentsName)
-#     tissueFolderContents = folderContents.GetFolderContentsOfReplicate(tissueName)
-#     tissueFolderContents = MultiFolderContent(rawFolderContents=copy.deepcopy(tissueFolderContents))
-#     exisitingTimePoints = tissueFolderContents.GetTimePoints()
-#     exisitingTimePoints = pd.unique(exisitingTimePoints)
-#     trackedCellId = None
-#     for timePoint in exisitingTimePoints:
-#         timePointsFolderContent = tissueFolderContents.GetFolderContentsOfTimePoint(timePoint)[0]
-#         trackedCellId = checkIdAndLabelledImageProcess(timePointsFolderContent, trackedCellId=trackedCellId)
-#
-# def main():
-#     contourFilename = "Images\\col-0\\20170327 WT S1\\0h\\Cell_Contours_33_Cells -- LTi6b-GFP mChTUA5 WT 0h S1_.txt"
-#     with open(contourFilename, "r") as fh:
-#         contourLines = fh.readlines()
-#     folderContentsName = "Images/allFolderContents.pkl"
-#     folderContents = MultiFolderContent(folderContentsName)
-#     selectedFolderContent = folderContents.GetFolderContentOfReplicateAtTimePoint("20170327 WT S1", "0h")
-#     myCellIdTracker = CellIdTracker(contourFile=contourFilename)
-#     print(myCellIdTracker.GetIdsToLabelsDict())
-#     myCellIdTracker = CellIdTracker(contourFile=contourLines)
-#     print(myCellIdTracker.GetIdsToLabelsDict())
-#     myCellIdTracker = CellIdTracker(folderContent=selectedFolderContent)
-#     print(myCellIdTracker.GetIdsToLabelsDict())
-#
-# if __name__ == '__main__':
-#     # main()
-#     mainInspectCellOverTime()
+
+def mainInspectCellOverTime():
+    from MultiFolderContent import MultiFolderContent
+    folderContentsName = "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"
+    tissueName = "20170327 WT S1"
+    folderContents = MultiFolderContent(folderContentsName)
+    tissueFolderContents = folderContents.GetFolderContentsOfReplicate(tissueName)
+    tissueFolderContents = MultiFolderContent(rawFolderContents=copy.deepcopy(tissueFolderContents))
+    exisitingTimePoints = tissueFolderContents.GetTimePoints()
+    exisitingTimePoints = pd.unique(exisitingTimePoints)
+    trackedCellId = None
+    for timePoint in exisitingTimePoints:
+        timePointsFolderContent = tissueFolderContents.GetFolderContentsOfTimePoint(timePoint)[0]
+        trackedCellId = checkIdAndLabelledImageProcess(timePointsFolderContent, trackedCellId=trackedCellId)
+
+def main():
+    from MultiFolderContent import MultiFolderContent
+    contourFilename = "Images\\col-0\\20170327 WT S1\\0h\\Cell_Contours_33_Cells -- LTi6b-GFP mChTUA5 WT 0h S1_.txt"
+    with open(contourFilename, "r") as fh:
+        contourLines = fh.readlines()
+    folderContentsName = "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"
+    folderContents = MultiFolderContent(folderContentsName)
+    selectedFolderContent = folderContents.GetFolderContentOfReplicateAtTimePoint("20170327 WT S1", "0h")
+    myCellIdTracker = CellIdTracker(contourFile=contourFilename)
+    print(myCellIdTracker.GetIdsToLabelsDict())
+    myCellIdTracker = CellIdTracker(contourFile=contourLines)
+    print(myCellIdTracker.GetIdsToLabelsDict())
+    myCellIdTracker = CellIdTracker(folderContent=selectedFolderContent)
+    print(myCellIdTracker.GetIdsToLabelsDict())
+
+if __name__ == '__main__':
+    # main()
+    mainInspectCellOverTime()

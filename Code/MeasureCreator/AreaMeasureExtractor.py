@@ -339,7 +339,7 @@ def testIndividualTissue():
     print(len(list(cellContours.values())))
     print([len(v) for v in areaMeasuresPerCell.values()])
 
-def combineNeighborDistanceTables(multiFolderContentsOfTissues = {"SAM":"Images/Matz2022SAM_multiFolderContent.pkl", "cotyledon patches": "Images/allFolderContents.pkl", "full cotyledons":"Images/full cotyledons/full cotyledons_multiFolderContent.pkl", "first leaf":"Images/first leaf_multiFolderContent.pkl"},
+def combineNeighborDistanceTables(multiFolderContentsOfTissues = {"SAM":"Images/Matz2022SAM.pkl", "cotyledon patches": "Images/Eng2021Cotyledons.pkl", "full cotyledons":"Images/full cotyledons/full cotyledons.pkl"},
                                   folderExtensionExemption={"cotyledon patches":""}, baseResultsFolder="Results/", tableBaseNameOf="combinedMeasures_{}.csv",
                                   neighborDistanceFilenameKey="neighborDistance", tissueInfoColumnName=["genotype", "replicate id", "time point"]):
     from MultiFolderContent import MultiFolderContent

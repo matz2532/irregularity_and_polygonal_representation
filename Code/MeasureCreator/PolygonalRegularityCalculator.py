@@ -139,7 +139,7 @@ def mainVisualiseLengthAndAngleDistribution():
     plt.rcParams["font.family"] = "Arial"
     plt.rcParams['axes.spines.right'] = False
     plt.rcParams['axes.spines.top'] = False
-    allFolderContensFilename = ["Images/allFolderContents.pkl", "Images/full cotyledons/full cotyledons_multiFolderContent.pkl", "Images/first leaf_multiFolderContent.pkl", "Images/Matz2022SAM_multiFolderContent.pkl"]
+    allFolderContensFilename = ["Images/Eng2021Cotyledons.pkl", "Images/full cotyledons/full cotyledons.pkl", "Images/Matz2022SAM.pkl"]
     allSideLengths, allInternalAngles = [], []
     for folderContensFilename in allFolderContensFilename:
         sideLengths, internalAngles = extractSideLengthsAndInternalAngleOf(folderContensFilename)
