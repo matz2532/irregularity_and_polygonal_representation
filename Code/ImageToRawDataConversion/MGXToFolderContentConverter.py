@@ -379,9 +379,10 @@ def createGeometricdataTableWithRemovedStomata():
     guardCellsToRemoveBaseName = "_proposed guard cells.txt"
     baseFolder = "Images/full cotyledons/"
     skipfooter = 4
-    tissueIdentifer = [["ktn1-2", '20200220 ktn1-2 S1', '120h'],
-                       ["ktn1-2", '20200220 ktn1-2 S2', '120h'],
-                       ["ktn1-2", '20200220 ktn1-2 S3', '120h'],]
+    tissueIdentifer = [["WT", '20200220 WT S1', '120h'],
+                       ["WT", '20200220 WT S2', '120h'],
+                       ["WT", '20200220 WT S3', '120h'],
+                       ["WT", '20200220 WT S4', '120h'],]
 
     for g, r, t in tissueIdentifer:
         tissueBaseName = str(Path(baseFolder).joinpath(g, r, r))
