@@ -57,7 +57,7 @@ class CellIdTracker (object):
                     raise TypeError(f"The {contourFile=} should have been of type str or list, but is {type(contourFile)=}")
             else:
                 if type(folderContent) == FolderContent:
-                    linesOfContourFile = folderContent.LoadKeyUsingFilenameDict("cellContours")
+                    linesOfContourFile = folderContent.LoadKeyUsingFilenameDict("contourFilename")
                 else:
                     raise TypeError(f"The {folderContent=} should have been of type FolderContent, but is {type(folderContent)=}")
         else:
@@ -98,9 +98,7 @@ class CellIdTracker (object):
 def checkIdAndLabelledImageProcess(folderContent, trackedCellId=None):
     print(folderContent)
     labelledImage = folderContent.LoadKeyUsingFilenameDict("labelledImageFilename")
-    contourFilename = folderContent.GetFilenameDict()["cellContours"]
-    contourFilename = contourFilename.replace("cellContours.gpickle", "cellContour.pickle")
-    cellContours = folderContent.loadFile(contourFilename)
+    cellContours = folderContent.LoadKeyUsingFilenameDict("cellContours", convertDictKeysToInt=True, convertDictValuesToNpArray=True)
     myCellIdTracker = CellIdTracker(folderContent=folderContent)
     cellIds, cellLabels = myCellIdTracker.GetIdsAndLabels()
     if not trackedCellId is None:

@@ -66,7 +66,7 @@ class FolderContent (object):
                 print(f"The {numberOfCellsWithNumerator=} != {numberOfCellsWithDenominator=} != {numberOfCellsWithRatios=}, with the present labels being\nnumeratorCellLabels={list(numeratorValuesOfCells.keys())}\ndenominatorCellLabels={list(denominatorValuesOfCells.keys())}\nratiosCellLabels={list(numberOfCellsWithRatios.keys())}")
         return ratioValuesDict
 
-    def loadFile(self, filename, convertDictKeysToInt=False, convertNestedDictKeysToInt=False, **kwargs):
+    def loadFile(self, filename, convertDictKeysToInt=False, convertNestedDictKeysToInt=False, convertDictValuesToNpArray=False, **kwargs):
         suffix = Path(filename).suffix
         if suffix == ".csv":
             file = pd.read_csv(filename, engine="python", **kwargs)
@@ -98,6 +98,9 @@ class FolderContent (object):
                     tmpInnerDict[int(kInner)] = v
                 tmpDict[kOuter] = tmpInnerDict
             file = tmpDict
+        if convertDictValuesToNpArray:
+            for k, v in file.items():
+                file[k] = np.array(v)
         return file
 
     def GetExtractedFilesDict(self):
@@ -184,10 +187,14 @@ class FolderContent (object):
         with open(saveToFilename, "wb") as fh:
             pickle.dump(dataToSave, fh)
 
-    def SaveDataFilesTo(self, dataToSave, saveToFilename):
+    def SaveDataFilesTo(self, dataToSave, saveToFilename, convertDictValuesToList=False):
         implementedSuffixes = (".pkl", ".json")
         suffix = Path(saveToFilename).suffix
         assert suffix in implementedSuffixes, f"The {suffix=} is not present in the implemented suffixes {implementedSuffixes} for the filename {saveToFilename}"
+        if convertDictValuesToList:
+            for key, value in dataToSave.items():
+                if type(value) == np.ndarray:
+                    dataToSave[key] = value.tolist()
         if suffix == ".pkl":
             with open(saveToFilename, "wb") as fh:
                 pickle.dump(dataToSave, fh)

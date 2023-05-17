@@ -243,7 +243,7 @@ class BasePlotter (object):
         genotypes = self.multiFolderContent.GetGenotypes()
         _, idxOfUniques = np.unique(genotypes, return_index=True)
         uniqueGenotypes = np.asarray(genotypes)[np.sort(idxOfUniques)]
-        genotypeColorDict = {"col-0" : "black", "Oryzalin" : "yellow", "ktn1-2" : "blue", "clasp-1" : "red"}
+        genotypeColorDict = {"col-0": "black", "Oryzalin": "yellow", "ktn1-2": "blue", "clasp-1": "red"}
         for measureName in allMeasureNames:
             self.CreateViolinPlot(measureName)
 
@@ -260,7 +260,7 @@ def main():
     dataBaseFolder = "Images/"
     resultsFolder = None # "Results/"
     allMeasureNames = ["lengthGiniCoeff"]
-    folderContentsName = "allFolderContents.pkl"
+    folderContentsName = "Eng2021Cotyledons.pkl"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     myBasePlotter = BasePlotter(allFolderContentsFilename)
     # myBasePlotter.CreateViolinPlot(allMeasureNames[3])

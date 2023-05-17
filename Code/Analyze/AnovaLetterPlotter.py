@@ -163,9 +163,9 @@ class AnovaLetterPlotter (object):
             group1.append(i)
             group2.append(j)
         pairwiseTukeyTestDf = pd.DataFrame({"group1": group1, "group2": group2, "reject": reject,
-                                            "adjusted p-value" : adjustedPValues, "mean difference" : meandiffs,
-                                            "lower conf. interval" : confidenceInterval[:, 0],
-                                            "upper conf. interval" : confidenceInterval[:, 1]})
+                                            "adjusted p-value": adjustedPValues, "mean difference": meandiffs,
+                                            "lower conf. interval": confidenceInterval[:, 0],
+                                            "upper conf. interval": confidenceInterval[:, 1]})
         groupNameMapping = {groupName:i for i, groupName in enumerate(groupNames)}
         pairwiseTukeyTestDf = (pairwiseTukeyTestDf.assign(key1=pairwiseTukeyTestDf.group1.map(groupNameMapping),
               key2=pairwiseTukeyTestDf.group2.map(groupNameMapping))
@@ -508,7 +508,7 @@ class AnovaLetterPlotter (object):
         if useInsideGroupsMaxYPosition:
             yPosDict = self.determineInsideGroupsEntryYPosition(entriyIdentifier, table, yName)
         else:
-            yPosDict = {identifierName : maxValue for identifierName in groupNames}
+            yPosDict = {identifierName: maxValue for identifierName in groupNames}
         for i, (identifierName, letters) in enumerate(groupNamesLetters.items()):
             if increaseYOffsetFor in letters:
                 yOffsetFactor += increaseYOffsetBy

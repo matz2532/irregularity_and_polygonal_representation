@@ -21,7 +21,7 @@ class ResultsTableLoader (object):
     tissueColName="tissue name"
     cellLabelColName="cell label"
     # default initialized parameters
-    columnsToMergeDtypeDict={scenarioColName : str, replicateIdColName : str, "timePointNameColName" : str}
+    columnsToMergeDtypeDict={scenarioColName: str, replicateIdColName: str, "timePointNameColName": str}
     filenamesOrTables=None
     combinedColumnName=None
     combinedColumnTypeName=None

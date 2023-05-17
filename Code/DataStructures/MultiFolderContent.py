@@ -426,13 +426,13 @@ def correctNrOfBeziers(allFolderContentsFilename, nrOfBeziersBaseName="nrOfBezie
 def testTidyFrame():
     allFolderContentsFilename = "Data/Eng 2021 time lines/allFolderContents_win.pkl"
     myMultiFolderContent = MultiFolderContent(allFolderContentsFilename)
-    dataSets = {"cellularProperties" : ["cellComplexity_LobeCount", "cellComplexity_rel graph density",
+    dataSets = {"cellularProperties": ["cellComplexity_LobeCount", "cellComplexity_rel graph density",
                                         "cellComplexity_mean segment_HLN", "cellComplexity_mean segment_LTL",
                                         "cellComplexity_cov segment_HLN", "cellComplexity_cov segment_LTL"], #"cellComplexity_cov segment_TRI", "cellComplexity_mean segment_TRI",
-                "cellularProperties_TRI" : ["cellComplexity_cov segment_TRI", "cellComplexity_mean segment_TRI"], #,
-                "segment_HLN" : ["complexity_segment_HLN", "fittingErrorOf_segment_HLN", "nrOfBeziers_segment_HLN"],
-                "segment_LTL" : ["complexity_segment_LTL", "fittingErrorOf_segment_LTL", "nrOfBeziers_segment_LTL"],
-                "segment_TRI" : ["complexity_segment_TRI", "fittingErrorOf_segment_TRI", "nrOfBeziers_segment_TRI"]}
+                "cellularProperties_TRI": ["cellComplexity_cov segment_TRI", "cellComplexity_mean segment_TRI"], #,
+                "segment_HLN": ["complexity_segment_HLN", "fittingErrorOf_segment_HLN", "nrOfBeziers_segment_HLN"],
+                "segment_LTL": ["complexity_segment_LTL", "fittingErrorOf_segment_LTL", "nrOfBeziers_segment_LTL"],
+                "segment_TRI": ["complexity_segment_TRI", "fittingErrorOf_segment_TRI", "nrOfBeziers_segment_TRI"]}
     for dataSetName, valueKeysToInclude in dataSets.items():
         tidyDf = myMultiFolderContent.GetTidyDataFrameOf(valueKeysToInclude)
         print(dataSetName, tidyDf.shape)
@@ -466,7 +466,7 @@ def mainCreateAndAddAdjacencyList():
     adjacencyListNameExtension = "{}{}_adjacencyList.json"
     adjacencyListFilenameKey = "labelledImageAdjacencyList"
     graphBaseName = "cellularConnectivityNetwork{}{}.csv"
-    allFolderContentsFilename = "Images/SAM_multiFolderContent.pkl"
+    allFolderContentsFilename = "Images/Matz2022SAM_multiFolderContent.pkl"
     baseFolder = "Images/SAM/WT inflorescence meristem/"
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
     for folderContent in multiFolderContent:

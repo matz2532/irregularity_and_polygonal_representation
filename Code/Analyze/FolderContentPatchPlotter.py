@@ -119,7 +119,7 @@ class FolderContentPatchPlotter (PatchCreator):
         allFolderContentsFilename = entryIdentifier[-1]
         multiFolderContent = MultiFolderContent(allFolderContentsFilename)
         folderContent = multiFolderContent.GetFolderContentOfIdentifier(entryIdentifier[:3])
-        contours = folderContent.LoadKeyUsingFilenameDict(surfaceContourPerCellFilenameKey)
+        contours = folderContent.LoadKeyUsingFilenameDict(surfaceContourPerCellFilenameKey, convertDictKeysToInt=True, convertDictValuesToNpArray=True)
         if overlaidContourEdgePerCellFilenameKey is None:
             polygonalOutlineDict = None
         else:
@@ -280,36 +280,36 @@ class FolderContentPatchPlotter (PatchCreator):
             measureData = dict(zip(labels, values))
         return measureData, measureDataArray, faceColorDict
 
-allAxesParameter = {"WT inflorescence meristem_P2_T0" : {'xlim': [32.66, 58.86], 'ylim': [31.96, 55.71], 'zlim': [8.03, 13.82], 'azim': 100.04, 'elev': 87.77},
-                    "WT inflorescence meristem_P2_T4" : {'xlim': [22.69, 42.45], 'ylim': [27.63, 46.72], 'zlim': [11.84, 18.83], 'azim': 87.56, 'elev': 82.6},
-                    "col-0_20170327 WT S1_0h" : {'xlim': [125.79, 379.21], 'ylim': [143.36, 380.64], 'zlim': [1.2, 3.8], 'azim': -90, 'elev': 90},
-                    "col-0_20170327 WT S1_96h" : {'xlim': [269.27, 772.73], 'ylim': [300.89, 833.11], 'zlim': [1.22, 3.78], 'azim': -90, 'elev': 90},
+allAxesParameter = {"WT inflorescence meristem_P2_T0": {'xlim': [32.66, 58.86], 'ylim': [31.96, 55.71], 'zlim': [8.03, 13.82], 'azim': 100.04, 'elev': 87.77},
+                    "WT inflorescence meristem_P2_T4": {'xlim': [22.69, 42.45], 'ylim': [27.63, 46.72], 'zlim': [11.84, 18.83], 'azim': 87.56, 'elev': 82.6},
+                    "col-0_20170327 WT S1_0h": {'xlim': [125.79, 379.21], 'ylim': [143.36, 380.64], 'zlim': [1.2, 3.8], 'azim': -90, 'elev': 90},
+                    "col-0_20170327 WT S1_96h": {'xlim': [269.27, 772.73], 'ylim': [300.89, 833.11], 'zlim': [1.22, 3.78], 'azim': -90, 'elev': 90},
                     "WT_20200220 WT S1_120h": {'xlim': [216.08, 307.92], 'ylim': [300.86, 424.89], 'zlim': [2.05, 2.95], 'azim': -90, 'elev': 90},
-                    "Oryzalin_20170731 oryzalin S2_0h" : {'xlim': [131.13, 375.87], 'ylim': [87.56, 275.44], 'zlim': [1.18, 3.82], 'azim': -90, 'elev': 90},
+                    "Oryzalin_20170731 oryzalin S2_0h": {'xlim': [131.13, 375.87], 'ylim': [87.56, 275.44], 'zlim': [1.18, 3.82], 'azim': -90, 'elev': 90},
                     "Oryzalin_20170731 oryzalin S2_96h": {'xlim': [223.76, 696.24], 'ylim': [199.91, 586.09], 'zlim': [1.15, 3.85], 'azim': -90, 'elev': 90},
                     "ktn1-2_20180618 ktn1-2 S1_96h": {'xlim': [483.35, 1383.65], 'ylim': [533.94, 1385.06], 'zlim': [1.19, 3.81], 'azim': -90, 'elev': 90},
-                    "ktn1-2_20180618 ktn1-2 S2_0h" : {'xlim': [213.17, 620.83], 'ylim': [136.24, 411.76], 'zlim': [1.22, 3.78], 'azim': -90, 'elev': 90},
+                    "ktn1-2_20180618 ktn1-2 S2_0h": {'xlim': [213.17, 620.83], 'ylim': [136.24, 411.76], 'zlim': [1.22, 3.78], 'azim': -90, 'elev': 90},
                     "ktn1-2_20180618 ktn1-2 S2_96h": {'xlim': [549.68, 1633.32], 'ylim': [423.7, 1187.3], 'zlim': [1.2, 3.8], 'azim': -90, 'elev': 90},
                     "ktn1-2_20180618 ktn1-2 S6_96h": {'xlim': [487.67, 1473.33], 'ylim': [585.33, 1648.67], 'zlim': [1.2, 3.8], 'azim': -90, 'elev': 90},
-                    "ktn1-2_20200220 ktn1-2 S1_120h" : {'xlim': [231.75, 350.25], 'ylim': [256.28, 380.47], 'zlim': [1.99, 3.01], 'azim': -90, 'elev': 90},
-                    "ktn1-2_20200220 ktn1-2 S2_120h" : {'xlim': [106.45, 482.05], 'ylim': [120.27, 511.48], 'zlim': [-0.67, 0.67], 'azim': 120, 'elev': 50},
-                    "ktn1-2_20200220 ktn1-2 S3_120h" : {'xlim': [130.86, 502.09], 'ylim': [123.32, 470.98], 'zlim': [-0.65, 0.62], 'azim': 120, 'elev': 50},
-                    "WT_20200221 WT S2_120h" : {'xlim': [95.22, 306.8], 'ylim': [92.95, 306.13], 'zlim': [1.05, 3.95], 'azim': -90, 'elev': 90},
-                    "WT_20200221 WT S3_120h" : {'xlim': [166.91, 549.05], 'ylim': [128.19, 409.82], 'zlim': [1.05, 3.95], 'azim': -90, 'elev': 90},
-                    "WT_20200221 WT S5_120h" : {'xlim': [152.36, 471.47], 'ylim': [128.55, 403.5], 'zlim': [1.07, 3.93], 'azim': -90, 'elev': 90},
-                    "WT_20200221 WT S2_120h" : {'xlim': [95.31, 307.63], 'ylim': [88.85, 302.77], 'zlim': [1.04, 3.96], 'azim': -90, 'elev': 90},
-                    "WT_20200221 WT S3_120h" : {'xlim': [169.83, 556.0], 'ylim': [120.19, 404.79], 'zlim': [1.03, 3.97], 'azim': -90, 'elev': 90},
-                    "WT_20200221 WT S5_120h" : {'xlim': [155.2, 479.6], 'ylim': [122.51, 402.02], 'zlim': [1.04, 3.96], 'azim': -90, 'elev': 90},
-                    "WT_20200221 WT S2_120h" : {'xlim': [97.3, 310.68], 'ylim': [91.1, 306.1], 'zlim': [1.04, 3.96], 'azim': -90, 'elev': 90},
-                    "WT_20200221 WT S3_120h" : {'xlim': [174.16, 558.99], 'ylim': [118.87, 402.48], 'zlim': [1.04, 3.96], 'azim': -90, 'elev': 90},
-                    "WT_20200221 WT S5_120h" : {'xlim': [147.7, 477.72], 'ylim': [116.65, 401.01], 'zlim': [1.02, 3.98], 'azim': -90, 'elev': 90},
-                    "WT_20200221 WT S2_120h" : {'xlim': [91.03, 308.05], 'ylim': [88.4, 307.05], 'zlim': [1.01, 3.99], 'azim': -90, 'elev': 90},
-                    "WT_20200221 WT S3_120h" : {'xlim': [171.49, 548.12], 'ylim': [126.06, 403.63], 'zlim': [1.07, 3.93], 'azim': -90, 'elev': 90},
-                    "WT_20200221 WT S5_120h" : {'xlim': [150.84, 471.02], 'ylim': [129.73, 405.6], 'zlim': [1.06, 3.94], 'azim': -90, 'elev': 90},
-                    "ktn1-2_20200220 ktn1-2 S2_120h" : {'xlim': [112.22, 480.55], 'ylim': [120.31, 503.95], 'zlim': [-0.65, 0.67], 'azim': 120, 'elev': 50},
-                    "ktn1-2_20200220 ktn1-2 S3_120h" : {'xlim': [130.34, 506.09], 'ylim': [116.14, 468.03], 'zlim': [-0.64, 0.64], 'azim': 120, 'elev': 50},
-                    "ktn1-2_20200220 ktn1-2 S2_120h" : {'xlim': [105.64, 482.86], 'ylim': [119.42, 512.33], 'zlim': [-0.67, 0.67], 'azim': 120, 'elev': 50},
-                    "ktn1-2_20200220 ktn1-2 S3_120h" : {'xlim': [128.65, 503.74], 'ylim': [121.5, 472.77], 'zlim': [-0.65, 0.63], 'azim': 120, 'elev': 50},
+                    "ktn1-2_20200220 ktn1-2 S1_120h": {'xlim': [231.75, 350.25], 'ylim': [256.28, 380.47], 'zlim': [1.99, 3.01], 'azim': -90, 'elev': 90},
+                    "ktn1-2_20200220 ktn1-2 S2_120h": {'xlim': [106.45, 482.05], 'ylim': [120.27, 511.48], 'zlim': [-0.67, 0.67], 'azim': 120, 'elev': 50},
+                    "ktn1-2_20200220 ktn1-2 S3_120h": {'xlim': [130.86, 502.09], 'ylim': [123.32, 470.98], 'zlim': [-0.65, 0.62], 'azim': 120, 'elev': 50},
+                    "WT_20200221 WT S2_120h": {'xlim': [95.22, 306.8], 'ylim': [92.95, 306.13], 'zlim': [1.05, 3.95], 'azim': -90, 'elev': 90},
+                    "WT_20200221 WT S3_120h": {'xlim': [166.91, 549.05], 'ylim': [128.19, 409.82], 'zlim': [1.05, 3.95], 'azim': -90, 'elev': 90},
+                    "WT_20200221 WT S5_120h": {'xlim': [152.36, 471.47], 'ylim': [128.55, 403.5], 'zlim': [1.07, 3.93], 'azim': -90, 'elev': 90},
+                    "WT_20200221 WT S2_120h": {'xlim': [95.31, 307.63], 'ylim': [88.85, 302.77], 'zlim': [1.04, 3.96], 'azim': -90, 'elev': 90},
+                    "WT_20200221 WT S3_120h": {'xlim': [169.83, 556.0], 'ylim': [120.19, 404.79], 'zlim': [1.03, 3.97], 'azim': -90, 'elev': 90},
+                    "WT_20200221 WT S5_120h": {'xlim': [155.2, 479.6], 'ylim': [122.51, 402.02], 'zlim': [1.04, 3.96], 'azim': -90, 'elev': 90},
+                    "WT_20200221 WT S2_120h": {'xlim': [97.3, 310.68], 'ylim': [91.1, 306.1], 'zlim': [1.04, 3.96], 'azim': -90, 'elev': 90},
+                    "WT_20200221 WT S3_120h": {'xlim': [174.16, 558.99], 'ylim': [118.87, 402.48], 'zlim': [1.04, 3.96], 'azim': -90, 'elev': 90},
+                    "WT_20200221 WT S5_120h": {'xlim': [147.7, 477.72], 'ylim': [116.65, 401.01], 'zlim': [1.02, 3.98], 'azim': -90, 'elev': 90},
+                    "WT_20200221 WT S2_120h": {'xlim': [91.03, 308.05], 'ylim': [88.4, 307.05], 'zlim': [1.01, 3.99], 'azim': -90, 'elev': 90},
+                    "WT_20200221 WT S3_120h": {'xlim': [171.49, 548.12], 'ylim': [126.06, 403.63], 'zlim': [1.07, 3.93], 'azim': -90, 'elev': 90},
+                    "WT_20200221 WT S5_120h": {'xlim': [150.84, 471.02], 'ylim': [129.73, 405.6], 'zlim': [1.06, 3.94], 'azim': -90, 'elev': 90},
+                    "ktn1-2_20200220 ktn1-2 S2_120h": {'xlim': [112.22, 480.55], 'ylim': [120.31, 503.95], 'zlim': [-0.65, 0.67], 'azim': 120, 'elev': 50},
+                    "ktn1-2_20200220 ktn1-2 S3_120h": {'xlim': [130.34, 506.09], 'ylim': [116.14, 468.03], 'zlim': [-0.64, 0.64], 'azim': 120, 'elev': 50},
+                    "ktn1-2_20200220 ktn1-2 S2_120h": {'xlim': [105.64, 482.86], 'ylim': [119.42, 512.33], 'zlim': [-0.67, 0.67], 'azim': 120, 'elev': 50},
+                    "ktn1-2_20200220 ktn1-2 S3_120h": {'xlim': [128.65, 503.74], 'ylim': [121.5, 472.77], 'zlim': [-0.65, 0.63], 'azim': 120, 'elev': 50},
                     }
 
 genotypeToScenarioName = {"WT inflorescence meristem": "WT SAM", "col-0": "WT cotyledon", "WT": "WT cotyledon", "Oryzalin": "WT+Oryzalin cotyledon", "ktn1-2": "$\it{ktn1}$-$\it{2}$ cotyledon"}
@@ -359,7 +359,7 @@ def calcOffsetToAlignPlyFileWithContours(plyFilename, entryIdentifier, surfaceCo
     allFolderContentsFilename = entryIdentifier[-1]
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
     folderContent = multiFolderContent.GetFolderContentOfIdentifier(entryIdentifier[:3])
-    outlinesOfCells = folderContent.LoadKeyUsingFilenameDict(surfaceContourPerCellFilenameKey)
+    outlinesOfCells = folderContent.LoadKeyUsingFilenameDict(surfaceContourPerCellFilenameKey, convertDictKeysToInt=True, convertDictValuesToNpArray=True)
     offsets = []
     for cellLabel, currentOutline in outlinesOfCells.items():
         isLabel = points[labelColName] == cellLabel
@@ -383,7 +383,7 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
         surfaceContourPerCellFilenameKey = "cellContours"
         overlaidContourEdgePerCellFilenameKey = "orderedJunctionsPerCellFilename"
     allEntryIdentifiersPlusFolderContents = [
-        ["WT inflorescence meristem", "P2", "T0", "Images/SAM_multiFolderContent.pkl"],
+        ["WT inflorescence meristem", "P2", "T0", "Images/Matz2022SAM_multiFolderContent.pkl"],
         ["WT", "20200220 WT S1", "120h", "Images/full cotyledons/full cotyledons_multiFolderContent.pkl"],
     ]
     selectedCellIds = {("WT inflorescence meristem", "P2"): [398, 381, 379, 417, 431],
@@ -489,7 +489,7 @@ def calcColorMapValueRange(allEntryIdentifiersPlusFolderContents, parameter, sel
         allFolderContentsFilename = entryIdentifier[-1]
         multiFolderContent = MultiFolderContent(allFolderContentsFilename)
         folderContent = multiFolderContent.GetFolderContentOfIdentifier(entryIdentifier[:3])
-        contours = folderContent.LoadKeyUsingFilenameDict(parameter["surfaceContourPerCellFilenameKey"])
+        contours = folderContent.LoadKeyUsingFilenameDict(parameter["surfaceContourPerCellFilenameKey"], convertDictKeysToInt=True, convertDictValuesToNpArray=True)
         cellLabelsOfContours = list(contours.keys())
         measureDataFilenameKey = parameter["measureDataFilenameKey"]
         selectedSubMeasure = parameter["selectedSubMeasure"]
