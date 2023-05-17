@@ -351,10 +351,6 @@ def mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True, redoTriWayJunction
     folderContentsName = "Eng2021Cotyledons.pkl"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     inputData = GetInputData()
-    inputData.pop("Oryzalin")
-    inputData.pop("ktn1-2")
-    inputData["col-0"].pop("20170501 WT S1")
-    inputData["col-0"].pop("20170501 WT S2")
     genotypeResolutionDict = GetResolutions()
     if reCalculateMeasures:
         createFolderContentsOfAllTissues(allFolderContentsFilename, inputData, genotypeResolutionDict, dataBaseFolder)
