@@ -365,26 +365,28 @@ def mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True, redoTriWayJunction
     createResultMeasureTable(allFolderContentsFilename, resultsFolder)
     addRatioMeasuresToTable(resultsFolder)
 
-def mainCalculateOnNewCotyledons(tissueName="full cotyledons", reCalculateMeasures=True,
-                              createRegularityResults=True):
+def mainCalculateOnNewCotyledons(tissueName="full cotyledons", reCalculateMeasures=True):
     dataBaseFolder = f"Images/{tissueName}/"
     resultsFolder = f"Results/{tissueName}/"
-    allFolderContentsFilename = f"{dataBaseFolder}{tissueName}_multiFolderContent.pkl"
-    if createRegularityResults:
-        if reCalculateMeasures:
-            createGeometricdataTableWithRemovedStomata()
-            mainCreateAllFullCotyledons(allFolderContentsFilename, dataBaseFolder)
-            createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder,
-                                         checkCellsPresentInLabelledImage=False)
-            createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder, useGeometricData=True)
-        createResultMeasureTable(allFolderContentsFilename, resultsFolder,
-                                 includeCellId=False)
-        addRatioMeasuresToTable(resultsFolder)
+    allFolderContentsFilename = f"{dataBaseFolder}{tissueName}.pkl"
+    tissueIdentifier = [["WT", '20200220 WT S1', '120h'],
+                        ["WT", '20200221 WT S2', '120h'],
+                        ["WT", '20200221 WT S3', '120h'],
+                        ["WT", '20200221 WT S5', '120h'],
+                        ]
+    if reCalculateMeasures:
+        createGeometricdataTableWithRemovedStomata(dataBaseFolder, tissueIdentifier)
+        mainCreateAllFullCotyledons(allFolderContentsFilename, dataBaseFolder, allTissueIdentifiers=tissueIdentifier)
+        createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder,
+                                     checkCellsPresentInLabelledImage=False)
+        createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder, useGeometricData=True)
+    createResultMeasureTable(allFolderContentsFilename, resultsFolder, includeCellId=False)
+    addRatioMeasuresToTable(resultsFolder)
 
-def mainOfSAM(reCalculateMeasures=True):
+def mainOnSAMMatz2022(reCalculateMeasures=True):
     dataBaseFolder = "Images/Matz2022SAM/"
     resultsFolder = "Results/Matz2022SAM/"
-    allFolderContentsFilename = "Images/Matz2022SAM_multiFolderContent.pkl"
+    allFolderContentsFilename = "Images/Matz2022SAM.pkl"
     createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder, useGeometricData=True)
     if reCalculateMeasures:
         mainInitalizeSAMDataAddingContoursAndJunctions(baseFilename=dataBaseFolder)
@@ -396,6 +398,6 @@ def mainOfSAM(reCalculateMeasures=True):
     addRatioMeasuresToTable(resultsFolder)
 
 if __name__== "__main__":
-    mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True)
-    # mainCalculateOnNewCotyledons(reCalculateMeasures=True)
-    # mainOfSAM(reCalculateMeasures=True)
+    mainCalculateOnNewCotyledons(reCalculateMeasures=True)
+    # mainOnSAMMatz2022(reCalculateMeasures=True)
+    # mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True)

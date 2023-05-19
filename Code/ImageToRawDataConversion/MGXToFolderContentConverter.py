@@ -20,11 +20,10 @@ from pathlib import Path
 class MGXToFolderContentConverter (object):
 
     # file to read name extensions
-    filamentImagePatternExtension="*MT*MIP_BOREALIS*.tif"
     geometricTableBaseName="_geometricData full.csv"
     originalImagePatternExtension="*PM*_MIP*.tif"
     plyCellGraphExtension="_cellGraph"
-    plyContourNameExtension="_outlines halfed.ply"
+    plyContourNameExtension="_outlines halved.ply"
     plyJunctionNameExtension="_only junctions.ply"
     polygonGeometricTableBaseName="_geometricData poly.csv"
     # filename name extensions
@@ -63,8 +62,6 @@ class MGXToFolderContentConverter (object):
             self.folderContent = self.createFolderContentFrom(self.tissuePathFolder, timePointInPath=timePointInPath, useCellTypeTable=useCellTypeTable)
 
     def SetDefaultParameter(self, kwargs):
-        if "filamentImagePatternExtension" in kwargs:
-            self.filamentImagePatternExtension = kwargs["filamentImagePatternExtension"]
         if "originalImagePatternExtension" in kwargs:
             self.originalImagePatternExtension = kwargs["originalImagePatternExtension"]
         if "plyCellGraphExtension" in kwargs:
@@ -131,9 +128,6 @@ class MGXToFolderContentConverter (object):
         return folderContent
 
     def addReferenceImagesInfoTo(self, folderContent, tissuePathFolder):
-        foundOriginalFilename = self.findFilenameBasedOnPattern(tissuePathFolder, pattern=self.filamentImagePatternExtension)
-        if not foundOriginalFilename is None:
-            folderContent.AddDataToFilenameDict(foundOriginalFilename, self.originalImageFielnameKey)
         foundFilamentFilename = self.findFilenameBasedOnPattern(tissuePathFolder, pattern=self.originalImagePatternExtension)
         if not foundFilamentFilename is None:
             folderContent.AddDataToFilenameDict(foundFilamentFilename, self.filamentImageFilenameKey)
@@ -269,40 +263,35 @@ class MGXToFolderContentConverter (object):
         tissueGraph = graphCreator.GetGraph()
         return tissueGraph
 
-def mainCreateAllFullCotyledons(saveFolderContentsUnder=None, cotyledonBaseFolder="Images/full cotyledons/"):
+def mainCreateAllFullCotyledons(saveFolderContentsUnder=None, cotyledonBaseFolder="Images/full cotyledons/",
+                                plyContourNameExtension="_outlines halved.ply",
+                                allTissueIdentifiers=[["WT", "20200220 WT S1"],
+                                                     ["WT", "20200221 WT S2"],
+                                                     ["WT", "20200221 WT S3"],
+                                                     ["WT", "20200221 WT S5"],],
+                                overwrite=True):
     if saveFolderContentsUnder is None:
         saveFolderContentsUnder = cotyledonBaseFolder + Path(cotyledonBaseFolder).name + "_multiFolderContent_temp.pkl"
-    multiFolderContent = MultiFolderContent(saveFolderContentsUnder)
-    allTissueReplicateIds = []
-    allTissueIdentifers = [
-        ["WT", "20200220 WT S1"],
-        ["WT", "20200221 WT S2"],
-        ["WT", "20200221 WT S3"],
-        ["WT", "20200221 WT S5"],
-        ["ktn1-2", '20200220 ktn1-2 S1', '120h'],
-        ["ktn1-2", '20200220 ktn1-2 S2', '120h'],
-        ["ktn1-2", '20200220 ktn1-2 S3', '120h'],
-    ]
-    for tissueIdentifer in allTissueIdentifers:
-        assert len(tissueIdentifer) == 2 or len(tissueIdentifer) == 3, f"The tissue identifier {tissueIdentifer} contains neither 2 nor 3 tissueIdentifer, but {len(tissueIdentifer)}, which is not yet implemented."
-        print(f"{tissueIdentifer=}")
-        if len(tissueIdentifer) == 2:
-            genotype, tissueReplicateId = tissueIdentifer
+    if overwrite:
+        multiFolderContent = MultiFolderContent()
+        multiFolderContent.SetAllFolderContentsFilename(saveFolderContentsUnder)
+    else:
+        multiFolderContent = MultiFolderContent(saveFolderContentsUnder)
+
+    for tissueIdentifier in allTissueIdentifiers:
+        assert len(tissueIdentifier) == 2 or len(tissueIdentifier) == 3, f"The tissue identifier {tissueIdentifier} contains neither 2 nor 3 tissueIdentifier, but {len(tissueIdentifier)}, which is not yet implemented."
+        if len(tissueIdentifier) == 2:
+            genotype, tissueReplicateId = tissueIdentifier
         else:
-            genotype, tissueReplicateId, timePoint = tissueIdentifer
-        if genotype == "WT":
-            plyContourNameExtension = "_outlines halfed.ply"
-        else:
-            plyContourNameExtension = "_full outlines.ply"
+            genotype, tissueReplicateId, timePoint = tissueIdentifier
         tissuePathFolder = Path(f"{cotyledonBaseFolder}{genotype}/{tissueReplicateId}/")
         myMGXToFolderContentConverter = MGXToFolderContentConverter(tissuePathFolder, plyContourNameExtension=plyContourNameExtension)
         folderContent = myMGXToFolderContentConverter.GetFolderContent()
         multiFolderContent.AppendFolderContent(folderContent)
-    multiFolderContent.SetAllFolderContentsFilename(saveFolderContentsUnder)
     multiFolderContent.UpdateFolderContents()
 
-def mainCreateProcessedDataOf(scenarioName="first_leaf_LeGloanec2022", multiFolderName="first leaf",
-                              imageFolder="Images/", addToExisiting=False, extract3DContours=True,
+def mainCreateProcessedDataOf(imageFolder="Images/", scenarioName="Matz2022SAM/WT inflorescence meristem",
+                              multiFolderName="Matz2022SAM", addToExisiting=False, extract3DContours=True,
                               plyContourNameExtension="_full outlines.ply",
                               geometricTableBaseName="_geometricData.csv",
                               polygonGeometricTableBaseName="_geometricData poly.csv",
@@ -348,7 +337,7 @@ def mainCreateProcessedDataOf(scenarioName="first_leaf_LeGloanec2022", multiFold
                 multiFolderContent.ExchangeFolderContent(folderContent)
     multiFolderContent.UpdateFolderContents()
 
-def addGeometricDataFilenameAndKey(allFolderContentsFilename="Images/first leaf_multiFolderContent.pkl",
+def addGeometricDataFilenameAndKey(allFolderContentsFilename="Images/first full cotyledons/full cotyledons.pkl",
                                    baseFolderKey="orderedJunctionsPerCellFilename", timePointInPath=True, seperator="_",
                                    geometricTableBaseName="{}_geometricData.csv", geometricDataFilenameKey="geometricData",
                                    polygonGeometricTableBaseName="{}_geometricData poly.csv", polygonGeometricDataFilenameKey="polygonalGeometricData"):
@@ -373,28 +362,28 @@ def addGeometricDataFilenameAndKey(allFolderContentsFilename="Images/first leaf_
     multiFolderContent.UpdateFolderContents()
 
 # next step select stomata cells and check with guardCellsToRemoveBaseName + "final.csv"
-def createGeometricdataTableWithRemovedStomata():
-    geometricTableBaseName = "_geometricData full.csv"
-    geometricDataWithoutStomataBaseName = "_geometricData no stomata.csv"
-    guardCellsToRemoveBaseName = "_proposed guard cells.txt"
-    baseFolder = "Images/full cotyledons/"
-    skipfooter = 4
-    tissueIdentifer = [["WT", '20200220 WT S1', '120h'],
-                       ["WT", '20200220 WT S2', '120h'],
-                       ["WT", '20200220 WT S3', '120h'],
-                       ["WT", '20200220 WT S4', '120h'],]
+def createGeometricdataTableWithRemovedStomata(baseFolder = "Images/full cotyledons/",
+                                               tissueIdentifier = [["WT", '20200220 WT S1', '120h'],
+                                                                   ["WT", '20200220 WT S2', '120h'],
+                                                                   ["WT", '20200220 WT S3', '120h'],
+                                                                   ["WT", '20200220 WT S4', '120h'],
+                                                                    ],
+                                               geometricTableBaseName = "_geometricData full.csv",
+                                               geometricDataWithoutStomataBaseName = "_geometricData no stomata.csv",
+                                               guardCellsToRemoveBaseName = "_proposed guard cells.txt",
+                                               skipfooter = 4):
 
-    for g, r, t in tissueIdentifer:
+    for g, r, t in tissueIdentifier:
         tissueBaseName = str(Path(baseFolder).joinpath(g, r, r))
         geometricTableFilename = tissueBaseName + geometricTableBaseName
         guardCellsToRemoveFilename = tissueBaseName + guardCellsToRemoveBaseName
         if Path(guardCellsToRemoveFilename).is_file():
             geometricDataWithoutStomataFilename = tissueBaseName + geometricDataWithoutStomataBaseName
-            fullGometricDf = pd.read_csv(geometricTableFilename, skipfooter=skipfooter, engine="python")
-            guradCellLabels = ConvertTextToLabels(guardCellsToRemoveFilename).labels
-            isNotGuardCell = np.isin(fullGometricDf.iloc[:, 0], guradCellLabels, invert=True)
+            fullGeometricDf = pd.read_csv(geometricTableFilename, skipfooter=skipfooter, engine="python")
+            guardCellLabels = ConvertTextToLabels(guardCellsToRemoveFilename).labels
+            isNotGuardCell = np.isin(fullGeometricDf.iloc[:, 0], guardCellLabels, invert=True)
             idxOfCellsToKeep = np.where(isNotGuardCell)[0]
-            reducedGeomDf = fullGometricDf.iloc[idxOfCellsToKeep, :]
+            reducedGeomDf = fullGeometricDf.iloc[idxOfCellsToKeep, :]
             reducedGeomDf.to_csv(geometricDataWithoutStomataFilename, index=False)
             with open(geometricDataWithoutStomataFilename, "a") as fh:
                 with open(geometricTableFilename, "r") as geometricDataFh:
@@ -402,12 +391,13 @@ def createGeometricdataTableWithRemovedStomata():
                 for line in lastLines:
                     fh.write(line)
         else:
-            print(f"The file {guardCellsToRemoveFilename=} is not present for {g}, {r}, {t}")
+            if not Path(geometricDataWithoutStomataFilename).is_file():
+                print(f"The file geometric data file without stomata {geometricDataWithoutStomataFilename} was not present and\ncould not be created as {guardCellsToRemoveFilename=} is not present for {g}, {r}, {t}")
 
-def saveCentralCellsAsCellType(centerCellsDict, scenarioName="ktn inflorescence meristem",
-                               imageFolder="Images/SAM/", centerRadius=20,
+def saveCentralCellsAsCellType(centerCellsDict, scenarioName="WT inflorescence meristem",
+                               imageFolder="Images/Matz2022SAM/", centerRadius=20,
                                geometryBaseName="{}_{}_geometricData.csv", seperator="_",
-                               selectedCellsFilenameSuffix="_CELL_TYPE.csv", centralCellId=8, nonCentralCellId=5,
+                               selectedCellsFilenameSuffix="_CELL_TYPE.csv", centralCellId=8,
                                ):
     scenarioBaseFolder = Path(imageFolder).joinpath(scenarioName)
     for replicatePath in scenarioBaseFolder.glob("*"):
@@ -439,57 +429,6 @@ def mainInitalizeSAMDataAddingContoursAndJunctions():
                                ('WT inflorescence meristem', 'P5'): {"T0": [38], "T1": [585, 968, 982], "T2": [927, 1017], "T3": [1136], "T4": [1618, 1575, 1445]},
                                ('WT inflorescence meristem', 'P6'): {"T0": [861], "T1": [1334, 1634, 1651], "T2": [1735, 1762, 1803], "T3": [2109, 2176], "T4": [2381]},
                                ('WT inflorescence meristem', 'P8'): {"T0": [3241, 2869, 3044], "T1": [3421, 3657], "T2": [2676, 2805, 2876], "T3": [2898, 2997, 3013], "T4": [358, 189]},
-                               ('ktn inflorescence meristem', 'ktnP1'): {"T0": [2965, 3144], "T1": [3839, 3959], "T2": [963, 968, 969]},
-                               ('ktn inflorescence meristem', 'ktnP2'): {"T0": [23], "T1": [424, 426, 50], "T2": [17, 127, 220]},
-                               ('ktn inflorescence meristem', 'ktnP3'): {"T0": [29, 199, 527], "T1": [424, 28, 431], "T2": [391, 438]},
                                }
-    saveCentralCellsAsCellType(centerDefiningCellsDict, imageFolder="Images/SAM/", scenarioName="WT inflorescence meristem")
-    saveCentralCellsAsCellType(centerDefiningCellsDict, imageFolder="Images/SAM/", scenarioName="ktn inflorescence meristem")
-    mainCreateProcessedDataOf(imageFolder="Images/", scenarioName="SAM/WT inflorescence meristem", multiFolderName="SAM", addToExisiting=False)
-    mainCreateProcessedDataOf(imageFolder="Images/", scenarioName="SAM/ktn inflorescence meristem", multiFolderName="SAM", addToExisiting=True)
-
-def mainAddGuardCellJunctionPositions():
-    multiFolderContentFilename = "Images/first leaf_multiFolderContent.pkl"
-    extract3DContours = True
-    cellTypeFilenameKey = "cellType"
-    cellTypesBaseName = "_cellTypes.json"
-    converter = MGXToFolderContentConverter("", extract3DContours=extract3DContours, runOnInit=False)
-    folderContents = MultiFolderContent(multiFolderContentFilename)
-    updatedAnyContent = False
-    for content in folderContents:
-        tissueBaseFilename = content.GetFilenameDictKeyValue(cellTypeFilenameKey).replace(cellTypesBaseName, "")
-        cellLabelsPerCellType = content.LoadKeyUsingFilenameDict(cellTypeFilenameKey)
-        if not "guard cell" in cellLabelsPerCellType:
-            print(f"was ignored as no guard cells present in {tissueBaseFilename}")
-            continue
-        guardCellLabels = cellLabelsPerCellType["guard cell"]
-        if len(guardCellLabels) == 0:
-            print(f"was ignored as no guard cells present in {tissueBaseFilename}")
-        else:
-            print(tissueBaseFilename)
-            converter.tissueBaseFilename = tissueBaseFilename
-            mgxJunctionReader = converter.addContourInfoTo(content, cellTypesDict=cellLabelsPerCellType,
-                                                           extractPeripheralCellsFromJunctions=True,
-                                                           plyExtension=converter.plyJunctionNameExtension,
-                                                           save=False)
-            junctionPositionsOfAllCells = mgxJunctionReader.GetCellsContourPositions()
-            converter.addGuardCellJunctionPositionTo(content, junctionPositionsOfAllCells, guardCellLabels)
-            updatedAnyContent = True
-    if updatedAnyContent:
-        folderContents.UpdateFolderContents()
-
-if __name__ == '__main__':
-    # run both createGeometricdataTableWithRemovedStomata and mainCreateAllFullCotyledons
-    # to use proposed cell labels as guard cells instead of removing stomata in MGX files and
-    # creating heatmap from the MGX file which does not contain guard cells
-    # createGeometricdataTableWithRemovedStomata()
-    # mainCreateAllFullCotyledons()
-    #
-    # mainCreateProcessedDataOf(scenarioName="first_leaf_LeGloanec2022", multiFolderName="first leaf", addToExisiting=False, checkTimePointsForRemovalOfSmallCells=True)
-    # mainCreateProcessedDataOf(scenarioName="speechless_Fox2018_MGXfromLeGloanec", multiFolderName="first leaf", addToExisiting=True, checkTimePointsForRemovalOfSmallCells=False)
-    # addGeometricDataFilenameAndKey(allFolderContentsFilename="Images/first leaf_multiFolderContent.pkl", checkTimePointsForRemovalOfSmallCells=True)
-    # addGeometricDataFilenameAndKey("Images/full cotyledons/full cotyledons.pkl", geometricTableBaseName="{}_geometricData no stomata.csv", timePointInPath=False)
-    # addGeometricDataFilenameAndKey("Images/Matz2022SAM.pkl", seperator="", geometricTableBaseName="area{}.csv", polygonGeometricTableBaseName="area{} poly.csv")
-    # mainInitalizeSAMDataAddingContoursAndJunctions()
-    # mainCreateProcessedDataOf(imageFolder="Images/", scenarioName="SAM/WT inflorescence meristem", multiFolderName="SAM", addToExisiting=False, redoForTissueInfo=np.array([["P2", "T1"]]))
-    mainAddGuardCellJunctionPositions()
+    saveCentralCellsAsCellType(centerDefiningCellsDict, imageFolder="Images/Matz2022SAM/", scenarioName="WT inflorescence meristem")
+    mainCreateProcessedDataOf(imageFolder="Images/", scenarioName="Matz2022SAM/WT inflorescence meristem", multiFolderName="Matz2022SAM", addToExisiting=False)
