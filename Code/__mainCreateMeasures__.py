@@ -324,9 +324,8 @@ def calculateAndAddRelativeCompletenessOf(dataBaseFolder="Images/", tableResults
                                          relativeCompletenessFilenameKey=relativeCompletenessFilenameKey)
         multiFolderContent.UpdateFolderContents()
 
-def mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True, redoTriWayJunctionPositioning=False):
+def mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculateMeasures=True, redoTriWayJunctionPositioning=False):
     from InputData import GetInputData, GetResolutions
-    scenarioName = "Eng2021Cotyledons"
     dataBaseFolder = f"Images/{scenarioName}/"
     resultsFolder = "Results/"
     folderContentsName = f"{scenarioName}.pkl"
@@ -362,8 +361,7 @@ def mainCalculateOnNewCotyledons(scenarioName="full cotyledons", reCalculateMeas
     createResultMeasureTable(allFolderContentsFilename, resultsFolder, includeCellId=False)
     addRatioMeasuresToTable(resultsFolder, scenarioName)
 
-def mainOnSAMMatz2022(reCalculateMeasures=True):
-    scenarioName = "Matz2022SAM"
+def mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True):
     dataBaseFolder = f"Images/{scenarioName}/"
     resultsFolder = "Results/"
     allFolderContentsFilename = f"{dataBaseFolder}{scenarioName}.pkl"
@@ -377,6 +375,6 @@ def mainOnSAMMatz2022(reCalculateMeasures=True):
     addRatioMeasuresToTable(resultsFolder, scenarioName)
 
 if __name__== "__main__":
-    mainCalculateOnNewCotyledons(reCalculateMeasures=True)
-    mainOnSAMMatz2022(reCalculateMeasures=True)
-    mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True)
+    mainCalculateOnNewCotyledons(scenarioName="full cotyledons", reCalculateMeasures=True)
+    mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True)
+    mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculateMeasures=True)
