@@ -49,7 +49,7 @@ class ExtendedPlotter(ResultsTableLoader):
                       testVsValue=None, figsize=(25, 12), fontSize=35, nextAxisYDistance=-0.075, ylim=None, ylimMin=None, yLabePad=25, xPos=-0.05,
                       addLinearRegression=False, doStatistics=True, compareAllAgainstAll=False, fixxedYLocator=None, addHLineAt=None,
                       givenXTicks=None, showCombinedColumnsNextToEachOther=True, drawLinesAtTicksParameter="tissueTicks", showMinimalXLabels=False, excludeYLabel=True,
-                      onlyPlotXLabel=None, useThisSingleColorInPlot=None, overwriteColors=True, logNormalize=False):
+                      onlyPlotXLabel=None, useThisSingleColorInPlot=None, overwriteColors=True, logNormalize=False, capitalizeNumberOfSamples=False):
         plt.rcParams["font.size"] = fontSize
         plt.rcParams["font.family"] = "Arial"
         mpl.rcParams['axes.spines.right'] = False
@@ -140,7 +140,12 @@ class ExtendedPlotter(ResultsTableLoader):
         elif not ylimMin is None:
             ylimMax = ax1.get_ylim()[1]
             ax1.set_ylim((ylimMin, ylimMax))
-        textOfGroupValuePairsToAdd = {}
+        groupColumnsBy = [self.pureGenotypeColName, self.tissueColName, self.timePointNameColName]
+        if addLinearRegression:
+            butShowOnlyFor = self.pureGenotypeColName
+        else:
+            butShowOnlyFor = self.tissueColName
+        textOfGroupValuePairsToAdd = self.determineNumberOfSamplesForValuesOfColumns(resultsTable, groupColumnsBy=groupColumnsBy, butShowOnlyFor=butShowOnlyFor, capitalize=capitalizeNumberOfSamples)
         if addLinearRegression:
             textOfGroupValuePairsToAdd, pooledRegressionResults = self.drawLinearRegression(resultsTable, yColName=measureCol, ax=ax1, axisParameter=axisParameter, textOfGroupValuePairsToAdd=textOfGroupValuePairsToAdd)
         if textOfGroupValuePairsToAdd:
@@ -590,14 +595,14 @@ class ExtendedPlotter(ResultsTableLoader):
         textLocation = (xTextLocation, yTextLocation)
         return textLocation
 
-def mainCreateBoxPlotOf(measureName="lengthGiniCoeff", plotSelectedColumnsAdjacent=None, tissueScenarioNames=["", "full cotyledons", "SAM"],
-                        baseResultsFolder="Results/", resultsFolderExtensions="regularityResults/", measuresBaseName="combinedMeasures.csv",
+def mainCreateBoxPlotOf(measureName="lengthGiniCoeff", plotSelectedColumnsAdjacent=None, tissueScenarioNames=["Eng2021Cotyledons", "full cotyledons", "Matz2022SAM"],
+                        baseResultsFolder="Results/", resultsFolderExtensions="regularityResults/", measuresBaseName="combinedMeasures_{}.csv",
                         testVsValue=None, saveFigure=True, tissueGeneNameOrdering={"SAM": ["WT"], "cotyledon": ["WT", "WT+Oryzalin", "$\it{ktn1}$-$\it{2}$"]},
                         fixxedYLocator=None, addHLineAt=None, resultsNameExtension="", onlyShowLastAndFirstTimePoint=False, furtherRemoveScenarioIds=None,
                         onlyPlotXLabel=None, reduceResultsToOnePerTissue=False, filenameToSave=None, overwriteTimePointRenamingWith=None, **kwargs):
     colorPalette = sns.color_palette("colorblind")
     genotypeColorConversion = {"WT": colorPalette[7], "WT+Oryzalin": colorPalette[8], "ktn": colorPalette[0], "$\it{ktn1}$-$\it{2}$": colorPalette[0]}
-    resultsTableFilenames = [f"{baseResultsFolder}{i}/{measuresBaseName}" if i != "" else f"{baseResultsFolder}{measuresBaseName}" for i in tissueScenarioNames]
+    resultsTableFilenames = [f"{baseResultsFolder}{measuresBaseName.format(name)}" for name in tissueScenarioNames]
     renameTimePointDict = {"T0": "0-96h", "T1": "0-96h", "T2": "0-96h", "T3": "0-96h", "T4": "0-96h"} #, "T0": "0h", "T1": "24h", "T2": "48h", "T3": "72h", "T4":"96h"} #
     if not overwriteTimePointRenamingWith is None:
         for timePointName, renameTo in overwriteTimePointRenamingWith.items():
@@ -632,39 +637,39 @@ def plotPatchyCotyledonResults(plotAreaMeasures=False, plotRegularityMeasures=Fa
         print("Plotting area measures")
         if plotCombinedDataSet:
             mainCreateBoxPlotOf(measureName="Ratio", plotSelectedColumnsAdjacent=["ratio_originalPolygonArea_labelledImageArea", "ratio_regularPolygonArea_labelledImageArea"],
-                                resultsNameExtension="_WtTissueComparison", tissueScenarioNames=["full cotyledons", "SAM"], tissueGeneNameOrdering=tissueComparisonOrdering,
+                                resultsNameExtension="_WtTissueComparison", tissueScenarioNames=["full cotyledons", "Matz2022SAM"], tissueGeneNameOrdering=tissueComparisonOrdering,
                                 compareAllAgainstAll=True, drawLinesAtTicksParameter="genTicks", showMinimalXLabels=True, excludeYLabel=True,
-                                resultsFolderExtensions="ratioResults/final/", testVsValue=1, addHLineAt=1, fontSize=reducedFontSize)
+                                resultsFolderExtensions="ratioResults/", testVsValue=1, addHLineAt=1, fontSize=reducedFontSize)
         if plotFullDataSet:
-            mainCreateBoxPlotOf(measureName="ratio_originalPolygonArea_labelledImageArea", resultsFolderExtensions="ratioResults/final/",
+            mainCreateBoxPlotOf(measureName="ratio_originalPolygonArea_labelledImageArea", resultsFolderExtensions="ratioResults/",
                                 testVsValue=1, addHLineAt=1, fontSize=allDataFontSize, xPos=-0.035,
-                                tissueScenarioNames=[""], tissueGeneNameOrdering=patchyCotyledonOrdering,
+                                tissueScenarioNames=["Eng2021Cotyledons"], tissueGeneNameOrdering=patchyCotyledonOrdering,
                                 showMinimalXLabels=True, addLinearRegression=True, ylim=(0.4542479550844027, 1.946669865152332))
-            mainCreateBoxPlotOf(measureName="ratio_regularPolygonArea_labelledImageArea", resultsFolderExtensions="ratioResults/final/",
+            mainCreateBoxPlotOf(measureName="ratio_regularPolygonArea_labelledImageArea", resultsFolderExtensions="ratioResults/",
                                 testVsValue=1, addHLineAt=1, fontSize=allDataFontSize, xPos=-0.035,
-                                tissueScenarioNames=[""], tissueGeneNameOrdering=patchyCotyledonOrdering,
+                                tissueScenarioNames=["Eng2021Cotyledons"], tissueGeneNameOrdering=patchyCotyledonOrdering,
                                 showMinimalXLabels=True, addLinearRegression=True, ylim=(0.4542479550844027, 1.946669865152332))
 
     if plotRegularityMeasures:
         print("Plotting regularity measures")
         if plotCombinedDataSet:
-            mainCreateBoxPlotOf(measureName="Gini coefficient of ", plotSelectedColumnsAdjacent=["lengthGiniCoeff", "angleGiniCoeff"], resultsFolderExtensions="regularityResults/final/",
-                                resultsNameExtension="_WtTissueComparison", tissueScenarioNames=["full cotyledons", "SAM"], tissueGeneNameOrdering=tissueComparisonOrdering,
+            mainCreateBoxPlotOf(measureName="Gini coefficient of ", plotSelectedColumnsAdjacent=["lengthGiniCoeff", "angleGiniCoeff"], resultsFolderExtensions="regularityResults/",
+                                resultsNameExtension="_WtTissueComparison", tissueScenarioNames=["full cotyledons", "Matz2022SAM"], tissueGeneNameOrdering=tissueComparisonOrdering,
                                 compareAllAgainstAll=True, drawLinesAtTicksParameter="genTicks", showMinimalXLabels=True, excludeYLabel=True, fontSize=reducedFontSize)
         if plotFullDataSet:
-            mainCreateBoxPlotOf(measureName="lengthGiniCoeff",  resultsFolderExtensions="regularityResults/final/",
+            mainCreateBoxPlotOf(measureName="lengthGiniCoeff",  resultsFolderExtensions="regularityResults/",
                                 fontSize=allDataFontSize, xPos=-0.035,  showMinimalXLabels=True, excludeYLabel=True,
-                                tissueScenarioNames=[""], tissueGeneNameOrdering=patchyCotyledonOrdering, addLinearRegression=True)
-            mainCreateBoxPlotOf(measureName="angleGiniCoeff",  resultsFolderExtensions="regularityResults/final/",
+                                tissueScenarioNames=["Eng2021Cotyledons"], tissueGeneNameOrdering=patchyCotyledonOrdering, addLinearRegression=True)
+            mainCreateBoxPlotOf(measureName="angleGiniCoeff",  resultsFolderExtensions="regularityResults/",
                                 fontSize=allDataFontSize, xPos=-0.035,  showMinimalXLabels=True, excludeYLabel=True,
-                                tissueScenarioNames=[""], tissueGeneNameOrdering=patchyCotyledonOrdering, addLinearRegression=True)
+                                tissueScenarioNames=["Eng2021Cotyledons"], tissueGeneNameOrdering=patchyCotyledonOrdering, addLinearRegression=True)
         if doIgnoreGuardCells:
-            mainCreateBoxPlotOf(measureName="angleGiniCoeff_ignoringGuardCells", resultsNameExtension="_reducedTimePoints", resultsFolderExtensions="regularityResults/final/",
+            mainCreateBoxPlotOf(measureName="angleGiniCoeff_ignoringGuardCells", resultsNameExtension="_reducedTimePoints", resultsFolderExtensions="regularityResults/",
                                 compareAllAgainstAll=True, fontSize=reducedFontSize, yLabePad=4, showMinimalXLabels=True,
-                                tissueScenarioNames=[""], tissueGeneNameOrdering=patchyCotyledonOrdering, addLinearRegression=True)
-            mainCreateBoxPlotOf(measureName="lengthGiniCoeff_ignoringGuardCells", resultsNameExtension="_reducedTimePoints", resultsFolderExtensions="regularityResults/final/",
+                                tissueScenarioNames=["Eng2021Cotyledons"], tissueGeneNameOrdering=patchyCotyledonOrdering, addLinearRegression=True)
+            mainCreateBoxPlotOf(measureName="lengthGiniCoeff_ignoringGuardCells", resultsNameExtension="_reducedTimePoints", resultsFolderExtensions="regularityResults/",
                                 compareAllAgainstAll=True, fontSize=reducedFontSize, yLabePad=4, showMinimalXLabels=True,
-                                tissueScenarioNames=[""], tissueGeneNameOrdering=patchyCotyledonOrdering, addLinearRegression=True)
+                                tissueScenarioNames=["Eng2021Cotyledons"], tissueGeneNameOrdering=patchyCotyledonOrdering, addLinearRegression=True)
 
 if __name__ == '__main__':
     plotPatchyCotyledonResults(plotAreaMeasures=True, plotRegularityMeasures=True,
