@@ -5,7 +5,6 @@ def GetInputData():
     data["ktn1-2"] = {}
 
     data["col-0"]["20170327 WT S1"] = {
-    "folder": '/home/mpimp-golm.mpg.de/bauer1458/Desktop/Imaging/AG-Sampathkumar/Arun/Nextcloud_data storage/PC Morph/Wild-type/20170327 WT S1 - DONE/',
     "labelledImageFilename": ['F_BOREALIS_MTs_LTi6b-GFP mChTUA5 WT 0h S1_SMP-based (3) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTi6b-GFP mChTUA5 WT 24h S1_SMP-based (3) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTIi6b-GFP mChTUA5 WT 48h S1_SMP-based (6) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTIi6b-GFP mChTUA5 WT 72h S1_SMP-based (6) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTi6b-GFP mChTUA5 WT 96h S1_SMP-based (6) MIP_WATERSHED_CLEAN.TIF'],
     "originalImageFilename": ['PM_LTi6b-GFP mChTUA5 WT 0h S1_SMP-based (3) MIP.TIF', 'PM_LTi6b-GFP mChTUA5 WT 24h S1_SMP-based (3) MIP.TIF', 'PM_LTIi6b-GFP mChTUA5 WT 48h S1_SMP-based (6) MIP.TIF', 'PM_LTIi6b-GFP mChTUA5 WT 72h S1_SMP-based (6) MIP.TIF', 'PM_LTi6b-GFP mChTUA5 WT 96h S1_SMP-based (6) MIP.TIF'],
     "microtubuleImages": ['MTs_LTi6b-GFP mChTUA5 WT 0h S1_SMP-based (3) MIP.TIF', 'MTs_LTi6b-GFP mChTUA5 WT 24h S1_SMP-based (3) MIP.TIF', 'MTs_LTIi6b-GFP mChTUA5 WT 48h S1_SMP-based (6) MIP.TIF', 'MTs_LTIi6b-GFP mChTUA5 WT 72h S1_SMP-based (6) MIP.TIF', 'MTs_LTi6b-GFP mChTUA5 WT 96h S1_SMP-based (6) MIP.TIF'],
@@ -14,7 +13,6 @@ def GetInputData():
     "timePoints": ["0h", "24h", "48h", "72h", "96h"]
     }
     data["col-0"]["20170501 WT S1"] = {
-    "folder": '/home/mpimp-golm.mpg.de/bauer1458/Desktop/Imaging/AG-Sampathkumar/Arun/Nextcloud_data storage/PC Morph/Wild-type/20170501 WT S1 - DONE/',
     "labelledImageFilename": ['F_BOREALIS_MTs_20170501 WT 0h S1_SMP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20170501 WT 24h S1_SMP-based (3) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTi6b-GFP mChTUA5 48h S1_crop20-57_SMP-based (6) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTi6b-GFP mChTUA5 72h S1_SMP-based (6) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTi6b-GFP mChTUA5 96h S1_SMP-based (6) MIP_WATERSHED_CLEAN.TIF'],
     "originalImageFilename": ['PM_20170501 WT 0h S1_SMP.TIF', 'PM_20170501 WT 24h S1_SMP-based (3) MIP.TIF', 'PM_LTi6b-GFP mChTUA5 48h S1_crop20-57_SMP-based (6) MIP.TIF', 'PM_LTi6b-GFP mChTUA5 72h S1_SMP-based (6) MIP.TIF', 'PM_LTi6b-GFP mChTUA5 96h S1_SMP-based (6) MIP.TIF'],
     "microtubuleImages": ['MTs_20170501 WT 0h S1_SMP.TIF', 'MTs_20170501 WT 24h S1_SMP-based (3) MIP.TIF', 'MTs_LTi6b-GFP mChTUA5 48h S1_crop20-57_SMP-based (6) MIP.TIF', 'MTs_LTi6b-GFP mChTUA5 72h S1_SMP-based (6) MIP.TIF', 'MTs_LTi6b-GFP mChTUA5 96h S1_SMP-based (6) MIP.TIF'],
@@ -23,7 +21,6 @@ def GetInputData():
     "timePoints": ["0h", "24h", "48h", "72h", "96h"]
     }
     data["col-0"]["20170501 WT S2"] = {
-    "folder": '/home/mpimp-golm.mpg.de/bauer1458/Desktop/Imaging/AG-Sampathkumar/Arun/Nextcloud_data storage/PC Morph/Wild-type/20170501 WT S2 - DONE/',
     "labelledImageFilename": ['F_BOREALIS_MTs_LTi6b-GFP mChTUA5 0h S2_SMP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTi6b-GFP mChTUA5 24h S2_SMP-based (3) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTi6b-GFP mChTUA5 48h S2_SMP-based (5) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTi6b-GFP mChTUA5 72h S2_SMP-based (6) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTi6b-GFP mChTUA5 96h S2_SMP-based (6) MIP_WATERSHED_CLEAN.TIF'],
     "originalImageFilename": ['PM_LTi6b-GFP mChTUA5 0h S2_MIP.TIF', 'PM_LTi6b-GFP mChTUA5 24h S2_SMP-based (3) MIP.TIF', 'PM_LTi6b-GFP mChTUA5 48h S2_SMP-based (5) MIP.TIF', 'PM_LTi6b-GFP mChTUA5 72h S2_SMP-based (6) MIP.TIF', 'PM_LTi6b-GFP mChTUA5 96h S2_SMP-based (6) MIP.TIF'],
     "microtubuleImages": ['MTs_LTi6b-GFP mChTUA5 0h S2_SMP.TIF', 'MTs_LTi6b-GFP mChTUA5 24h S2_SMP-based (3) MIP.TIF', 'MTs_LTi6b-GFP mChTUA5 48h S2_SMP-based (5) MIP.TIF', 'MTs_LTi6b-GFP mChTUA5 72h S2_SMP-based (6) MIP.TIF', 'MTs_LTi6b-GFP mChTUA5 96h S2_SMP-based (6) MIP.TIF'],
@@ -32,7 +29,6 @@ def GetInputData():
     "timePoints": ["0h", "24h", "48h", "72h", "96h"]
     }
     data["Oryzalin"]["20170731 oryzalin S2"] = {
-    "folder": '/home/mpimp-golm.mpg.de/bauer1458/Desktop/Imaging/AG-Sampathkumar/Arun/Nextcloud_data storage/PC Morph/Oryzalin/20170731 oryzalin S2 - DONE/',
     "labelledImageFilename": ['F_BOREALIS_MTs_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 0h S2_MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 24h S2_SMP-based (3) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 48h S2_MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 72h S2_MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 96h S2_MIP_WATERSHED_CLEAN.TIF'],
     "originalImageFilename": ['PM_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 0h S2_SMP-based (3) MIP.TIF', 'PM_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 24h S2_SMP-based (3) MIP.TIF', 'PM_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 48h S2_MIP.TIF', 'PM_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 72h S2_MIP.TIF', 'PM_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 96h S2_MIP.TIF'],
     "microtubuleImages": ['MTs_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 0h S2_SMP.TIF', 'MTs_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 24h S2_SMP-based (3) MIP.TIF', 'MTs_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 48h S2_MIP.TIF', 'MTs_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 72h S2_MIP.TIF', 'MTs_20170731 LTi6b-GFP mCh-TUA5 1um oryzalin 96h S2_MIP.TIF'],
@@ -41,7 +37,6 @@ def GetInputData():
     "timePoints": ["0h", "24h", "48h", "72h", "96h"]
     }
     data["Oryzalin"]["20171023 oryzalin S1"] = {
-    "folder": '/home/mpimp-golm.mpg.de/bauer1458/Desktop/Imaging/AG-Sampathkumar/Arun/Nextcloud_data storage/PC Morph/Oryzalin/20171023 oryzalin S1 - DONE/',
     "labelledImageFilename": ['F_BOREALIS_MTs_MAX_LTi6b-GFP mCh-TUA5 1um oryzalin 0h S1_MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTi6b-GFP mCh-TUA5 1um oryzalin 24h S1_MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTi6b-GFP mCh-TUA5 1um oryzalin 48h S1_MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTi6b-GFP mCh-TUA5 1um oryzalin 72h S1_MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_LTi6b-GFP mCh-TUA5 1um oryzalin 96h S1_SMP-based (9) MIP_WATERSHED_CLEAN.TIF'],
     "originalImageFilename": ['PM_MAX_LTi6b-GFP mCh-TUA5 1um oryzalin 0h S1_MIP.TIF', 'PM_LTi6b-GFP mCh-TUA5 1um oryzalin 24h S1_MIP.TIF', 'PM_LTi6b-GFP mCh-TUA5 1um oryzalin 48h S1_MIP.TIF', 'PM_LTi6b-GFP mCh-TUA5 1um oryzalin 72h S1_MIP.TIF', 'PM_LTi6b-GFP mCh-TUA5 1um oryzalin 96h S1_SMP-based (9) MIP.TIF'],
     "microtubuleImages": ['MTs_MAX_LTi6b-GFP mCh-TUA5 1um oryzalin 0h S1_MIP.TIF', 'MTs_LTi6b-GFP mCh-TUA5 1um oryzalin 24h S1_MIP.TIF', 'MTs_LTi6b-GFP mCh-TUA5 1um oryzalin 48h S1_MIP.TIF', 'MTs_LTi6b-GFP mCh-TUA5 1um oryzalin 72h S1_MIP.TIF', 'MTs_LTi6b-GFP mCh-TUA5 1um oryzalin 96h S1_SMP-based (9) MIP.TIF'],
@@ -50,7 +45,6 @@ def GetInputData():
     "timePoints": ["0h", "24h", "48h", "72h", "96h"]
     }
     data["Oryzalin"]["20171106 oryzalin S1"] = {
-    "folder": '/home/mpimp-golm.mpg.de/bauer1458/Desktop/Imaging/AG-Sampathkumar/Arun/Nextcloud_data storage/PC Morph/Oryzalin/20171106 oryzalin S1 - DONE/',
     "labelledImageFilename": ['F_BOREALIS_MTs_20171106 oryzalin 0h S1_SMP-based (3) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20171106 oryzalin 24h S1_SMP-based (3) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20171106 oryzalin 48h S1_SMP-based (5) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20171106 oryzalin 72h S1_SMP-based (9) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20171106 oryzalin 96h S1_SMP-based (9) MIP_WATERSHED_CLEAN.TIF'],
     "originalImageFilename": ['PM_20171106 oryzalin 0h S1_SMP-based (3) MIP.TIF', 'PM_20171106 oryzalin 24h S1_SMP-based (3) MIP.TIF', 'PM_20171106 oryzalin 48h S1_SMP-based (5) MIP.TIF', 'PM_20171106 oryzalin 72h S1_SMP-based (9) MIP.TIF', 'PM_20171106 oryzalin 96h S1_SMP-based (9) MIP.TIF'],
     "microtubuleImages": ['MTs_20171106 oryzalin 0h S1_SMP-based (3) MIP.TIF', 'MTs_20171106 oryzalin 24h S1_SMP-based (3) MIP.TIF', 'MTs_20171106 oryzalin 48h S1_SMP-based (5) MIP.TIF', 'MTs_20171106 oryzalin 72h S1_SMP-based (9) MIP.TIF', 'MTs_20171106 oryzalin 96h S1_SMP-based (9) MIP.TIF'],
@@ -59,7 +53,6 @@ def GetInputData():
     "timePoints": ["0h", "24h", "48h", "72h", "96h"]
     }
     data["ktn1-2"]["20180618 ktn1-2 S1"] = {
-    "folder": '/home/mpimp-golm.mpg.de/bauer1458/Desktop/Imaging/AG-Sampathkumar/Arun/Nextcloud_data storage/PC Morph/ktn1-2/20180618 ktn1-2 S1 - DONE/',
     "labelledImageFilename": ['F_BOREALIS_MTs_20180618 ktn1-2 0h S1_MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20180618 ktn1-2 24h S1_SMP-based (3) MIP_WATERSHED_CLEAN.TIF','F_BOREALIS_MTs_20180618 ktn1-2 48h S1_SMP-based (3) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20180618 ktn1-2 72h S1_SMP-based (5) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20180618 ktn1-2 96h S1_crop_SMP-based (5) MIP_WATERSHED_CLEAN.TIF'],
     "originalImageFilename": ['PM_20180618 ktn1-2 0h S1_MIP.TIF', 'PM_20180618 ktn1-2 24h S1_SMP-based (3) MIP.TIF','PM_20180618 ktn1-2 48h S1_SMP-based (3) MIP.TIF', 'PM_20180618 ktn1-2 72h S1_SMP-based (3) MIP.TIF', 'PM_20180618 ktn1-2 96h S1_crop_SMP-based (5) MIP.TIF'],
     "microtubuleImages": ['MTs_20180618 ktn1-2 0h S1_SMP.TIF', 'MTs_20180618 ktn1-2 24h S1_SMP-based (3) MIP.TIF','MTs_20180618 ktn1-2 48h S1_SMP-based (3) MIP.TIF', 'MTs_20180618 ktn1-2 72h S1_SMP-based (3) MIP.TIF', 'MTs_20180618 ktn1-2 96h S1_crop_SMP-based (5) MIP.TIF'],
@@ -68,7 +61,6 @@ def GetInputData():
     "timePoints": ["0h", "24h", "48h", "72h", "96h"]
     }
     data["ktn1-2"]["20180618 ktn1-2 S2"] = {
-    "folder": '/home/mpimp-golm.mpg.de/bauer1458/Desktop/Imaging/AG-Sampathkumar/Arun/Nextcloud_data storage/PC Morph/ktn1-2/20180618 ktn1-2 S2 - DONE/',
     "labelledImageFilename": ['F_BOREALIS_MTs_20180618 ktn1-2 0h S2_SMP-based (3) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20180618 ktn1-2 24h S2_SMP-based (3) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20180618 ktn1-2 48h S2_SMP-based (3) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20180618 ktn1-2 72h S2 revised_SMP-based (5) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20180618 ktn1-2 96h S2_crop_SMP-based (3) MIP_WATERSHED_CLEAN.TIF'],
     "originalImageFilename": ['PM_20180618 ktn1-2 0h S2_SMP-based (3) MIP.TIF', 'PM_20180618 ktn1-2 24h S2_SMP-based (3) MIP.TIF', 'PM_20180618 ktn1-2 48h S2_SMP-based (3) MIP.TIF', 'PM_20180618 ktn1-2 72h S2 revised_MIP.TIF', 'PM_20180618 ktn1-2 96h S2_crop_SMP-based (3) MIP.TIF'],
     "microtubuleImages": ['MTs_20180618 ktn1-2 0h S2_SMP-based (3) MIP.TIF', 'MTs_20180618 ktn1-2 24h S2_SMP-based (3) MIP.TIF', 'MTs_20180618 ktn1-2 48h S2_SMP-based (3) MIP.TIF', 'MTs_20180618 ktn1-2 72h S2 revised_SMP-based (5) MIP.TIF', 'MTs_20180618 ktn1-2 96h S2_crop_SMP-based (3) MIP.TIF'],
@@ -77,7 +69,6 @@ def GetInputData():
     "timePoints": ["0h", "24h", "48h", "72h", "96h"]
     }
     data["ktn1-2"]["20180618 ktn1-2 S6"] = {
-    "folder": '/home/mpimp-golm.mpg.de/bauer1458/Desktop/Imaging/AG-Sampathkumar/Arun/Nextcloud_data storage/PC Morph/ktn1-2/20180618 ktn1-2 S6 - DONE/',
     "labelledImageFilename": ['F_BOREALIS_MTs_20180618 ktn1-2 0h S6_SMP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20180618 ktn1-2 24h S6_SMP-based (3) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20180618 ktn1-2 48h S6_SMP-based (3) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20180618 ktn1-2 72h S6_SMP-based (5) MIP_WATERSHED_CLEAN.TIF', 'F_BOREALIS_MTs_20180618 ktn1-2 96h S6_crop_SMP-based (5) MIP_WATERSHED_CLEAN.TIF'],
     "originalImageFilename": ['PM_20180618 ktn1-2 0h S6_SMP.TIF', 'PM_20180618 ktn1-2 24h S6_SMP-based (3) MIP.TIF', 'PM_20180618 ktn1-2 48h S6_SMP-based (3) MIP.TIF', 'PM_20180618 ktn1-2 72h S6_SMP-based (5) MIP.TIF', 'PM_20180618 ktn1-2 96h S6_crop_MIP.TIF'],
     "microtubuleImages": ['MTs_20180618 ktn1-2 0h S6_SMP.TIF', 'MTs_20180618 ktn1-2 24h S6_SMP-based (3) MIP.TIF', 'MTs_20180618 ktn1-2 48h S6_SMP-based (3) MIP.TIF', 'MTs_20180618 ktn1-2 72h S6_SMP-based (5) MIP.TIF', 'MTs_20180618 ktn1-2 96h S6_crop_SMP-based (5) MIP.TIF'],
