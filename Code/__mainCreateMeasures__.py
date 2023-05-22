@@ -328,7 +328,7 @@ def mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True, redoTriWayJunction
     from InputData import GetInputData, GetResolutions
     scenarioName = "Eng2021Cotyledons"
     dataBaseFolder = f"Images/{scenarioName}/"
-    resultsFolder = "Results"
+    resultsFolder = "Results/"
     folderContentsName = f"{scenarioName}.pkl"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     inputData = GetInputData()
@@ -346,7 +346,7 @@ def mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True, redoTriWayJunction
 
 def mainCalculateOnNewCotyledons(scenarioName="full cotyledons", reCalculateMeasures=True):
     dataBaseFolder = f"Images/{scenarioName}/"
-    resultsFolder = "Results"
+    resultsFolder = "Results/"
     allFolderContentsFilename = f"{dataBaseFolder}{scenarioName}.pkl"
     tissueIdentifier = [["WT", '20200220 WT S1', '120h'],
                         ["WT", '20200221 WT S2', '120h'],
@@ -365,7 +365,7 @@ def mainCalculateOnNewCotyledons(scenarioName="full cotyledons", reCalculateMeas
 def mainOnSAMMatz2022(reCalculateMeasures=True):
     scenarioName = "Matz2022SAM"
     dataBaseFolder = f"Images/{scenarioName}/"
-    resultsFolder = "Results"
+    resultsFolder = "Results/"
     allFolderContentsFilename = f"{dataBaseFolder}{scenarioName}.pkl"
     if reCalculateMeasures:
         mainInitalizeSAMDataAddingContoursAndJunctions(dataBaseFolder)
