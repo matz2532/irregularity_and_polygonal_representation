@@ -1,0 +1,18 @@
+test type,tissue name,gene name,time point,t-statistic,unadjusted p-value,corrected p-value
+one sample t-test vs 1,cotyledon,WT,0,7.932563950388894,3.945057748689462e-12,4.819715403588915e-12
+one sample t-test vs 1,cotyledon,WT,24,8.419787261160527,3.6457973710450366e-13,4.971541869606869e-13
+one sample t-test vs 1,cotyledon,WT,48,12.111569282305329,4.8157520010144985e-21,7.223628001521748e-20
+one sample t-test vs 1,cotyledon,WT,72,11.26218692232918,2.9812156762335927e-19,2.2359117571751944e-18
+one sample t-test vs 1,cotyledon,WT,96,10.915882832172546,1.6266542792398204e-18,8.133271396199102e-18
+one sample t-test vs 1,cotyledon,WT+Oryzalin,0,8.799491239940172,1.645254498553413e-13,2.4678817478301196e-13
+one sample t-test vs 1,cotyledon,WT+Oryzalin,24,8.096619014090592,4.177086683110393e-12,4.819715403588915e-12
+one sample t-test vs 1,cotyledon,WT+Oryzalin,48,10.025928923075478,5.843040921993628e-16,2.191140345747611e-15
+one sample t-test vs 1,cotyledon,WT+Oryzalin,72,9.07392590570144,4.644620069601891e-14,7.741033449336485e-14
+one sample t-test vs 1,cotyledon,WT+Oryzalin,96,9.214324715912433,2.43236478288478e-14,5.2122102490388146e-14
+one sample t-test vs 1,cotyledon,$\it{ktn1}$-$\it{2}$,0,6.64024243210603,9.618299977671268e-10,9.618299977671268e-10
+one sample t-test vs 1,cotyledon,$\it{ktn1}$-$\it{2}$,24,7.667067775122698,5.095135022059348e-12,5.4590732379207295e-12
+one sample t-test vs 1,cotyledon,$\it{ktn1}$-$\it{2}$,48,8.89347883822017,7.312161152328312e-15,1.8280402880820777e-14
+one sample t-test vs 1,cotyledon,$\it{ktn1}$-$\it{2}$,72,9.031676833728078,3.4511822720427606e-15,1.0353546816128282e-14
+one sample t-test vs 1,cotyledon,$\it{ktn1}$-$\it{2}$,96,8.567588395829237,4.257789825415665e-14,7.741033449336485e-14
+
+self.groupingLettersVsValue={'cotyledon_WT_0': '***', 'cotyledon_WT_24': '***', 'cotyledon_WT_48': '***', 'cotyledon_WT_72': '***', 'cotyledon_WT_96': '***', 'cotyledon_WT+Oryzalin_0': '***', 'cotyledon_WT+Oryzalin_24': '***', 'cotyledon_WT+Oryzalin_48': '***', 'cotyledon_WT+Oryzalin_72': '***', 'cotyledon_WT+Oryzalin_96': '***', 'cotyledon_$\\it{ktn1}$-$\\it{2}$_0': '***', 'cotyledon_$\\it{ktn1}$-$\\it{2}$_24': '***', 'cotyledon_$\\it{ktn1}$-$\\it{2}$_48': '***', 'cotyledon_$\\it{ktn1}$-$\\it{2}$_72': '***', 'cotyledon_$\\it{ktn1}$-$\\it{2}$_96': '***'}

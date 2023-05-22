@@ -1,0 +1,4 @@
+group1,group2,reject,adjusted p-value,mean difference,lower conf. interval,upper conf. interval
+SAM_WT_0,cotyledon_WT_120,True,0.0037724182537861584,-0.007623696210419584,-0.01278107071942972,-0.0024663217014094484
+
+self.anovaAllVsAllLetters={'cotyledon_WT_120': 'a', 'SAM_WT_0': 'b'}

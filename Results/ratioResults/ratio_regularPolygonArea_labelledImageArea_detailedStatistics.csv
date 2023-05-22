@@ -1,0 +1,18 @@
+test type,group1,group2,mean difference,lower conf. interval,upper conf. interval,reject,adjusted p-value
+between groups,cotyledon_WT_0,cotyledon_WT_96,0.0858560026983326,0.024743314884088013,0.1469686905125772,True,0.0009380990660594613
+between groups,cotyledon_WT+Oryzalin_0,cotyledon_WT_0,-0.018009908854580203,-0.08144302280103219,0.04542320509187178,False,0.965370453400011
+between groups,cotyledon_WT+Oryzalin_0,cotyledon_WT_96,0.0678460938437524,0.004412979897300412,0.13127920779020438,True,0.02805433663781698
+between groups,cotyledon_WT+Oryzalin_0,cotyledon_WT+Oryzalin_96,0.02622408372655549,-0.039447518035589824,0.0918956854887008,False,0.863764987145984
+between groups,cotyledon_WT+Oryzalin_96,cotyledon_WT_0,-0.044233992581135695,-0.10766710652758768,0.01919912136531629,False,0.3471121697641839
+between groups,cotyledon_WT+Oryzalin_96,cotyledon_WT_96,0.041622010117196906,-0.02181110382925508,0.10505512406364889,False,0.4180531862070024
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_WT_0,-0.010581920302638714,-0.06858511960846382,0.04742127900318639,False,0.99532264633786
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_WT_96,0.07527408239569389,0.01727088308986878,0.13327728170151898,True,0.0030855187688531016
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_WT+Oryzalin_0,0.007427988551941489,-0.05301512902792459,0.06787110613180757,False,0.9992957951335599
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_WT+Oryzalin_96,0.03365207227849698,-0.026791045301369096,0.09409518985836306,False,0.6043402823277582
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_$\it{ktn1}$-$\it{2}$_96,0.02271162446155528,-0.03200566391735858,0.07742891284046914,False,0.8432345525696499
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_96,cotyledon_WT_0,-0.033293544764193994,-0.0912967440700191,0.024709654541631113,False,0.57156352634178
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_96,cotyledon_WT_96,0.05256245793413861,-0.0054407413716865,0.11056565723996371,False,0.10106298059612395
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_96,cotyledon_WT+Oryzalin_0,-0.01528363590961379,-0.07572675348947987,0.045159481670252286,False,0.9791254447375803
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_96,cotyledon_WT+Oryzalin_96,0.0109404478169417,-0.049502669762924376,0.07138356539680778,False,0.9954929313748206
+
+self.betweenGroupingLetters={'cotyledon_WT_0': 'A', 'cotyledon_WT_96': 'B', 'cotyledon_WT+Oryzalin_0': 'A', 'cotyledon_WT+Oryzalin_96': 'AB', 'cotyledon_$\\it{ktn1}$-$\\it{2}$_0': 'A', 'cotyledon_$\\it{ktn1}$-$\\it{2}$_96': 'AB'}

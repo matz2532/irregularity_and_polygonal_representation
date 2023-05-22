@@ -1,0 +1,5 @@
+test type,tissue name,gene name,time point,t-statistic,unadjusted p-value,corrected p-value
+one sample t-test vs 1,cotyledon,WT,120,29.95870591618525,5.005511396378185e-154,5.005511396378185e-154
+one sample t-test vs 1,SAM,WT,0,68.88983237625344,0.0,0.0
+
+self.groupingLettersVsValue={'cotyledon_WT_120': '***', 'SAM_WT_0': '***'}
