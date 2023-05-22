@@ -83,10 +83,10 @@ class PolygonRegularityPlotterAlongAxis (CellIrregualrityBasedSelector):
         return {self.lobynessKey: lobyness, self.relativeCompletenessKey: relativeCompleteness}
 
 def visualizeCellsAlongAxisMain():
-    dataBaseFolder = "Images/"
+    dataBaseFolder = "Images/Eng2021Cotyledons/"
     resultsFolder = "Results/"
     folderContentsName = "Eng2021Cotyledons.pkl"
-    tableBaseName = "combinedMeasures.csv"
+    tableBaseName = "combinedMeasures_Eng2021Cotyledons.csv"
     defaultOrderedJunctionsEdgeColor = "#0072b2ff"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     resultsTableFilename = resultsFolder + tableBaseName

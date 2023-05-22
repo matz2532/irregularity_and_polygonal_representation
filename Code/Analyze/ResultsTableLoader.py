@@ -220,11 +220,11 @@ class ResultsTableLoader (object):
 def checkCombiningOfMultipleTables():
     # values to be set
     measureName = "lengthGiniCoeff"
-    tissueScenarioNames = ["", "full cotyledons", "SAM"]
+    tissueScenarioNames = ["Eng2021Cotyledons", "full cotyledons", "Matz2022SAM"]
     baseResultsFolder = "Results/"
-    measuresBaseName = "combinedMeasures.csv"
+    measuresBaseName = "combinedMeasures_{}.csv"
     saveFigure = True
-    resultsTableFilenames = [f"{baseResultsFolder}{i}/{measuresBaseName}" if i != "" else f"{baseResultsFolder}{measuresBaseName}" for i in tissueScenarioNames]
+    resultsTableFilenames = [f"{baseResultsFolder}{measuresBaseName.format(name)}" for name in tissueScenarioNames]
 
     # values for ordering data
     tissueGeneNameOrdering = {"SAM": ["WT"], "cotyledon": ["WT", "WT+Oryzalin", "$\it{ktn1}$-$\it{2}$"]}

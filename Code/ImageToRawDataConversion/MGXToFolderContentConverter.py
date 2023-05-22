@@ -101,12 +101,6 @@ class MGXToFolderContentConverter (object):
         mgxContourReader = self.addContourInfoTo(folderContent, cellTypesDict=cellTypesDict,
                                                  plyExtension=self.plyContourNameExtension, fileResultsNameExtension=self.contourNameExtension,
                                                  filenameKey=self.contoursFilenameKey)
-        junctionZeroingPoint = mgxJunctionReader.GetZeroingPoint()
-        contourZeroingPoint = mgxContourReader.GetZeroingPoint()
-        if np.linalg.norm(contourZeroingPoint - junctionZeroingPoint) > 0.0001:
-            furtherReduceJunctionsBy = junctionZeroingPoint - contourZeroingPoint
-            # load junctions and subtract value from each point
-        # self.addRecreatedLabelledImageInfoTo(folderContent, tissuePathFolder, mgxContourReader)
         self.removeCellsWithOutJunctions(folderContent, mgxContourReader, mgxJunctionReader, cellTypesDict)
         if not useCellTypeTable:
             guardCellLabels = cellTypesDict[self.guardCellTypeKey]
@@ -212,29 +206,6 @@ class MGXToFolderContentConverter (object):
         cellSelector.SaveCellTypes(baseNameExtension=self.cellTypesBaseName)
         cellSelector.SaveHeatmapOfCellTypes(geometricTableBaseName=self.geometricTableBaseName)
 
-    def addRecreatedLabelledImageInfoTo(self, folderContent, tissuePathFolder, mgxContourReader):
-        # need to shift positions to be positive
-        cellsContourPositions = mgxContourReader.GetCellsContourPositions()
-        if folderContent.IsKeyInFilenameDict(self.originalImageFielnameKey):
-            originalImage = folderContent.LoadKeyUsingFilenameDict(self.originalImageFielnameKey)
-            imageShape = originalImage.shape[:2]
-        else:
-            allContourMaxPositions = [np.max(contourPositions, axis=0) for contourPositions in cellsContourPositions.values()]
-            allContourMaxPositions = np.concatenate(allContourMaxPositions, axis=0).reshape(len(allContourMaxPositions), 2)
-            imageShape = np.max(allContourMaxPositions, axis=0)
-        labelledImage = np.zeros(imageShape, dtype=int)
-        # fill labelledImage
-        from skimage.draw import polygon
-        for cellLabel, contourPositions in cellsContourPositions.items():
-            rr, cc = polygon(contourPositions[:, 0], contourPositions[:, 1], imageShape)
-            labelledImage[rr,cc] = int(cellLabel)
-        import matplotlib.pyplot as plt
-        plt.imshow(labelledImage)
-        plt.show()
-        labelledImageFilename = self.tissueBaseFilename + "_" + self.labelledImageFilenameKey + ".npy"
-        np.save(labelledImageFilename, labelledImage)
-        folderContent.AddDataToFilenameDict(labelledImageFilename, self.labelledImageFilenameKey)
-
     def addGuardCellJunctionPositionTo(self, folderContent, junctionPositionsOfAllCells, guardCellLabels):
         if len(guardCellLabels) == 0:
             return
@@ -271,7 +242,7 @@ def mainCreateAllFullCotyledons(saveFolderContentsUnder=None, cotyledonBaseFolde
                                                      ["WT", "20200221 WT S5"],],
                                 overwrite=True):
     if saveFolderContentsUnder is None:
-        saveFolderContentsUnder = cotyledonBaseFolder + Path(cotyledonBaseFolder).name + "_multiFolderContent_temp.pkl"
+        saveFolderContentsUnder = cotyledonBaseFolder + Path(cotyledonBaseFolder).stem + "_multiFolderContent_temp.pkl"
     if overwrite:
         multiFolderContent = MultiFolderContent()
         multiFolderContent.SetAllFolderContentsFilename(saveFolderContentsUnder)
@@ -290,24 +261,23 @@ def mainCreateAllFullCotyledons(saveFolderContentsUnder=None, cotyledonBaseFolde
         multiFolderContent.AppendFolderContent(folderContent)
     multiFolderContent.UpdateFolderContents()
 
-def mainCreateProcessedDataOf(imageFolder="Images/", scenarioName="Matz2022SAM/WT inflorescence meristem",
-                              multiFolderName="Matz2022SAM", addToExisiting=False, extract3DContours=True,
+def mainCreateProcessedDataOf(imageFolder="Images/Matz2022SAM/", addToExisiting=False, extract3DContours=True,
                               plyContourNameExtension="_full outlines.ply",
                               geometricTableBaseName="_geometricData.csv",
                               polygonGeometricTableBaseName="_geometricData poly.csv",
                               useCellTypeTable=True, timePointInPath=True,
-                              multiFolderBaseName="_multiFolderContent.pkl",
-                              checkTimePointsForRemovalOfSmallCells=False, redoForTissueInfo=None):
+                              checkTimePointsForRemovalOfSmallCells=False, timePointsForWhichNotRemoveSmallCells=["1DAI", "1.5DAI", "2DAI"],
+                              redoForTissueInfo=None):
     """
     redoForTissueInfo needs to be a numpy array, where for each entry the first sub-entry is the replicate name and the second is the time point
                       example: np.array([["P1", "T2"], ["P2", "T1"], ["P2", "T1"]]))
     """
     from MultiFolderContent import MultiFolderContent
-    scenarioBaseFolder = Path(imageFolder).joinpath(scenarioName)
-    saveFolderContentsUnder = imageFolder + multiFolderName + multiFolderBaseName
+    scenarioBaseFolder = Path(imageFolder)
+    saveFolderContentsUnder = imageFolder + scenarioBaseFolder.parts[-1] + ".pkl"
     resetFolderContent = not addToExisiting and redoForTissueInfo is None
     multiFolderContent = MultiFolderContent(saveFolderContentsUnder, resetFolderContent=resetFolderContent)
-    for replicatePath in scenarioBaseFolder.glob("*"):
+    for replicatePath in scenarioBaseFolder.glob("*/*"):
         if not replicatePath.is_dir():
             continue
         replicateName = replicatePath.parts[-1]
@@ -317,7 +287,7 @@ def mainCreateProcessedDataOf(imageFolder="Images/", scenarioName="Matz2022SAM/W
             removeSmallCells = False
             timePoint = timePointTissuePath.parts[-1]
             if checkTimePointsForRemovalOfSmallCells:
-                if not timePoint in ["1DAI", "1.5DAI", "2DAI"]:
+                if not timePoint in timePointsForWhichNotRemoveSmallCells:
                     removeSmallCells = True
             if not redoForTissueInfo is None:
                 if not np.any(np.sum((replicateName, timePoint) == redoForTissueInfo, axis=1) == 2):
@@ -343,6 +313,7 @@ def addGeometricDataFilenameAndKey(allFolderContentsFilename="Images/first full 
                                    polygonGeometricTableBaseName="{}_geometricData poly.csv", polygonGeometricDataFilenameKey="polygonalGeometricData"):
     from MultiFolderContent import MultiFolderContent
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
+    assert len(list(multiFolderContent)) > 0, f"The multiFolderContent is empty initialized from {allFolderContentsFilename=}"
     for folderContent in multiFolderContent:
         baseFolder = folderContent.GetFilenameDict()[baseFolderKey]
         baseFolderPath = Path(baseFolder)
@@ -377,8 +348,8 @@ def createGeometricdataTableWithRemovedStomata(baseFolder = "Images/full cotyled
         tissueBaseName = str(Path(baseFolder).joinpath(g, r, r))
         geometricTableFilename = tissueBaseName + geometricTableBaseName
         guardCellsToRemoveFilename = tissueBaseName + guardCellsToRemoveBaseName
+        geometricDataWithoutStomataFilename = tissueBaseName + geometricDataWithoutStomataBaseName
         if Path(guardCellsToRemoveFilename).is_file():
-            geometricDataWithoutStomataFilename = tissueBaseName + geometricDataWithoutStomataBaseName
             fullGeometricDf = pd.read_csv(geometricTableFilename, skipfooter=skipfooter, engine="python")
             guardCellLabels = ConvertTextToLabels(guardCellsToRemoveFilename).labels
             isNotGuardCell = np.isin(fullGeometricDf.iloc[:, 0], guardCellLabels, invert=True)
@@ -394,16 +365,17 @@ def createGeometricdataTableWithRemovedStomata(baseFolder = "Images/full cotyled
             if not Path(geometricDataWithoutStomataFilename).is_file():
                 print(f"The file geometric data file without stomata {geometricDataWithoutStomataFilename} was not present and\ncould not be created as {guardCellsToRemoveFilename=} is not present for {g}, {r}, {t}")
 
-def saveCentralCellsAsCellType(centerCellsDict, scenarioName="WT inflorescence meristem",
+def saveCentralCellsAsCellType(centerCellsDict,
                                imageFolder="Images/Matz2022SAM/", centerRadius=20,
                                geometryBaseName="{}_{}_geometricData.csv", seperator="_",
                                selectedCellsFilenameSuffix="_CELL_TYPE.csv", centralCellId=8,
                                ):
-    scenarioBaseFolder = Path(imageFolder).joinpath(scenarioName)
-    for replicatePath in scenarioBaseFolder.glob("*"):
+    scenarioBaseFolder = Path(imageFolder)
+    for replicatePath in scenarioBaseFolder.glob("*/*"):
         if not replicatePath.is_dir():
             continue
         replicateName = replicatePath.parts[-1]
+        scenarioName = replicatePath.parts[-2]
         tissueInfo = (scenarioName, replicateName)
         centerCellsOfTimePoints = centerCellsDict[tissueInfo]
         for timePointTissuePath in replicatePath.glob("*"):
@@ -423,12 +395,13 @@ def saveCentralCellsAsCellType(centerCellsDict, scenarioName="WT inflorescence m
             centralCellsFilename = timePointTissuePath.joinpath(replicateAtTimePointName + selectedCellsFilenameSuffix)
             cellTypeDf.to_csv(centralCellsFilename, index=False)
 
-def mainInitalizeSAMDataAddingContoursAndJunctions():
-    centerDefiningCellsDict = {('WT inflorescence meristem', 'P1'): {"T0": [618, 467, 570], "T1": [5048, 5305], "T2": [5849, 5601], "T3": [6178, 6155, 6164], "T4": [6288, 6240]},
-                               ('WT inflorescence meristem', 'P2'): {"T0": [392], "T1": [553, 779, 527], "T2": [525], "T3": [1135], "T4": [1664, 1657]},
-                               ('WT inflorescence meristem', 'P5'): {"T0": [38], "T1": [585, 968, 982], "T2": [927, 1017], "T3": [1136], "T4": [1618, 1575, 1445]},
-                               ('WT inflorescence meristem', 'P6'): {"T0": [861], "T1": [1334, 1634, 1651], "T2": [1735, 1762, 1803], "T3": [2109, 2176], "T4": [2381]},
-                               ('WT inflorescence meristem', 'P8'): {"T0": [3241, 2869, 3044], "T1": [3421, 3657], "T2": [2676, 2805, 2876], "T3": [2898, 2997, 3013], "T4": [358, 189]},
-                               }
-    saveCentralCellsAsCellType(centerDefiningCellsDict, imageFolder="Images/Matz2022SAM/", scenarioName="WT inflorescence meristem")
-    mainCreateProcessedDataOf(imageFolder="Images/", scenarioName="Matz2022SAM/WT inflorescence meristem", multiFolderName="Matz2022SAM", addToExisiting=False)
+def mainInitalizeSAMDataAddingContoursAndJunctions(dataBaseFolder="Images/Matz2022SAM/",
+                                                   centerDefiningCellsDict = {('WT inflorescence meristem', 'P1'): {"T0": [618, 467, 570], "T1": [5048, 5305], "T2": [5849, 5601], "T3": [6178, 6155, 6164], "T4": [6288, 6240]},
+                                                                              ('WT inflorescence meristem', 'P2'): {"T0": [392], "T1": [553, 779, 527], "T2": [525], "T3": [1135], "T4": [1664, 1657]},
+                                                                              ('WT inflorescence meristem', 'P5'): {"T0": [38], "T1": [585, 968, 982], "T2": [927, 1017], "T3": [1136], "T4": [1618, 1575, 1445]},
+                                                                              ('WT inflorescence meristem', 'P6'): {"T0": [861], "T1": [1334, 1634, 1651], "T2": [1735, 1762, 1803], "T3": [2109, 2176], "T4": [2381]},
+                                                                              ('WT inflorescence meristem', 'P8'): {"T0": [3241, 2869, 3044], "T1": [3421, 3657], "T2": [2676, 2805, 2876], "T3": [2898, 2997, 3013], "T4": [358, 189]},
+                                                                              },
+                                                   overwrite=True):
+    saveCentralCellsAsCellType(centerDefiningCellsDict, imageFolder=dataBaseFolder)
+    mainCreateProcessedDataOf(imageFolder=dataBaseFolder, addToExisiting=not overwrite)

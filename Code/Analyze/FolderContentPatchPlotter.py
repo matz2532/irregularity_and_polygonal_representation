@@ -65,7 +65,7 @@ class FolderContentPatchPlotter (PatchCreator):
             if figAxesParameterDict:
                 figAxesParameterDict["currentAxes"] = i + 1
             if entryIdentifier[-1] == "Images/Eng2021Cotyledons.pkl" and measureDataFilenameKey == "polygonalGeometricData":
-                resultsTable = pd.read_csv("Results/combinedMeasures.csv")
+                resultsTable = pd.read_csv("Results/combinedMeasures_Eng2021Cotyledons.csv")
             else:
                 resultsTable = None
             if defaultshowColorBar is None:
@@ -372,7 +372,7 @@ def calcOffsetToAlignPlyFileWithContours(plyFilename, entryIdentifier, surfaceCo
 
 def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomedIn=False,
                measureDataFilenameKey=None, selectedSubMeasure=None, selectedSubMeasureName=None, colorMapValueRange=None):
-    baseFilename = f"{resultsFolder}figure2AB_{'{}'}_{'zoomedIn' if zoomedIn else 'overview'}_patches.png"
+    baseFilename = f"{resultsFolder}{'{}'}/figure2AB_{'{}'}_{'zoomedIn' if zoomedIn else 'overview'}_patches.png"
     if not measureDataFilenameKey is None:
         if selectedSubMeasureName is None:
             selectedSubMeasureName = selectedSubMeasure
@@ -436,15 +436,15 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
         else:
             scaleBarOffset = None
         if scenarioReplicateId == ("WT inflorescence meristem", "P2"):
-            backgroundFilename = "Images/Eng2021Cotyledons/WT inflorescence meristem/P2/T0/20190416 myr-yfp T0 P2 mesh3_full outlines other.ply"
+            backgroundFilename = "Images/Matz2022SAM/WT inflorescence meristem/P2/T0/20190416 myr-yfp T0 P2 mesh3_full outlines other.ply"
             loadBackgroundFromKey = None
             is3DBackground = True
             backgroundImageOffset = np.array([0, 0, -0.25])
             offsetToAlignPointsToOutline = calcOffsetToAlignPlyFileWithContours(backgroundFilename, entryIdentifier)
             backgroundImageOffset += offsetToAlignPointsToOutline
         else:
-            backgroundFilename = "Images/full cotyledons/WT/20200220 WT S1/20200220 WT S1_reduced_test(3)_reexported with signal.ply"
-            backgroundFilename = "Images/full cotyledons/WT/20200220 WT S1/20200220 WT S1_reduced_test(2)_reexport with signal.ply"
+            backgroundFilename = "Images/Matz2022SAM/WT/20200220 WT S1/20200220 WT S1_reduced_test(3)_reexported with signal.ply"
+            backgroundFilename = "Images/Matz2022SAM/WT/20200220 WT S1/20200220 WT S1_reduced_test(2)_reexport with signal.ply"
             loadBackgroundFromKey = None # "originalImageFilename"
             is3DBackground = True
             backgroundImageOffset = np.array([471.5/2, 315/2, -0.25])
@@ -456,7 +456,9 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
                       backgroundFilename=backgroundFilename, loadBackgroundFromKey=loadBackgroundFromKey, is3DBackground=is3DBackground, backgroundImageOffset=backgroundImageOffset,
                       **parameter)
         if save:
-            saveAsFilename = baseFilename.format(scenarioReplicateId[0])
+            scenarioName = Path(entryIdentifier[-1]).stem
+            saveAsFilename = baseFilename.format(scenarioName, scenarioReplicateId[0])
+            print(saveAsFilename)
             Path(saveAsFilename).parent.mkdir(parents=True, exist_ok=True)
             print(saveAsFilename)
             plt.savefig(saveAsFilename, bbox_inches="tight", dpi=300)

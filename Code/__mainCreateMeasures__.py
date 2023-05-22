@@ -19,7 +19,6 @@ from OtherMeasuresCreator import OtherMeasuresCreator
 from pathlib import Path
 from PerTissuePolygonRegularityCalculator import PerTissuePolygonRegularityCalculator
 from PointOrdererAlongOutline import saveOrderedJunctionsOf
-from PreProcessorDummy import PreProcessorDummy
 
 globalVerbosity = 3
 
@@ -31,7 +30,6 @@ def createFolderContentsOfAllTissues(allFolderContentsFilename, inputData, genot
         allFolderContents.SetAllFolderContentsFilename(allFolderContentsFilename)
     else:
         allFolderContents = MultiFolderContent(allFolderContentsFilename)
-    contourReader = PreProcessorDummy()
     for genotype, genotypesInputData in inputData.items():
         for replicateId, replicatesInputData in genotypesInputData.items():
             if dataBaseFolder is None:
@@ -195,7 +193,7 @@ def createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder,
 
 def createResultMeasureTable(allFolderContentsFilename, resultsFolder,
                              loadMeasuresFromFilenameUsingKeys=["regularityMeasuresFilename", "areaMeasuresPerCell"],
-                             tableBaseName="combinedMeasures.csv", includeCellId=True,
+                             tableBaseName="combinedMeasures_{}.csv", includeCellId=True,
                              ensureMeasuresPresenceOverAllTissues=False):
     if globalVerbosity >= 2:
         print(f"Combine measures into single table.")
@@ -216,15 +214,16 @@ def createResultMeasureTable(allFolderContentsFilename, resultsFolder,
     allMeasureNames = pd.unique(np.concatenate(allMeasureNames))
     measureResultsTidyDf = multiFolderContent.GetTidyDataFrameOf(allMeasureNames, includeCellId=includeCellId)
     measureResultsTidyDf[allMeasureNames] = measureResultsTidyDf[allMeasureNames].astype(float)
-    measureTableName = resultsFolder + tableBaseName
+    scenarioName = Path(allFolderContentsFilename).stem
+    measureTableName = resultsFolder + tableBaseName.format(scenarioName)
     Path(measureTableName).parent.mkdir(parents=True, exist_ok=True)
     measureResultsTidyDf.to_csv(measureTableName, index=False)
 
-def addRatioMeasuresToTable(resultsFolder,
+def addRatioMeasuresToTable(resultsFolder, scenarioName,
                             ratioBetween=[["originalPolygonArea", "labelledImageArea"], ["regularPolygonArea", "labelledImageArea"], ["regularPolygonArea", "originalPolygonArea"]],
-                            tableBaseName="combinedMeasures.csv",
+                            tableBaseName="combinedMeasures_{}.csv",
                             ratioNamePrefix="ratio_", ratioSeperatorName="_"):
-    measureTableName = resultsFolder + tableBaseName
+    measureTableName = resultsFolder + tableBaseName.format(scenarioName)
     measureResultsTidyDf = pd.read_csv(measureTableName)
     for dividendName, divisiorName in ratioBetween:
         assert dividendName in measureResultsTidyDf.columns, f"The column {dividendName} is not present in the table from {measureResultsTidyDf}, only the following columns are present {measureResultsTidyDf.columns}"
@@ -244,25 +243,6 @@ def combineTables(firstDf, secondDf, combineOn=["genotype", "replicate id", "tim
     reducedFirstDf = firstDf.drop(columns=columnsToDrop)
     mergedDf = pd.merge(reducedFirstDf, secondDf,  how='left', left_on=combineOn, right_on=combineOn)
     return mergedDf
-
-def addMeasuresToTableFrom(allFolderContentsFilename, filenameKeys="microtubuleAnisotropyAndOrientation",
-                           resultsFolder="", tableBaseName="combinedMeasures.csv"):
-    if type(filenameKeys) == str:
-        filenameKeys = [filenameKeys]
-    multiFolderContent = MultiFolderContent(allFolderContentsFilename)
-    extractedFilesKeys = []
-    isFirstTissue = True
-    for folderContent in multiFolderContent:
-        for key in filenameKeys:
-            keysAdded = multiFolderContent.AddDataFromFilenameContainingMultipleDicts(key, returnIndividualKeysAdded=True)
-            if isFirstTissue:
-                extractedFilesKeys.extend(keysAdded)
-        isFirstTissue = False
-    additionalResultsTable = multiFolderContent.GetTidyDataFrameOf(extractedFilesKeys)
-    measureTableName = resultsFolder + tableBaseName
-    measureResultsTidyDf = pd.read_csv(measureTableName)
-    measureResultsTidyDf = combineTables(measureResultsTidyDf, additionalResultsTable)
-    measureResultsTidyDf.to_csv(measureTableName, index=False)
 
 def calculateLobynessOfFolderContent(folderContent: FolderContent, resolutionInMicroMPerPixel: float = 1,
                                      outlineFilenameKey: str = "cellContours", lobynessFilenameKey: str = "lobyness"):
@@ -324,13 +304,13 @@ def calculateRelativeCompleteness(folderContent: FolderContent,
 
 
 def calculateAndAddRelativeCompletenessOf(dataBaseFolder="Images/", tableResultsFolder="Results/",
-                              folderContentsName = "Eng2021Cotyledons.pkl", tableBaseName="combinedMeasures.csv",
+                              folderContentsName = "Eng2021Cotyledons.pkl", tableBaseName="combinedMeasures_{}.csv",
                               allFolderContentsFilename=None, resultsTableFilename=None, reCalculate=True,
                               genotypeResolutionDict=None, relativeCompletenessFilenameKey: str = "relativeCompleteness"):
     if allFolderContentsFilename is None:
         allFolderContentsFilename = dataBaseFolder + folderContentsName
     if resultsTableFilename is None:
-        resultsTableFilename = tableResultsFolder + tableBaseName
+        resultsTableFilename = tableResultsFolder + tableBaseName.format(Path(allFolderContentsFilename.stem))
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
     if reCalculate:
         for folderContent in multiFolderContent:
@@ -346,9 +326,10 @@ def calculateAndAddRelativeCompletenessOf(dataBaseFolder="Images/", tableResults
 
 def mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True, redoTriWayJunctionPositioning=False):
     from InputData import GetInputData, GetResolutions
-    dataBaseFolder = "Images/Eng2021Cotyledons/"
-    resultsFolder = "Results/Eng2021Cotyledons/"
-    folderContentsName = "Eng2021Cotyledons.pkl"
+    scenarioName = "Eng2021Cotyledons"
+    dataBaseFolder = f"Images/{scenarioName}/"
+    resultsFolder = "Results"
+    folderContentsName = f"{scenarioName}.pkl"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     inputData = GetInputData()
     genotypeResolutionDict = GetResolutions()
@@ -360,15 +341,13 @@ def mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True, redoTriWayJunction
         orderTriWayJunctionsOnContour(dataBaseFolder, allFolderContentsFilename)
         createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder, genotypeResolutionDict=genotypeResolutionDict)
         createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder, useGeometricData=False)
-        # calculateAndAddLobynessOf(dataBaseFolder=dataBaseFolder, tableResultsFolder=resultsFolder, folderContentsName=folderContentsName, tableBaseName="combinedMeasures.csv", genotypeResolutionDict=genotypeResolutionDict)
-        # calculateAndAddRelativeCompletenessOf(dataBaseFolder=dataBaseFolder, tableResultsFolder=resultsFolder, folderContentsName=folderContentsName, tableBaseName="combinedMeasures.csv", genotypeResolutionDict=genotypeResolutionDict)
     createResultMeasureTable(allFolderContentsFilename, resultsFolder)
-    addRatioMeasuresToTable(resultsFolder)
+    addRatioMeasuresToTable(resultsFolder, scenarioName)
 
-def mainCalculateOnNewCotyledons(tissueName="full cotyledons", reCalculateMeasures=True):
-    dataBaseFolder = f"Images/{tissueName}/"
-    resultsFolder = f"Results/{tissueName}/"
-    allFolderContentsFilename = f"{dataBaseFolder}{tissueName}.pkl"
+def mainCalculateOnNewCotyledons(scenarioName="full cotyledons", reCalculateMeasures=True):
+    dataBaseFolder = f"Images/{scenarioName}/"
+    resultsFolder = "Results"
+    allFolderContentsFilename = f"{dataBaseFolder}{scenarioName}.pkl"
     tissueIdentifier = [["WT", '20200220 WT S1', '120h'],
                         ["WT", '20200221 WT S2', '120h'],
                         ["WT", '20200221 WT S3', '120h'],
@@ -381,23 +360,23 @@ def mainCalculateOnNewCotyledons(tissueName="full cotyledons", reCalculateMeasur
                                      checkCellsPresentInLabelledImage=False)
         createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder, useGeometricData=True)
     createResultMeasureTable(allFolderContentsFilename, resultsFolder, includeCellId=False)
-    addRatioMeasuresToTable(resultsFolder)
+    addRatioMeasuresToTable(resultsFolder, scenarioName)
 
 def mainOnSAMMatz2022(reCalculateMeasures=True):
-    dataBaseFolder = "Images/Matz2022SAM/"
-    resultsFolder = "Results/Matz2022SAM/"
-    allFolderContentsFilename = "Images/Matz2022SAM.pkl"
-    createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder, useGeometricData=True)
+    scenarioName = "Matz2022SAM"
+    dataBaseFolder = f"Images/{scenarioName}/"
+    resultsFolder = "Results"
+    allFolderContentsFilename = f"{dataBaseFolder}{scenarioName}.pkl"
     if reCalculateMeasures:
-        mainInitalizeSAMDataAddingContoursAndJunctions(baseFilename=dataBaseFolder)
+        mainInitalizeSAMDataAddingContoursAndJunctions(dataBaseFolder)
         addGeometricDataFilenameAndKey(allFolderContentsFilename, seperator="_", geometricTableBaseName="{}_geometricData.csv", polygonGeometricTableBaseName="{}_geometricData poly.csv")
         createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder,
                                      checkCellsPresentInLabelledImage=False)
         createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder, useGeometricData=True)
     createResultMeasureTable(allFolderContentsFilename, resultsFolder, loadMeasuresFromFilenameUsingKeys=["regularityMeasuresFilename", "areaMeasuresPerCell"], includeCellId=False)
-    addRatioMeasuresToTable(resultsFolder)
+    addRatioMeasuresToTable(resultsFolder, scenarioName)
 
 if __name__== "__main__":
     mainCalculateOnNewCotyledons(reCalculateMeasures=True)
-    # mainOnSAMMatz2022(reCalculateMeasures=True)
-    # mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True)
+    mainOnSAMMatz2022(reCalculateMeasures=True)
+    mainCalculateOnEng2021Cotyledon(reCalculateMeasures=True)

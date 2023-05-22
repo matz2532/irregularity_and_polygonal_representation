@@ -166,7 +166,7 @@ class CellIrregualrityBasedSelector (BasePlotter):
         return cellProperty
 
     def loadCellLabelFromWithFilenameKey(self, cellLabel, folderContent, filenameKey):
-        cellOutlines = folderContent.LoadKeyUsingFilenameDict(filenameKey)
+        cellOutlines = folderContent.LoadKeyUsingFilenameDict(filenameKey, convertDictKeysToInt=True, convertDictValuesToNpArray=True)
         assert cellLabel in cellOutlines, f"The {cellLabel=} is not present in the cellOutlines of {folderContent}\nThe keys {list(cellOutlines.keys())} exist."
         return cellOutlines[cellLabel]
 
@@ -335,10 +335,10 @@ def plotScaleComparison(plotterClass, individualCellsTable, allRegularityMeasure
 
 
 def visualiseRealExampleScales():
-    dataBaseFolder = "Images/"
+    dataBaseFolder = "Images/Eng2021Cotyledons/"
     resultsFolder = "Results/"
     folderContentsName = "Eng2021Cotyledons.pkl"
-    tableBaseName = "combinedMeasures.csv"
+    tableBaseName = "combinedMeasures_Eng2021Cotyledons.csv"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     resultsTableFilename = resultsFolder + tableBaseName
     polygonalCellRegularityScalePlotter = CellIrregualrityBasedSelector(resultsTableFilename, allFolderContentsFilename)
@@ -357,10 +357,10 @@ def visualiseRealExampleScales():
 
 def mainGoThroughOneByOne():
     import matplotlib.pyplot as plt
-    dataBaseFolder = "Images/"
+    dataBaseFolder = "Images/Eng2021Cotyledons/"
     resultsFolder = "Results/"
     folderContentsName = "Eng2021Cotyledons.pkl"
-    tableBaseName = "combinedMeasures.csv"
+    tableBaseName = "combinedMeasures_Eng2021Cotyledons.csv"
     defaultOrderedJunctionsEdgeColor = "#0072b2ff"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     resultsTableFilename = resultsFolder + tableBaseName
@@ -396,10 +396,10 @@ def mainGoThroughOneByOne():
 
 
 def main():
-    dataBaseFolder = "Images/"
+    dataBaseFolder = "Images/Eng2021Cotyledons/"
     resultsFolder = "Results/"
     folderContentsName = "Eng2021Cotyledons.pkl"
-    tableBaseName = "combinedMeasures.csv"
+    tableBaseName = "combinedMeasures_Eng2021Cotyledons.csv"
     measure = "lengthRegularity"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     resultsTableFilename = resultsFolder + tableBaseName

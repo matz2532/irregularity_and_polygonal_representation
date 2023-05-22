@@ -78,17 +78,17 @@ class RelativeValueExtractor (ExtendedPlotter):
             tmpChange[key] = value
         return tmpChange
 
-def mainPrintMeanValueOverScenarios(measureName="lengthGiniCoeff", tissueScenarioNames=["", "full cotyledons", "SAM", "first leaf"],
+def mainPrintMeanValueOverScenarios(measureName="lengthGiniCoeff", tissueScenarioNames=["Eng2021Cotyledons", "full cotyledons", "Mat2022SAM"],
                                     overwriteTimePointRenamingWith=None, furtherRemoveScenarioIds=None,
-                                    baseResultsFolder="Results/", measuresBaseName="combinedMeasures.csv", onlyShowLastAndFirstTimePoint=False):
-    resultsTableFilenames = [f"{baseResultsFolder}{i}/{measuresBaseName}" if i != "" else f"{baseResultsFolder}{measuresBaseName}" for i in tissueScenarioNames]
+                                    baseResultsFolder="Results/", measuresBaseName="combinedMeasures_{}.csv", onlyShowLastAndFirstTimePoint=False):
+    resultsTableFilenames = [f"{baseResultsFolder}{measuresBaseName.format(name)}" for name in tissueScenarioNames]
     renameTimePointDict = {'1DAI': "24h", '1.5DAI': "36h", '2DAI': "48h", '2.5DAI': "60h", '3DAI': "72h", '3.5DAI': "84h", '4DAI': "96h", '4.5DAI': "108h", '5DAI': "120h", '5.5DAI': "132h", '6DAI': "144h",
                            "11h": "12h", "35h": "36h", "45h": "48h", "57h": "60h", "69h": "72h", "25h": "24h", "50h": "48h", "77h": "72h", "22h": "24h"}
     if not overwriteTimePointRenamingWith is None:
         for timePointName, renameTo in overwriteTimePointRenamingWith.items():
             renameTimePointDict[timePointName] = renameTo
     timePointConversionFromStrToNumber = {"0h":0, '12h':12, "24h":24, '36h':36, "48h":48, '60h':60, "72h":72, '84h':84, "96h":96, '108h':108, "120h":120, '132h':132, '144h':144, "T0":0, "T1":24, "T2":48, "T3":72, "T4":96, "0-96h":0}
-    renameGenotypesDict = {"WT inflorescence meristem":"WT SAM", "col-0":"WT cotyledon", "WT":"WT cotyledon", "first_leaf_LeGloanec2022":"WT 1st leaf", "Oryzalin":"WT+Oryzalin cotyledon", "ktn1-2":"$\it{ktn1}$-$\it{2}$ cotyledon", "clasp-1":"$\it{clasp}$-$\it{1}$ cotyledon", "speechless_Fox2018_MGXfromLeGloanec":"$\it{speechless}$ 1st leaf"}
+    renameGenotypesDict = {"WT inflorescence meristem":"WT SAM", "col-0":"WT cotyledon", "WT":"WT cotyledon", "Oryzalin":"WT+Oryzalin cotyledon", "ktn1-2":"$\it{ktn1}$-$\it{2}$ cotyledon"}
     myRelativeValueExtractor = RelativeValueExtractor(resultsTableFilenames, timePointConversionFromStrToNumber, renameGenotypesDict=renameGenotypesDict,
                                                       renameTimePointDict=renameTimePointDict, onlyShowLastAndFirstTimePoint=onlyShowLastAndFirstTimePoint,
                                                       furtherRemoveScenarioIds=furtherRemoveScenarioIds)
@@ -97,16 +97,16 @@ def mainPrintMeanValueOverScenarios(measureName="lengthGiniCoeff", tissueScenari
     print(meanValuesOfScenarios)
 
 def mainPrintRelativeDiffBetweenScenarios(scenarioIdFrom = ('1st leaf', 'WT', '48h'), scenarioIdTo = ('1st leaf', 'WT', '60h'),
-                                          measureName="lengthGiniCoeff", tissueScenarioNames=["", "full cotyledons", "SAM", "first leaf"], overwriteTimePointRenamingWith=None,
-                                          baseResultsFolder="Results/", measuresBaseName="combinedMeasures.csv", onlyShowLastAndFirstTimePoint=False, printOut=True):
-    resultsTableFilenames = [f"{baseResultsFolder}{i}/{measuresBaseName}" if i != "" else f"{baseResultsFolder}{measuresBaseName}" for i in tissueScenarioNames]
+                                          measureName="lengthGiniCoeff", tissueScenarioNames=["Eng2021Cotyledons", "full cotyledons", "Mat2022SAM"], overwriteTimePointRenamingWith=None,
+                                          baseResultsFolder="Results/", measuresBaseName="combinedMeasures_{}.csv", onlyShowLastAndFirstTimePoint=False, printOut=True):
+    resultsTableFilenames = [f"{baseResultsFolder}{measuresBaseName.format(name)}" for name in tissueScenarioNames]
     renameTimePointDict = {'1DAI': "24h", '1.5DAI': "36h", '2DAI': "48h", '2.5DAI': "60h", '3DAI': "72h", '3.5DAI': "84h", '4DAI': "96h", '4.5DAI': "108h", '5DAI': "120h", '5.5DAI': "132h", '6DAI': "144h",
                            "11h": "12h", "35h": "36h", "45h": "48h", "57h": "60h", "69h": "72h", "25h": "24h", "50h": "48h", "77h": "72h", "22h": "24h", "T0": "0h", "T1": "24h", "T2": "48h", "T3": "72h", "T4":"96h"} #, "T1": "0-96h", "T2": "0-96h", "T3": "0-96h", "T4": "0-96h"} #
     if not overwriteTimePointRenamingWith is None:
         for timePointName, renameTo in overwriteTimePointRenamingWith.items():
             renameTimePointDict[timePointName] = renameTo
     timePointConversionFromStrToNumber = {"0h":0, '12h':12, "24h":24, '36h':36, "48h":48, '60h':60, "72h":72, '84h':84, "96h":96, '108h':108, "120h":120, '132h':132, '144h':144, "T0":0, "T1":24, "T2":48, "T3":72, "T4":96, "0-96h":0}
-    renameGenotypesDict = {"WT inflorescence meristem":"WT SAM", "col-0":"WT cotyledon", "WT":"WT cotyledon", "first_leaf_LeGloanec2022":"WT 1st leaf", "Oryzalin":"WT+Oryzalin cotyledon", "ktn1-2":"$\it{ktn1}$-$\it{2}$ cotyledon", "clasp-1":"$\it{clasp}$-$\it{1}$ cotyledon", "speechless_Fox2018_MGXfromLeGloanec":"$\it{speechless}$ 1st leaf"}
+    renameGenotypesDict = {"WT inflorescence meristem":"WT SAM", "col-0":"WT cotyledon", "WT":"WT cotyledon", "Oryzalin":"WT+Oryzalin cotyledon", "ktn1-2":"$\it{ktn1}$-$\it{2}$ cotyledon"}
     myRelativeValueExtractor = RelativeValueExtractor(resultsTableFilenames, timePointConversionFromStrToNumber, renameGenotypesDict=renameGenotypesDict,
                                                       renameTimePointDict=renameTimePointDict, onlyShowLastAndFirstTimePoint=onlyShowLastAndFirstTimePoint)
     relativeChangesOf = myRelativeValueExtractor.CompareRelativeChangesBetween(scenarioIdFrom, scenarioIdTo, measureName, printOut=printOut)
@@ -114,7 +114,7 @@ def mainPrintRelativeDiffBetweenScenarios(scenarioIdFrom = ('1st leaf', 'WT', '4
 
 def mainPrintMultipleRelativeDiffBetweenScenarios(listOfScenarioIdFrom = [('1st leaf', 'WT', '48h'), ('1st leaf', 'WT', '48h'), ('1st leaf', 'WT', '48h'), ('1st leaf', '$\\it{speechless}$', '24h'), ('1st leaf', '$\\it{speechless}$', '48h')],
                                                   listOfScenarioIdTo = [('1st leaf', 'WT', '96h'), ('1st leaf', 'WT', '108h'), ('1st leaf', 'WT', '132h'), ('1st leaf', '$\\it{speechless}$', '84h'), ('1st leaf', '$\\it{speechless}$', '84h')],
-                                                  measureName="lengthGiniCoeff", tissueScenarioNames=["", "full cotyledons", "SAM", "first leaf"], overwriteTimePointRenamingWith=None,
+                                                  measureName="lengthGiniCoeff", tissueScenarioNames=["Eng2021Cotyledons", "full cotyledons", "Mat2022SAM"], overwriteTimePointRenamingWith=None,
                                                   baseResultsFolder="Results/", measuresBaseName="combinedMeasures.csv", onlyShowLastAndFirstTimePoint=False):
     print("mainPrintMultipleRelativeDiffBetweenScenarios", measureName)
     for scenarioIdFrom, scenarioIdTo in zip(listOfScenarioIdFrom, listOfScenarioIdTo):
@@ -123,16 +123,16 @@ def mainPrintMultipleRelativeDiffBetweenScenarios(listOfScenarioIdFrom = [('1st 
                                                         onlyShowLastAndFirstTimePoint=onlyShowLastAndFirstTimePoint, printOut=False)
         print(scenarioIdFrom, scenarioIdTo, changes)
 
-def mainPrintRelativeDiffTo(valueToCheckAgainst, measureName="lengthGiniCoeff", tissueScenarioNames=["", "full cotyledons", "SAM", "first leaf"],
-                            baseResultsFolder="Results/", measuresBaseName="combinedMeasures.csv", onlyShowLastAndFirstTimePoint=True, overwriteTimePointRenamingWith=None):
-    resultsTableFilenames = [f"{baseResultsFolder}{i}/{measuresBaseName}" if i != "" else f"{baseResultsFolder}{measuresBaseName}" for i in tissueScenarioNames]
+def mainPrintRelativeDiffTo(valueToCheckAgainst, measureName="lengthGiniCoeff", tissueScenarioNames=["Eng2021Cotyledons", "full cotyledons", "Mat2022SAM"],
+                            baseResultsFolder="Results/", measuresBaseName="combinedMeasures_{}.csv", onlyShowLastAndFirstTimePoint=True, overwriteTimePointRenamingWith=None):
+    resultsTableFilenames = [f"{baseResultsFolder}{measuresBaseName.format(name)}" for name in tissueScenarioNames]
     renameTimePointDict = {'1DAI': "24h", '1.5DAI': "36h", '2DAI': "48h", '2.5DAI': "60h", '3DAI': "72h", '3.5DAI': "84h", '4DAI': "96h", '4.5DAI': "108h", '5DAI': "120h", '5.5DAI': "132h", '6DAI': "144h",
                            "11h": "12h", "35h": "36h", "45h": "48h", "57h": "60h", "69h": "72h", "25h": "24h", "50h": "48h", "77h": "72h", "22h": "24h", "T0": "0-96h", "T1": "0-96h", "T2": "0-96h", "T3": "0-96h", "T4": "0-96h"} #, "T0": "0h", "T1": "24h", "T2": "48h", "T3": "72h", "T4":"96h"} #
     if not overwriteTimePointRenamingWith is None:
         for timePointName, renameTo in overwriteTimePointRenamingWith.items():
             renameTimePointDict[timePointName] = renameTo
     timePointConversionFromStrToNumber = {"0h":0, '12h':12, "24h":24, '36h':36, "48h":48, '60h':60, "72h":72, '84h':84, "96h":96, '108h':108, "120h":120, '132h':132, '144h':144, "T0":0, "T1":24, "T2":48, "T3":72, "T4":96, "0-96h":0}
-    renameGenotypesDict = {"WT inflorescence meristem":"WT SAM", "col-0":"WT cotyledon", "WT":"WT cotyledon", "first_leaf_LeGloanec2022":"WT 1st leaf", "Oryzalin":"WT+Oryzalin cotyledon", "ktn1-2":"$\it{ktn1}$-$\it{2}$ cotyledon", "clasp-1":"$\it{clasp}$-$\it{1}$ cotyledon", "speechless_Fox2018_MGXfromLeGloanec":"$\it{speechless}$ 1st leaf"}
+    renameGenotypesDict = {"WT inflorescence meristem":"WT SAM", "col-0":"WT cotyledon", "WT":"WT cotyledon","Oryzalin":"WT+Oryzalin cotyledon", "ktn1-2":"$\it{ktn1}$-$\it{2}$ cotyledon"}
     myRelativeValueExtractor = RelativeValueExtractor(resultsTableFilenames, timePointConversionFromStrToNumber, renameGenotypesDict=renameGenotypesDict,
                                                       renameTimePointDict=renameTimePointDict, onlyShowLastAndFirstTimePoint=onlyShowLastAndFirstTimePoint)
     relativeChangesOf = myRelativeValueExtractor.ExtractRelativeChanges(measureName, valueToCheckAgainst)
@@ -142,7 +142,7 @@ def printGeneralGDifferencesToIdentifyDirectionality():
     import pandas as pd
     baseReultsFolder, baseResultsName = "Results/", "combinedMeasures.csv"
     checkAgainstEachOther = [["lengthGiniCoeff generalG Value", "lengthGiniCoeff expected GeneralG", "lengthGiniCoeff generalG pValue"], ["angleGiniCoeff generalG Value", "angleGiniCoeff expected GeneralG", "angleGiniCoeff generalG pValue"]]
-    tissueScenarioFolderNames = ["", "full cotyledons/", "SAM/", "first leaf/"]
+    tissueScenarioFolderNames = ["Eng2021Cotyledons", "full cotyledons", "Matz2022SAM"]
     for i, j, k in checkAgainstEachOther:
         print("\n", i, j, k)
         for tissueFolder in tissueScenarioFolderNames:
