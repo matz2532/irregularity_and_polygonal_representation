@@ -52,14 +52,14 @@ class MGXToFolderContentConverter (object):
     #
     removeSmallCells=True
 
-    def __init__(self, tissuePathFolder, extract3DContours=False, useCellTypeTable=False, timePointInPath=False, runOnInit=True, **kwargs):
+    def __init__(self, tissuePathFolder, extract3DContours=False, useCellTypeTable=False, keepAllCells=False, timePointInPath=False, runOnInit=True, **kwargs):
         if type(tissuePathFolder) == str:
             tissuePathFolder = Path(tissuePathFolder)
         self.tissuePathFolder = tissuePathFolder
         self.extract3DContours = extract3DContours
         self.SetDefaultParameter(kwargs)
         if runOnInit:
-            self.folderContent = self.createFolderContentFrom(self.tissuePathFolder, timePointInPath=timePointInPath, useCellTypeTable=useCellTypeTable)
+            self.folderContent = self.createFolderContentFrom(self.tissuePathFolder, useCellTypeTable=useCellTypeTable, keepAllCells=keepAllCells, timePointInPath=timePointInPath)
 
     def SetDefaultParameter(self, kwargs):
         if "originalImagePatternExtension" in kwargs:
@@ -82,7 +82,8 @@ class MGXToFolderContentConverter (object):
     def GetFolderContent(self):
         return self.folderContent
 
-    def createFolderContentFrom(self, tissuePathFolder, timePointInPath=False, defaultTimePoint="120h", useCellTypeTable=False, tissuePropertySeperator=None):
+    def createFolderContentFrom(self, tissuePathFolder, timePointInPath=False, defaultTimePoint="120h", useCellTypeTable=False,
+                                keepAllCells=False, extractPeripheralCellsFromJunctions=True, tissuePropertySeperator=None):
         if tissuePropertySeperator is None:
             tissuePropertySeperator = self.tissuePropertySeperator
         folderContent = self.createBaseFolderContentFromPath(tissuePathFolder, timePointInPath=timePointInPath, defaultTimePoint=defaultTimePoint, tissuePropertySeperator=tissuePropertySeperator)
@@ -94,14 +95,23 @@ class MGXToFolderContentConverter (object):
         # add cell types
         cellTypesDict = self.addCellTypeInfoTo(folderContent, tissueGraph, useCellTypeTable=useCellTypeTable)
         # add contours and junction positions of pavement cell type and guard cell junction positions
-        mgxJunctionReader = self.addContourInfoTo(folderContent, cellTypesDict=cellTypesDict,
-                                                  extractPeripheralCellsFromJunctions=True,
+        if keepAllCells:
+            cellTypesDictToPropagate = None
+        else:
+            cellTypesDictToPropagate = cellTypesDict
+        mgxJunctionReader = self.addContourInfoTo(folderContent, cellTypesDict=cellTypesDictToPropagate,
+                                                  extractPeripheralCellsFromJunctions=extractPeripheralCellsFromJunctions,
                                                   plyExtension=self.plyJunctionNameExtension, fileResultsNameExtension=self.orderedJunctionsNameExtension,
-                                                  filenameKey=self.orderedJunctionsPerCellFilenameKey)
-        mgxContourReader = self.addContourInfoTo(folderContent, cellTypesDict=cellTypesDict,
-                                                 plyExtension=self.plyContourNameExtension, fileResultsNameExtension=self.contourNameExtension,
-                                                 filenameKey=self.contoursFilenameKey)
-        self.removeCellsWithOutJunctions(folderContent, mgxContourReader, mgxJunctionReader, cellTypesDict)
+                                                  filenameKey=self.orderedJunctionsPerCellFilenameKey,
+                                                  save=False)
+        self.addContourInfoTo(folderContent, cellTypesDict=cellTypesDictToPropagate,
+                              plyExtension=self.plyContourNameExtension, fileResultsNameExtension=self.contourNameExtension,
+                              filenameKey=self.contoursFilenameKey)
+        cellLabelsMissingJunctions = self.removeCellsWithoutJunctions(folderContent)
+        if keepAllCells:
+            if extractPeripheralCellsFromJunctions:
+                cellTypesDict = self.addAndDistinguishPeripheralCellsTo(cellTypesDict, mgxJunctionReader)
+        self.saveCellTypes(cellTypesDict, cellLabelsMissingJunctions)
         if not useCellTypeTable:
             guardCellLabels = cellTypesDict[self.guardCellTypeKey]
             junctionPositionsOfAllCells = mgxJunctionReader.GetCellsContourPositions()
@@ -161,16 +171,11 @@ class MGXToFolderContentConverter (object):
                          save=True):
         plyFilename = self.tissueBaseFilename + plyExtension
         contourReader = MGXContourFromPlyFileReader(plyFilename, extract3DContours=self.extract3DContours)
-        if extractPeripheralCellsFromJunctions:
-            peripheralCellLabels = contourReader.ExtractPeripheralCellLabelsFromJunctions()
-            cellSelector = CellTypeSelector(runOnInit=False)
-            cellSelector.SetCellType(cellTypesDict)
-            if len(peripheralCellLabels) > 0:
-                cellSelector.UpdateCellTypeWith({"peripheral cells":peripheralCellLabels}, keepingCellsInType=self.guardCellTypeKey)
-                cellTypesDict = cellSelector.GetCellType()
         if cellTypesDict is None:
             onlyKeepCellLabels = None
         else:
+            if extractPeripheralCellsFromJunctions:
+                cellTypesDict = self.addAndDistinguishPeripheralCellsTo(cellTypesDict, contourReader)
             onlyKeepCellLabels = cellTypesDict[self.pavementCellTypeKey]
             if not self.minimumRequiredArea is None:
                 geometricData = folderContent.LoadKeyUsingFilenameDict(self.geometricDataFilenameKey, skipfooter=4)
@@ -185,7 +190,16 @@ class MGXToFolderContentConverter (object):
             folderContent.AddDataToFilenameDict(contoursFilename, filenameKey)
         return contourReader
 
-    def removeCellsWithOutJunctions(self, folderContent, mgxContourReader, mgxJunctionReader, cellTypesDict):
+    def addAndDistinguishPeripheralCellsTo(self, cellTypesDict, contourReader):
+        peripheralCellLabels = contourReader.ExtractPeripheralCellLabelsFromJunctions()
+        cellSelector = CellTypeSelector(runOnInit=False)
+        cellSelector.SetCellType(cellTypesDict)
+        if len(peripheralCellLabels) > 0:
+            cellSelector.UpdateCellTypeWith({"peripheral cells": peripheralCellLabels}, keepingCellsInType=self.guardCellTypeKey)
+            cellTypesDict = cellSelector.GetCellType()
+        return cellTypesDict
+
+    def removeCellsWithoutJunctions(self, folderContent):
         cellsContours = folderContent.LoadKeyUsingFilenameDict(self.contoursFilenameKey)
         cellsJunctions = folderContent.LoadKeyUsingFilenameDict(self.orderedJunctionsPerCellFilenameKey)
         cellLabelsHavingContour = np.array(list(cellsContours.keys()))
@@ -194,15 +208,16 @@ class MGXToFolderContentConverter (object):
         if len(cellLabelsMissingJunctions) > 0:
             for cellLabel in cellLabelsMissingJunctions:
                 cellsContours.pop(cellLabel)
-            cellLabelsHavingContour = np.array(list(cellsContours.keys()))
-            cellLabelsHavingJunctions = list(cellsJunctions.keys())
             contoursFilename = folderContent.GetFilenameDict()[self.contoursFilenameKey]
             with open(contoursFilename, "wb") as fh:
                 pickle.dump(cellsContours, fh)
+        return cellLabelsMissingJunctions
+
+    def saveCellTypes(self, cellTypesDict, cellLabelsMissingJunctions: list = []):
         cellSelector = CellTypeSelector(tissueBaseFilename=self.tissueBaseFilename, runOnInit=False)
         cellSelector.SetCellType(cellTypesDict)
         if len(cellLabelsMissingJunctions) > 0:
-            cellSelector.UpdateCellTypeWith({"cells without contour":cellLabelsMissingJunctions}, keepingCellsInType=self.guardCellTypeKey)
+            cellSelector.UpdateCellTypeWith({"cells without contour": cellLabelsMissingJunctions}, keepingCellsInType=self.guardCellTypeKey)
         cellSelector.SaveCellTypes(baseNameExtension=self.cellTypesBaseName)
         cellSelector.SaveHeatmapOfCellTypes(geometricTableBaseName=self.geometricTableBaseName)
 
