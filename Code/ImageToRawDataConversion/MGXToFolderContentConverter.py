@@ -102,8 +102,7 @@ class MGXToFolderContentConverter (object):
         mgxJunctionReader = self.addContourInfoTo(folderContent, cellTypesDict=cellTypesDictToPropagate,
                                                   extractPeripheralCellsFromJunctions=extractPeripheralCellsFromJunctions,
                                                   plyExtension=self.plyJunctionNameExtension, fileResultsNameExtension=self.orderedJunctionsNameExtension,
-                                                  filenameKey=self.orderedJunctionsPerCellFilenameKey,
-                                                  save=False)
+                                                  filenameKey=self.orderedJunctionsPerCellFilenameKey)
         self.addContourInfoTo(folderContent, cellTypesDict=cellTypesDictToPropagate,
                               plyExtension=self.plyContourNameExtension, fileResultsNameExtension=self.contourNameExtension,
                               filenameKey=self.contoursFilenameKey)
