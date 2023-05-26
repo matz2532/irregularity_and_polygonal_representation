@@ -45,7 +45,7 @@ class MGXToFolderContentConverter (object):
     polygonGeometricDataFilenameKey      ="polygonalGeometricData"
     # cell selection parameters
     minimumRequiredArea=None # in this case square micro meter
-    pavementCellTypeKey="pavement cell"
+    cellTypeNamesToKeep: str or list = "pavement cell" # ["pavement cell", "guard cell", "small cells"]
     guardCellTypeKey="guard cell"
     #
     tissuePropertySeperator="_"
@@ -176,7 +176,10 @@ class MGXToFolderContentConverter (object):
         else:
             if extractPeripheralCellsFromJunctions:
                 cellTypesDict = self.addAndDistinguishPeripheralCellsTo(cellTypesDict, contourReader)
-            onlyKeepCellLabels = cellTypesDict[self.pavementCellTypeKey]
+            if isinstance(self.cellTypeNamesToKeep, str):
+                onlyKeepCellLabels = cellTypesDict[self.cellTypeNamesToKeep]
+            else:
+                onlyKeepCellLabels = np.concatenate([cellTypesDict[cellTypeName] for cellTypeName in self.cellTypeNamesToKeep])
             if not self.minimumRequiredArea is None:
                 geometricData = folderContent.LoadKeyUsingFilenameDict(self.geometricDataFilenameKey, skipfooter=4)
                 cellSizesOfCellsToKeep = [geometricData.iloc[np.where(geometricData.iloc[:, 0] == cell)[0], 2].values[0] for cell in onlyKeepCellLabels]
