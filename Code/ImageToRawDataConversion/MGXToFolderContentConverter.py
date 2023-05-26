@@ -52,16 +52,26 @@ class MGXToFolderContentConverter (object):
     #
     removeSmallCells=True
 
-    def __init__(self, tissuePathFolder, extract3DContours=False, useCellTypeTable=False, keepAllCells=False, timePointInPath=False, runOnInit=True, **kwargs):
+    def __init__(self, tissuePathFolder, extract3DContours=False, useCellTypeTable=False, keepAllCells=False, extractPeripheralCellsFromJunctions=True,
+                 timePointInPath=False, runOnInit=True, **kwargs):
         if type(tissuePathFolder) == str:
             tissuePathFolder = Path(tissuePathFolder)
         self.tissuePathFolder = tissuePathFolder
         self.extract3DContours = extract3DContours
         self.SetDefaultParameter(kwargs)
         if runOnInit:
-            self.folderContent = self.createFolderContentFrom(self.tissuePathFolder, useCellTypeTable=useCellTypeTable, keepAllCells=keepAllCells, timePointInPath=timePointInPath)
+            self.folderContent = self.createFolderContentFrom(self.tissuePathFolder, useCellTypeTable=useCellTypeTable,
+                                                              keepAllCells=keepAllCells,
+                                                              extractPeripheralCellsFromJunctions=extractPeripheralCellsFromJunctions,
+                                                              timePointInPath=timePointInPath)
 
     def SetDefaultParameter(self, kwargs):
+        if "cellTypeNamesToKeep" in kwargs:
+            self.cellTypeNamesToKeep = kwargs["cellTypeNamesToKeep"]
+        if "geometricTableBaseName" in kwargs:
+            self.geometricTableBaseName = kwargs["geometricTableBaseName"]
+        if "guardCellTypeKey" in kwargs:
+            self.guardCellTypeKey = kwargs["guardCellTypeKey"]
         if "originalImagePatternExtension" in kwargs:
             self.originalImagePatternExtension = kwargs["originalImagePatternExtension"]
         if "plyCellGraphExtension" in kwargs:
@@ -70,14 +80,12 @@ class MGXToFolderContentConverter (object):
             self.plyContourNameExtension = kwargs["plyContourNameExtension"]
         if "plyJunctionNameExtension" in kwargs:
             self.plyJunctionNameExtension = kwargs["plyJunctionNameExtension"]
-        if "geometricTableBaseName" in kwargs:
-            self.geometricTableBaseName = kwargs["geometricTableBaseName"]
         if "polygonGeometricTableBaseName" in kwargs:
             self.polygonGeometricTableBaseName = kwargs["polygonGeometricTableBaseName"]
-        if "tissuePropertySeperator" in kwargs:
-            self.tissuePropertySeperator = kwargs["tissuePropertySeperator"]
         if "removeSmallCells" in kwargs:
             self.removeSmallCells = kwargs["removeSmallCells"]
+        if "tissuePropertySeperator" in kwargs:
+            self.tissuePropertySeperator = kwargs["tissuePropertySeperator"]
 
     def GetFolderContent(self):
         return self.folderContent
