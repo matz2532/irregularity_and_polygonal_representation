@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import pickle
 import re
+import shutil
 import sys
 
 sys.path.insert(0, "./Code/DataStructures/")
@@ -265,7 +266,7 @@ def mainCreateAllFullCotyledons(saveFolderContentsUnder=None, cotyledonBaseFolde
                                                      ["WT", "20200221 WT S2"],
                                                      ["WT", "20200221 WT S3"],
                                                      ["WT", "20200221 WT S5"],],
-                                overwrite=True):
+                                cellTypeNamesToKeep=None, overwrite=True, **kwargs):
     if saveFolderContentsUnder is None:
         saveFolderContentsUnder = cotyledonBaseFolder + Path(cotyledonBaseFolder).stem + "_multiFolderContent_temp.pkl"
     if overwrite:
@@ -273,7 +274,8 @@ def mainCreateAllFullCotyledons(saveFolderContentsUnder=None, cotyledonBaseFolde
         multiFolderContent.SetAllFolderContentsFilename(saveFolderContentsUnder)
     else:
         multiFolderContent = MultiFolderContent(saveFolderContentsUnder)
-
+    if cellTypeNamesToKeep is not None:
+        kwargs["cellTypeNamesToKeep"] = cellTypeNamesToKeep
     for tissueIdentifier in allTissueIdentifiers:
         assert len(tissueIdentifier) == 2 or len(tissueIdentifier) == 3, f"The tissue identifier {tissueIdentifier} contains neither 2 nor 3 tissueIdentifier, but {len(tissueIdentifier)}, which is not yet implemented."
         if len(tissueIdentifier) == 2:
@@ -281,7 +283,7 @@ def mainCreateAllFullCotyledons(saveFolderContentsUnder=None, cotyledonBaseFolde
         else:
             genotype, tissueReplicateId, timePoint = tissueIdentifier
         tissuePathFolder = Path(f"{cotyledonBaseFolder}{genotype}/{tissueReplicateId}/")
-        myMGXToFolderContentConverter = MGXToFolderContentConverter(tissuePathFolder, plyContourNameExtension=plyContourNameExtension)
+        myMGXToFolderContentConverter = MGXToFolderContentConverter(tissuePathFolder, plyContourNameExtension=plyContourNameExtension, **kwargs)
         folderContent = myMGXToFolderContentConverter.GetFolderContent()
         multiFolderContent.AppendFolderContent(folderContent)
     multiFolderContent.UpdateFolderContents()
@@ -367,7 +369,8 @@ def createGeometricdataTableWithRemovedStomata(baseFolder = "Images/full cotyled
                                                geometricTableBaseName = "_geometricData full.csv",
                                                geometricDataWithoutStomataBaseName = "_geometricData no stomata.csv",
                                                guardCellsToRemoveBaseName = "_proposed guard cells.txt",
-                                               skipfooter = 4):
+                                               skipfooter = 4,
+                                               copyInsteadOfThrowingErrorIfNoStomata: bool = True):
 
     for g, r, t in tissueIdentifier:
         tissueBaseName = str(Path(baseFolder).joinpath(g, r, r))
@@ -388,7 +391,10 @@ def createGeometricdataTableWithRemovedStomata(baseFolder = "Images/full cotyled
                     fh.write(line)
         else:
             if not Path(geometricDataWithoutStomataFilename).is_file():
-                print(f"The file geometric data file without stomata {geometricDataWithoutStomataFilename} was not present and\ncould not be created as {guardCellsToRemoveFilename=} is not present for {g}, {r}, {t}")
+                if copyInsteadOfThrowingErrorIfNoStomata:
+                    shutil.copy(geometricTableFilename, geometricDataWithoutStomataFilename)
+                else:
+                    print(f"The file geometric data file without stomata {geometricDataWithoutStomataFilename} was not present and\ncould not be created as {guardCellsToRemoveFilename=} is not present for {g}, {r}, {t}")
 
 def saveCentralCellsAsCellType(centerCellsDict,
                                imageFolder="Images/Matz2022SAM/", centerRadius=20,
