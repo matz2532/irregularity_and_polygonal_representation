@@ -100,10 +100,10 @@ class MGXContourFromPlyFileReader (object):
                 isToSmall = areasOfNotPresentCells < smallCellThreshold
                 onlyKeepCellLabels = np.array(cellLabelsWithContourPositions)[isCellToKeepPresent]
                 if not np.all(isToSmall):
-                    warnings.warn(f"The following cell/s from {self.junctionPlyFilename=} don't have contour positions\n{list(notPresentCells)} and\nof those these cells {list(notPresentCells[np.invert(isToSmall)])} with areas {list(areasOfNotPresentCells[np.invert(isToSmall)])} dont fall bellow the area threshold of {smallCellThreshold}\nand could not be saved under:\n{filenameToSave}\nonly the following are present:\n{list(np.sort(cellLabelsWithContourPositions))}")
+                    warnings.warn(f"The following cell/s from {self.junctionPlyFilename=} don't have contour positions\n{list(notPresentCells)} and\nof those these cells {list(notPresentCells[np.invert(isToSmall)])} with areas {list(areasOfNotPresentCells[np.invert(isToSmall)])} dont fall bellow the area threshold of {smallCellThreshold}\nand could not be saved under:\n{filenameToSave}\nonly the following are present:\n{list(np.sort(cellLabelsWithContourPositions))}\nThe cells could be to small or in terms of polygonal cells (only junctions) are no valid polygons with just two junctions.")
             else:
                 if not np.all(isCellToKeepPresent):
-                    print(f"WARNING: The following cell/s from {self.junctionPlyFilename=} don't have contour positions\n{list(np.sort( np.array(onlyKeepCellLabels)[np.invert(isCellToKeepPresent)] ))}\nand could not be saved under:\n{filenameToSave}\nonly the following are present:\n{list(np.sort(cellLabelsWithContourPositions))}")
+                    print(f"WARNING: The following cell/s from {self.junctionPlyFilename=} don't have contour positions\n{list(np.sort( np.array(onlyKeepCellLabels)[np.invert(isCellToKeepPresent)] ))}\nand could not be saved under:\n{filenameToSave}\nonly the following are present:\n{list(np.sort(cellLabelsWithContourPositions))}\nThe cells could be to small or in terms of polygonal cells (only junctions) are no valid polygons with just two junctions.")
                     onlyKeepCellLabels = list(np.array(onlyKeepCellLabels)[isCellToKeepPresent])
             dictOfCellsContourPositions = {}
             for cellLabel in onlyKeepCellLabels:
