@@ -234,8 +234,7 @@ def extractLeafCellTypesOf(tissueBaseFilename, tissueGraph=None, fullGeometricTa
         # select cut of for which cells smaller than this value are selected as small cells
         smallCellValues = np.percentile(areaValues.iloc[:, 1], 25)
     else:
-        smallCellValues = areaValues.min() - 1
-    # print(f"{smallCellValues=}")
+        smallCellValues = areaValues.iloc[:, 1].min() - 1
     myCellTypeSelector = CellTypeSelector(tissueBaseFilename, tissuesGraphFilename=tissueGraph)
     myCellTypeSelector.UpdateCellTypeUsingGeometricDataValues(cellTypeName="small cells", geometricTableBaseName=withoutStomataGeometricTableBaseName,
                                                               newCellTypeHasSmallerThanValue=smallCellValues)
