@@ -49,6 +49,8 @@ class MGXToFolderContentConverter (object):
     cellTypeNamesToKeep: str or list = "pavement cell" # ["pavement cell", "guard cell", "small cells"]
     guardCellTypeKey="guard cell"
     #
+    defaultTimePoint="120h"
+    #
     tissuePropertySeperator="_"
     #
     removeSmallCells=True
@@ -64,7 +66,7 @@ class MGXToFolderContentConverter (object):
             self.folderContent = self.createFolderContentFrom(self.tissuePathFolder, useCellTypeTable=useCellTypeTable,
                                                               keepAllCells=keepAllCells,
                                                               extractPeripheralCellsFromJunctions=extractPeripheralCellsFromJunctions,
-                                                              timePointInPath=timePointInPath)
+                                                              timePointInPath=timePointInPath, defaultTimePoint=self.defaultTimePoint)
 
     def SetDefaultParameter(self, kwargs):
         if "cellTypeNamesToKeep" in kwargs:
@@ -83,6 +85,8 @@ class MGXToFolderContentConverter (object):
             self.plyJunctionNameExtension = kwargs["plyJunctionNameExtension"]
         if "polygonGeometricTableBaseName" in kwargs:
             self.polygonGeometricTableBaseName = kwargs["polygonGeometricTableBaseName"]
+        if "defaultTimePoint" in kwargs:
+            self.defaultTimePoint = kwargs["defaultTimePoint"]
         if "removeSmallCells" in kwargs:
             self.removeSmallCells = kwargs["removeSmallCells"]
         if "tissuePropertySeperator" in kwargs:
@@ -282,6 +286,7 @@ def mainCreateAllFullCotyledons(saveFolderContentsUnder=None, cotyledonBaseFolde
             genotype, tissueReplicateId = tissueIdentifier
         else:
             genotype, tissueReplicateId, timePoint = tissueIdentifier
+            kwargs["defaultTimePoint"] = timePoint
         tissuePathFolder = Path(f"{cotyledonBaseFolder}{genotype}/{tissueReplicateId}/")
         myMGXToFolderContentConverter = MGXToFolderContentConverter(tissuePathFolder, plyContourNameExtension=plyContourNameExtension, **kwargs)
         folderContent = myMGXToFolderContentConverter.GetFolderContent()

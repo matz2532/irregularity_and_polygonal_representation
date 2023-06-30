@@ -194,7 +194,7 @@ def createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder,
 def createResultMeasureTable(allFolderContentsFilename, resultsFolder,
                              loadMeasuresFromFilenameUsingKeys=["regularityMeasuresFilename", "areaMeasuresPerCell"],
                              tableBaseName="combinedMeasures_{}.csv", includeCellId=True,
-                             ensureMeasuresPresenceOverAllTissues=False):
+                             ensureMeasuresPresenceOverAllTissues=False, scenarioName=None):
     if globalVerbosity >= 2:
         print(f"Combine measures into single table.")
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
@@ -214,7 +214,8 @@ def createResultMeasureTable(allFolderContentsFilename, resultsFolder,
     allMeasureNames = pd.unique(np.concatenate(allMeasureNames))
     measureResultsTidyDf = multiFolderContent.GetTidyDataFrameOf(allMeasureNames, includeCellId=includeCellId)
     measureResultsTidyDf[allMeasureNames] = measureResultsTidyDf[allMeasureNames].astype(float)
-    scenarioName = Path(allFolderContentsFilename).stem
+    if scenarioName is None:
+        scenarioName = Path(allFolderContentsFilename).stem
     measureTableName = resultsFolder + tableBaseName.format(scenarioName)
     Path(measureTableName).parent.mkdir(parents=True, exist_ok=True)
     measureResultsTidyDf.to_csv(measureTableName, index=False)
@@ -343,23 +344,29 @@ def mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculat
     createResultMeasureTable(allFolderContentsFilename, resultsFolder)
     addRatioMeasuresToTable(resultsFolder, scenarioName)
 
-def mainCalculateOnNewCotyledons(scenarioName="full cotyledons", reCalculateMeasures=True):
+def mainCalculateOnNewCotyledons(scenarioName: str = "full cotyledons", reCalculateMeasures: bool = True,
+                                 tissueIdentifier: list = [["WT", '20200220 WT S1', '120h'], ["WT", '20200221 WT S2', '120h'], ["WT", '20200221 WT S3', '120h'], ["WT", '20200221 WT S5', '120h']],
+                                 specificContentsName: str = None, **kwargs):
+    if specificContentsName is None:
+        specificContentsName = scenarioName
     dataBaseFolder = f"Images/{scenarioName}/"
     resultsFolder = "Results/"
-    allFolderContentsFilename = f"{dataBaseFolder}{scenarioName}.pkl"
-    tissueIdentifier = [["WT", '20200220 WT S1', '120h'],
-                        ["WT", '20200221 WT S2', '120h'],
-                        ["WT", '20200221 WT S3', '120h'],
-                        ["WT", '20200221 WT S5', '120h'],
-                        ]
+    allFolderContentsFilename = f"{dataBaseFolder}{specificContentsName}.pkl"
+    if "createContents" in kwargs:
+        createContentsKwargs = kwargs["createContents"]
+    else:
+        createContentsKwargs = {}
     if reCalculateMeasures:
-        createGeometricdataTableWithRemovedStomata(dataBaseFolder, tissueIdentifier)
-        mainCreateAllFullCotyledons(allFolderContentsFilename, dataBaseFolder, allTissueIdentifiers=tissueIdentifier)
+        if "geometricTableBaseName" in createContentsKwargs:
+            createGeometricdataTableWithRemovedStomata(dataBaseFolder, tissueIdentifier, geometricTableBaseName=createContentsKwargs["geometricTableBaseName"])
+        else:
+            createGeometricdataTableWithRemovedStomata(dataBaseFolder, tissueIdentifier)
+        mainCreateAllFullCotyledons(allFolderContentsFilename, dataBaseFolder, allTissueIdentifiers=tissueIdentifier, **createContentsKwargs)
         createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder,
                                      checkCellsPresentInLabelledImage=False)
         createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder, useGeometricData=True)
-    createResultMeasureTable(allFolderContentsFilename, resultsFolder, includeCellId=False)
-    addRatioMeasuresToTable(resultsFolder, scenarioName)
+    createResultMeasureTable(allFolderContentsFilename, resultsFolder, includeCellId=False, scenarioName=specificContentsName)
+    addRatioMeasuresToTable(resultsFolder, scenarioName=specificContentsName)
 
 def mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True):
     dataBaseFolder = f"Images/{scenarioName}/"
@@ -375,6 +382,15 @@ def mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True):
     addRatioMeasuresToTable(resultsFolder, scenarioName)
 
 if __name__== "__main__":
-    mainCalculateOnNewCotyledons(scenarioName="full cotyledons", reCalculateMeasures=True)
-    mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True)
-    mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculateMeasures=True)
+    speechlessTissueIdentifier = [["speechless", "20210712_R1M001A", "96h"],
+                                  ["speechless", "20210712_R2M001A", "96h"],
+                                  ["speechless", "20210712_R5M001", "96h"],
+                                 ]
+    kwargs = {"createContents": {"geometricTableBaseName": "_geometricData.csv",
+                                 "plyContourNameExtension": "_outlines.ply",
+                                 "removeSmallCells": False}}
+    mainCalculateOnNewCotyledons(scenarioName="full cotyledons", specificContentsName="full cotyledons speechless",
+                                 reCalculateMeasures=True, tissueIdentifier=speechlessTissueIdentifier, **kwargs)
+    # mainCalculateOnNewCotyledons(scenarioName="full cotyledons", reCalculateMeasures=True)
+    # mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True)
+    # mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculateMeasures=True)
