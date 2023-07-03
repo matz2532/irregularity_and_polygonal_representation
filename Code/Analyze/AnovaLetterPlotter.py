@@ -67,7 +67,8 @@ class AnovaLetterPlotter (object):
                 toRemove.append(i)
             i += 1
         groupNames = np.delete(groupNames, toRemove)
-        valuesOfAllIdentifiers = np.delete(valuesOfAllIdentifiers, toRemove)
+        if len(toRemove) > 0:
+            valuesOfAllIdentifiers = np.delete(valuesOfAllIdentifiers, toRemove)
         assert len(valuesOfAllIdentifiers) == len(groupNames), f"Not each group has values {len(valuesOfAllIdentifiers)} != {len(groupNames)}\n{groupNames=}\n{valuesOfAllIdentifiers=}"
         self.tukeyTestText, rawPairwiseTukeyTest = self.doTukey(valuesOfAllIdentifiers, groupNames)
         self.pairwiseTukeyTestDf = self.convertPairwiseTukeyTestToDf(rawPairwiseTukeyTest, groupNames)
