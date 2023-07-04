@@ -13,7 +13,13 @@ class PerTissuePolygonRegularityCalculator (PolygonalRegularityCalculator):
     baseResolution=1 # baseline resolution in case non is given in length units [e.g. microM] per pixel
     ignoreSegmentOrAngleExtension="_ignoringSomeSegmentOrAngle"
     labelledImageToContourDifference=0 # is -1, when using GraVis contours
-    polygonalComplexityOfCellsInTissue={}
+    # default values for regularity dictionaries
+    lengthRegularityOfCellsInTissue: dict = None
+    lengthVariatonOfCellsInTissue: dict = None
+    lengthGiniCoeffOfCellsInTissue: dict = None
+    angleRegularityOfCellsInTissue: dict = None
+    angleVariatonOfCellsInTissue: dict = None
+    angleGiniCoeffOfCellsInTissue: dict = None
 
     def __init__(self, labelledImgArray, allContours, orderedJunctionsOfCellsInTissue, runOnInit=True,
                  resolution=1, contourOffset=np.asarray([-1, -1]), ignoreSegmentOrAngleExtension=None,
@@ -32,6 +38,22 @@ class PerTissuePolygonRegularityCalculator (PolygonalRegularityCalculator):
                 self.CalcPolygonalComplexityForTissue()
 
     def CalcPolygonalComplexityForTissue(self):
+        self.lengthGiniCoeffOfCellsInTissue = {}
+        self.angleGiniCoeffOfCellsInTissue = {}
+        for cell in self.cellIds:
+            orderedJunctions = self.orderedJunctionsOfCellsInTissue[cell]
+            if len(orderedJunctions) < 3:
+                continue
+            if not orderedJunctions is None:
+                isSegmentIgnored = self.ignoreSegmentsDict[cell] if not self.ignoreSegmentsDict is None else None
+                isAngleIgnored = self.ignoreAnglesDict[cell] if not self.ignoreAnglesDict is None else None
+                lengthGiniCoeff, angleGiniCoeff = self.CalcGiniCoefficients(orderedJunctions, isSegmentIgnored=isSegmentIgnored,
+                                                                            isAngleIgnored=isAngleIgnored, currentCell=cell)
+                self.orderedJunctionsOfCellsInTissue[cell] = orderedJunctions
+                self.lengthGiniCoeffOfCellsInTissue[cell] = lengthGiniCoeff
+                self.angleGiniCoeffOfCellsInTissue[cell] = angleGiniCoeff
+
+    def CalcPolygonalComplexityForTissueFull(self):
         self.lengthRegularityOfCellsInTissue = {}
         self.lengthVariatonOfCellsInTissue = {}
         self.lengthGiniCoeffOfCellsInTissue = {}
@@ -56,8 +78,8 @@ class PerTissuePolygonRegularityCalculator (PolygonalRegularityCalculator):
                 self.angleGiniCoeffOfCellsInTissue[cell] = angleGiniCoeff
 
     def VisualiseCellsComplexity(self, cell, inLabelledImg=False):
-        if cell in self.polygonalComplexityOfCellsInTissue:
-            complexity = self.polygonalComplexityOfCellsInTissue[cell]
+        if cell in self.angleGiniCoeffOfCellsInTissue:
+            complexity = self.angleGiniCoeffOfCellsInTissue[cell]
             orderedJuntions = self.orderedJunctionsOfCellsInTissue[cell]
             contour = self.allContours[cell]
             if inLabelledImg:
@@ -129,13 +151,26 @@ class PerTissuePolygonRegularityCalculator (PolygonalRegularityCalculator):
         lengthGiniCoeffKey = "lengthGiniCoeff"
         if not self.ignoreSegmentsDict is None:
             lengthGiniCoeffKey += self.ignoreSegmentOrAngleExtension
-        return {angleRegularityKey: self.GetAngleRegularityOfCellsInTissue(),
-                angleVariatonKey: self.GetAngleVariatonOfCellsInTissue(),
-                angleGiniCoeffKey: self.GetAngleGiniCoeffOfCellsInTissue(),
-                lengthRegularityKey: self.GetLengthRegularityOfCellsInTissue(),
-                lengthVariatonKey: self.GetLengthVariatonOfCellsInTissue(),
-                lengthGiniCoeffKey: self.GetLengthGiniCoeffOfCellsInTissue()
-                }
+        regularityMeasureDicts = {}
+        angleRegularity = self.GetAngleRegularityOfCellsInTissue()
+        if angleRegularity is not None:
+            regularityMeasureDicts[angleRegularityKey] = angleRegularity
+        angleVariaton = self.GetAngleVariatonOfCellsInTissue()
+        if angleVariaton is not None:
+            regularityMeasureDicts[angleVariatonKey] = angleVariaton
+        angleGiniCoeff = self.GetAngleGiniCoeffOfCellsInTissue()
+        if angleGiniCoeff is not None:
+            regularityMeasureDicts[angleGiniCoeffKey] = angleGiniCoeff
+        lengthRegularity = self.GetLengthRegularityOfCellsInTissue()
+        if lengthRegularity is not None:
+            regularityMeasureDicts[lengthRegularityKey] = lengthRegularity
+        lengthVariaton = self.GetLengthVariatonOfCellsInTissue()
+        if lengthVariaton is not None:
+            regularityMeasureDicts[lengthVariatonKey] = lengthVariaton
+        lengthGiniCoeff = self.GetLengthGiniCoeffOfCellsInTissue()
+        if lengthGiniCoeff is not None:
+            regularityMeasureDicts[lengthGiniCoeffKey] = lengthGiniCoeff
+        return regularityMeasureDicts
 
     def SetCalculator(self, labelledImgArray, allContours, orderedJunctionsOfCellsInTissue, resolution=None, ignoreSegmentOrAngleExtension=None, ignoreSegmentsDict=None, ignoreAnglesDict=None):
         self.SetCalculatorWithoutChecking(allContours, orderedJunctionsOfCellsInTissue, resolution=resolution,

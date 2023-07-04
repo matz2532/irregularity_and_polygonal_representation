@@ -31,7 +31,7 @@ class PolygonalRegularityCalculator (object):
 
     def CalcAllInternalAngleRegularitiesOfPolygonWith(self, vertexList, isAngleIgnored=None, currentCell=None):
         # calculates the deviation of the internal angle of the given polygon
-        # whoese vertices are given in a clockwise order
+        # whose vertices are given in a clockwise order
         # (if given counter clockwise, the outer angles are calculated and an warning is printed)
         self.currentCell=currentCell
         internalPolygonAngles = self.calcAllInternalPolygonAngles(vertexList)
@@ -45,6 +45,36 @@ class PolygonalRegularityCalculator (object):
         angleVariaton = self.calcCoefficientOfVariation(internalPolygonAngles)
         angleGiniCoeff = self.calcGiniCoefficient(internalPolygonAngles)
         return angleRegularity, angleVariaton, angleGiniCoeff
+
+    def CalcGiniCoefficients(self, vertexList, isSegmentIgnored=None, isAngleIgnored=None, currentCell=None):
+        angleGiniCoeff = self.CalcGiniCoefficientsOfAngle(vertexList, isAngleIgnored=isAngleIgnored, currentCell=currentCell)
+        lengthGiniCoeff = self.CalcGiniCoefficientsOfLength(vertexList, isSegmentIgnored=isSegmentIgnored)
+        return lengthGiniCoeff, angleGiniCoeff
+
+    def CalcGiniCoefficientsOfAngle(self, vertexList, isAngleIgnored=None, currentCell=None):
+        # calculates the Gini Coefficient of the internal angle of the given polygon
+        # whose vertices are given in a clockwise order
+        # (if given counter clockwise, the outer angles are calculated and an warning is printed)
+        self.currentCell=currentCell
+        internalPolygonAngles = self.calcAllInternalPolygonAngles(vertexList)
+        if not isAngleIgnored is None:
+            internalPolygonAngles = internalPolygonAngles[np.invert(isAngleIgnored)]
+            if len(internalPolygonAngles) == 0:
+                if self.verbosity > 0:
+                    warnings.warn(f"In the {vertexList=} all angles were ignored and None is returned for all metrics.")
+                    return None
+        return self.calcGiniCoefficient(internalPolygonAngles)
+
+    def CalcGiniCoefficientsOfLength(self, vertexList, isSegmentIgnored=None):
+        # calculates the Gini Coefficient of the side length of the given polygon
+        sideLengths = self.calcPolygonSideLengths(vertexList)
+        if not isSegmentIgnored is None:
+            sideLengths = sideLengths[np.invert(isSegmentIgnored)]
+            if len(sideLengths) == 0:
+                if self.verbosity > 0:
+                    warnings.warn(f"In the {vertexList=} all segments were ignored and None is returned for all metrics.")
+                    return None
+        return self.calcGiniCoefficient(sideLengths)
 
     def CalcRegularityDict(self, vertexList, isSegmentIgnored=None):
         lengthRegularity, lengthVariaton, lengthGiniCoeff = self.CalcAllSideLengthRegularitiesOfPolygonWith(vertexList, isSegmentIgnored)
