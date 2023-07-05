@@ -40,7 +40,7 @@ Label,Value,Area (µm²),Center_X,Center_Y,Center_Z
 48,0.0,pavement cell,-110.082,8.11748,1.0
 842800,1.0,guard cell,196.784,-202.072,1.0
 560,0.0,pavement cell,62.427,144.231,1.0
-304,3.0,peripheral cells,-96.3465,88.5395,1.0
+304,2.0,small cells,-96.3465,88.5395,1.0
 816,0.0,pavement cell,-280.734,-82.517,1.0
 176,0.0,pavement cell,-209.378,-47.6037,1.0
 688,3.0,peripheral cells,-317.94,-151.176,1.0
@@ -182,7 +182,7 @@ Label,Value,Area (µm²),Center_X,Center_Y,Center_Z
 364,2.0,small cells,81.8405,-12.8484,1.0
 236,3.0,peripheral cells,-297.859,-158.116,1.0
 492,2.0,small cells,19.022,-224.318,1.0
-842732,3.0,peripheral cells,-86.2942,99.0454,1.0
+842732,1.0,guard cell,-86.2942,99.0454,1.0
 28,2.0,small cells,-226.218,-1.12849,1.0
 842780,1.0,guard cell,-152.179,90.6592,1.0
 284,0.0,pavement cell,-174.958,95.1054,1.0
@@ -265,7 +265,7 @@ Label,Value,Area (µm²),Center_X,Center_Y,Center_Z
 842698,1.0,guard cell,-211.822,-196.502,1.0
 42,0.0,pavement cell,-160.594,-0.282267,1.0
 842794,1.0,guard cell,21.8828,-94.3635,1.0
-810,3.0,peripheral cells,-67.8599,94.2344,1.0
+810,0.0,pavement cell,-67.8599,94.2344,1.0
 170,0.0,pavement cell,-238.775,-131.645,1.0
 426,0.0,pavement cell,52.5977,-169.996,1.0
 106,0.0,pavement cell,-88.5615,-35.9539,1.0
@@ -360,7 +360,7 @@ Label,Value,Area (µm²),Center_X,Center_Y,Center_Z
 46,0.0,pavement cell,-173.24,-13.9012,1.0
 842798,1.0,guard cell,162.354,-248.035,1.0
 558,3.0,peripheral cells,284.482,32.8782,1.0
-302,3.0,peripheral cells,-103.431,96.405,1.0
+302,2.0,small cells,-103.431,96.405,1.0
 814,0.0,pavement cell,-12.727,-18.4177,1.0
 174,2.0,small cells,-219.311,-69.6681,1.0
 686,2.0,small cells,18.6412,57.3271,1.0
@@ -438,7 +438,7 @@ Label,Value,Area (µm²),Center_X,Center_Y,Center_Z
 465,0.0,pavement cell,26.3561,-166.384,1.0
 842705,1.0,guard cell,-261.608,-79.6428,1.0
 842801,1.0,guard cell,199.157,-196.209,1.0
-305,3.0,peripheral cells,-97.1519,98.1814,1.0
+305,2.0,small cells,-97.1519,98.1814,1.0
 689,3.0,peripheral cells,-316.139,-165.824,1.0
 433,2.0,small cells,156.191,-94.3398,1.0
 113,0.0,pavement cell,-139.842,-56.4458,1.0
@@ -566,7 +566,7 @@ Label,Value,Area (µm²),Center_X,Center_Y,Center_Z
 237,0.0,pavement cell,-282.013,-157.151,1.0
 749,3.0,peripheral cells,-188.499,192.009,1.0
 493,0.0,pavement cell,24.2097,-231.994,1.0
-842733,3.0,peripheral cells,-85.9241,92.8512,1.0
+842733,1.0,guard cell,-85.9241,92.8512,1.0
 29,0.0,pavement cell,-205.598,-6.61751,1.0
 842781,1.0,guard cell,-157.199,89.1573,1.0
 541,0.0,pavement cell,293.18,-27.8732,1.0
@@ -762,7 +762,7 @@ Label,Value,Area (µm²),Center_X,Center_Y,Center_Z
 47,0.0,pavement cell,-132.759,9.17017,1.0
 842799,1.0,guard cell,162.634,-253.885,1.0
 559,0.0,pavement cell,90.9526,139.729,1.0
-303,3.0,peripheral cells,-103.418,89.1825,1.0
+303,2.0,small cells,-103.418,89.1825,1.0
 815,2.0,small cells,-294.851,-75.0507,1.0
 175,0.0,pavement cell,-223.454,-59.2103,1.0
 687,0.0,pavement cell,26.081,55.0155,1.0
