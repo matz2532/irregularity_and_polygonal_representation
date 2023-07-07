@@ -115,7 +115,8 @@ class FolderContentPatchPlotter (PatchCreator):
                       figAxesParameterDict={}, setAxesParameterInSinglePlots=True, getCellIdByKeyStroke=False,
                       backgroundFilename=None, loadBackgroundFromKey=None, is3DBackground=False, backgroundImageOffset=None,
                       showTitle=False, scaleBarSize=None, genotypesResolutionDict=None, scaleBarOffset=None, fig=None, ax=None,
-                      genotypeToScenarioName={}, timePointToName={}, colorMapValueRange=None, colorMapper=None, colorMap=None, showColorBar=True, patchKwargs={}):
+                      genotypeToScenarioName={}, timePointToName={}, colorMapValueRange=None, colorMapper=None, colorMap=None,
+                      visualiseAbsDiffToMeanOfValues=False, showColorBar=True, patchKwargs={}):
         allFolderContentsFilename = entryIdentifier[-1]
         multiFolderContent = MultiFolderContent(allFolderContentsFilename)
         folderContent = multiFolderContent.GetFolderContentOfIdentifier(entryIdentifier[:3])
@@ -152,6 +153,10 @@ class FolderContentPatchPlotter (PatchCreator):
                         measureData = self.extractSubMeasureOfCellsFromDict(selectedSubMeasure, measureData, entryIdentifier)
             else:
                 measureData, measureDataArray, faceColorDict = self.determineMeasureData(measureData, overwritingMeasureDataKwargs, faceColorDict=faceColorDict)
+            if visualiseAbsDiffToMeanOfValues:
+                mean = np.mean(list(measureData.values()))
+                for k, v in measureData.items():
+                    measureData[k] = np.abs(v-mean)
         significantCells = None
         visualizePValue = False
         if not overwritingMeasureDataKwargs is None:
