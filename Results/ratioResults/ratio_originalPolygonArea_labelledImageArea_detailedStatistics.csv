@@ -1,18 +1,18 @@
 test type,group1,group2,mean difference,lower conf. interval,upper conf. interval,reject,adjusted p-value
-between groups,cotyledon_WT_0,cotyledon_WT_96,0.01616668127315002,0.014325030594479843,0.018008331951820195,True,0.0
-between groups,cotyledon_WT+Oryzalin_0,cotyledon_WT_0,0.0017780675344087893,-0.00013350993874591387,0.0036896450075634924,False,0.08515365341135306
-between groups,cotyledon_WT+Oryzalin_0,cotyledon_WT_96,0.017944748807558808,0.016033171334404104,0.019856326280713512,True,0.0
-between groups,cotyledon_WT+Oryzalin_0,cotyledon_WT+Oryzalin_96,0.019160059803908114,0.01718102477402645,0.021139094833789777,True,0.0
-between groups,cotyledon_WT+Oryzalin_96,cotyledon_WT_0,-0.017381992269499325,-0.01929356974265403,-0.01547041479634462,True,0.0
-between groups,cotyledon_WT+Oryzalin_96,cotyledon_WT_96,-0.0012153109963493058,-0.003126888469504009,0.0006962664768053973,False,0.45509143876610814
-between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_WT_0,-0.00974085095936561,-0.011488796192789225,-0.007992905725941996,True,0.0
-between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_WT_96,0.006425830313784409,0.004677885080360794,0.008173775547208023,True,0.0
-between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_WT+Oryzalin_0,-0.0115189184937744,-0.013340391456152524,-0.009697445531396275,True,0.0
-between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_WT+Oryzalin_96,0.0076411413101337144,0.00581966834775559,0.009462614272511839,True,0.0
-between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_$\it{ktn1}$-$\it{2}$_96,0.014182696183589694,0.012533772942243889,0.015831619424935498,True,0.0
-between groups,cotyledon_$\it{ktn1}$-$\it{2}$_96,cotyledon_WT_0,-0.023923547142955304,-0.025671492376378918,-0.02217560190953169,True,0.0
-between groups,cotyledon_$\it{ktn1}$-$\it{2}$_96,cotyledon_WT_96,-0.007756865869805285,-0.0095048111032289,-0.0060089206363816705,True,0.0
-between groups,cotyledon_$\it{ktn1}$-$\it{2}$_96,cotyledon_WT+Oryzalin_0,-0.025701614677364093,-0.027523087639742216,-0.02388014171498597,True,0.0
-between groups,cotyledon_$\it{ktn1}$-$\it{2}$_96,cotyledon_WT+Oryzalin_96,-0.006541554873455979,-0.008363027835834104,-0.004720081911077855,True,0.0
+between groups,cotyledon_WT_0,cotyledon_WT_96,0.013387488741712583,-0.02798530566204291,0.054760283145468075,False,0.9400102968516949
+between groups,cotyledon_WT+Oryzalin_0,cotyledon_WT_0,0.003993677080710967,-0.038950027010223126,0.04693738117164506,False,0.9998200346442384
+between groups,cotyledon_WT+Oryzalin_0,cotyledon_WT_96,0.01738116582242355,-0.025562538268510543,0.06032486991335764,False,0.856873497339554
+between groups,cotyledon_WT+Oryzalin_0,cotyledon_WT+Oryzalin_96,0.013249976367639249,-0.031209165834207138,0.057709118569485636,False,0.9574180394861077
+between groups,cotyledon_WT+Oryzalin_96,cotyledon_WT_0,-0.009256299286928282,-0.052200003377862375,0.03368740480400581,False,0.9898483084883384
+between groups,cotyledon_WT+Oryzalin_96,cotyledon_WT_96,0.004131189454784301,-0.03881251463614979,0.047074893545718394,False,0.9997874303260259
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_WT_0,0.025100928618417395,-0.014166767263886826,0.06436862450072162,False,0.44873036605100736
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_WT_96,0.03848841736012998,-0.0007792785221742426,0.0777561132424342,False,0.0584547873813015
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_WT+Oryzalin_0,0.02110725153770643,-0.019812249243454386,0.06202675231886724,False,0.6806050425429201
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_WT+Oryzalin_96,0.03435722790534568,-0.006562272875815137,0.07527672868650649,False,0.15764170713693826
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_0,cotyledon_$\it{ktn1}$-$\it{2}$_96,0.016957212411949585,-0.02008594840128073,0.0540003732251799,False,0.7802240975978578
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_96,cotyledon_WT_0,0.00814371620646781,-0.03112397967583641,0.04741141208877203,False,0.9914991240526752
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_96,cotyledon_WT_96,0.021531204948180394,-0.017736490934123827,0.060798900830484615,False,0.6202923606612266
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_96,cotyledon_WT+Oryzalin_0,0.004150039125756844,-0.03676946165540397,0.04506953990691766,False,0.9997244545893754
+between groups,cotyledon_$\it{ktn1}$-$\it{2}$_96,cotyledon_WT+Oryzalin_96,0.017400015493396093,-0.02351948528776472,0.05831951627455691,False,0.8291928180663146
 
-self.betweenGroupingLetters={'cotyledon_WT_0': 'A', 'cotyledon_WT_96': 'B', 'cotyledon_WT+Oryzalin_0': 'A', 'cotyledon_WT+Oryzalin_96': 'B', 'cotyledon_$\\it{ktn1}$-$\\it{2}$_0': 'C', 'cotyledon_$\\it{ktn1}$-$\\it{2}$_96': 'D'}
+self.betweenGroupingLetters={'cotyledon_WT_0': 'A', 'cotyledon_WT_96': 'A', 'cotyledon_WT+Oryzalin_0': 'A', 'cotyledon_WT+Oryzalin_96': 'A', 'cotyledon_$\\it{ktn1}$-$\\it{2}$_0': 'A', 'cotyledon_$\\it{ktn1}$-$\\it{2}$_96': 'A'}
