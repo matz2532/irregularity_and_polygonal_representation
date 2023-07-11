@@ -17,7 +17,7 @@ class FolderContentPatchPlotter (PatchCreator):
         pass
 
     def combinedPatchesToFigure(self, allEntryIdentifiersPlusFolderContents, measureDataFilenameKey, selectedSubMeasure, saveAsFilename=None,
-                                surfaceContourPerCellFilenameKey="orderedJunctionsPerCellFilename", overlaidContourEdgePerCellFilenameKey=None,
+                                surfaceContourPerCellFilenameKey="orderedJunctionsPerCellFilename", overlaidContourEdgePerCellFilenameKey=None, removeNotSelectedContourCells=True,
                                 colorBarLabel=None, colorMap=None, setAxesParameterInSinglePlots=True, overwritingMeasureDataKwargs=None,
                                 usePooledValueRange=False, selectRowIdxFromDict=None, useAbsMaxRange=False, defaultshowColorBar=None,
                                 figAxesParameterDict=False, nrOfRows=1, nrOfCols=1, ax=None, colSizeInInches=None, showTitle=True, fontSize=45):
@@ -75,7 +75,8 @@ class FolderContentPatchPlotter (PatchCreator):
                     showColorBar = False
             else:
                 showColorBar = defaultshowColorBar
-            self.plotPatchesOf(entryIdentifier, surfaceContourPerCellFilenameKey, measureDataFilenameKey, overwritingMeasureDataKwargs=overwritingMeasureDataKwargs, overlaidContourEdgePerCellFilenameKey=overlaidContourEdgePerCellFilenameKey,
+            self.plotPatchesOf(entryIdentifier, surfaceContourPerCellFilenameKey, measureDataFilenameKey, overwritingMeasureDataKwargs=overwritingMeasureDataKwargs,
+                               overlaidContourEdgePerCellFilenameKey=overlaidContourEdgePerCellFilenameKey, removeNotSelectedContourCells=removeNotSelectedContourCells,
                                allAxesParameter=allAxesParameter, selectedSubMeasure=selectedSubMeasure, tableWithValues=resultsTable,
                                figAxesParameterDict=figAxesParameterDict, setAxesParameterInSinglePlots=setAxesParameterInSinglePlots, showTitle=showTitle,
                                genotypeToScenarioName=genotypeToScenarioName, timePointToName=timePointToName,
@@ -116,7 +117,7 @@ class FolderContentPatchPlotter (PatchCreator):
                       backgroundFilename=None, loadBackgroundFromKey=None, is3DBackground=False, backgroundImageOffset=None,
                       showTitle=False, scaleBarSize=None, genotypesResolutionDict=None, scaleBarOffset=None, fig=None, ax=None,
                       genotypeToScenarioName={}, timePointToName={}, colorMapValueRange=None, colorMapper=None, colorMap=None,
-                      visualiseAbsDiffToMeanOfValues=False, showColorBar=True, patchKwargs={}):
+                      visualiseAbsDiffToMeanOfValues=False, showColorBar=True, removeNotSelectedContourCells=True, patchKwargs={}):
         allFolderContentsFilename = entryIdentifier[-1]
         multiFolderContent = MultiFolderContent(allFolderContentsFilename)
         folderContent = multiFolderContent.GetFolderContentOfIdentifier(entryIdentifier[:3])
@@ -218,8 +219,9 @@ class FolderContentPatchPlotter (PatchCreator):
                     contours.pop(cellLabel)
                     if type(measureData) == dict:
                         measureData.pop(cellLabel)
-                    if type(polygonalOutlineDict) == dict:
-                        polygonalOutlineDict.pop(cellLabel)
+                    if removeNotSelectedContourCells:
+                        if type(polygonalOutlineDict) == dict:
+                            polygonalOutlineDict.pop(cellLabel)
         if not scaleBarSize is None and not genotypesResolutionDict is None:
             genotype = folderContent.GetGenotype()
             if genotype in genotypesResolutionDict:
@@ -463,7 +465,6 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
         if save:
             scenarioName = Path(entryIdentifier[-1]).stem
             saveAsFilename = baseFilename.format(scenarioName, scenarioReplicateId[0])
-            print(saveAsFilename)
             Path(saveAsFilename).parent.mkdir(parents=True, exist_ok=True)
             print(saveAsFilename)
             plt.savefig(saveAsFilename, bbox_inches="tight", dpi=300)
