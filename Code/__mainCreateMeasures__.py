@@ -380,12 +380,16 @@ def mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculat
             createGuardCellAdjacency(dataBaseFolder, allFolderContentsFilename)
             createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder, genotypeResolutionDict=genotypeResolutionDict, ignoreGuardCells=True)
         createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder, useGeometricData=False)
-    createResultMeasureTable(allFolderContentsFilename, resultsFolder, loadMeasuresFromFilenameUsingKeys=["regularityMeasuresFilename", "regularityMeasuresFilename_ignoringGuardCells", "areaMeasuresPerCell"])
+    if checkWithoutGuardCellAdjacency:
+        loadMeasuresFromFilenameUsingKeys = ["regularityMeasuresFilename", "regularityMeasuresFilename_ignoringGuardCells", "areaMeasuresPerCell"]
+    else:
+        loadMeasuresFromFilenameUsingKeys = ["regularityMeasuresFilename", "areaMeasuresPerCell"]
+    createResultMeasureTable(allFolderContentsFilename, resultsFolder, loadMeasuresFromFilenameUsingKeys=loadMeasuresFromFilenameUsingKeys)
     addRatioMeasuresToTable(resultsFolder, scenarioName)
 
 def mainCalculateOnNewCotyledons(scenarioName: str = "full cotyledons", reCalculateMeasures: bool = True,
                                  tissueIdentifier: list = [["WT", '20200220 WT S1', '120h'], ["WT", '20200221 WT S2', '120h'], ["WT", '20200221 WT S3', '120h'], ["WT", '20200221 WT S5', '120h']],
-                                 specificContentsName: str = None, checkWithoutGuardCellAdjacency: bool = True, **kwargs):
+                                 specificContentsName: str = None, checkWithoutGuardCellAdjacency: bool = True, actuallyCreateGuardCellAdjacency: bool = True, **kwargs):
     if specificContentsName is None:
         specificContentsName = scenarioName
     dataBaseFolder = f"Images/{scenarioName}/"
@@ -404,12 +408,17 @@ def mainCalculateOnNewCotyledons(scenarioName: str = "full cotyledons", reCalcul
         createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder,
                                      checkCellsPresentInLabelledImage=False)
         if checkWithoutGuardCellAdjacency:
-            createGuardCellAdjacency(dataBaseFolder, allFolderContentsFilename)
+            if actuallyCreateGuardCellAdjacency:
+                createGuardCellAdjacency(dataBaseFolder, allFolderContentsFilename)
             createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder,
                                          checkCellsPresentInLabelledImage=False, ignoreGuardCells=True)
         createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder, useGeometricData=True)
+    if checkWithoutGuardCellAdjacency:
+        loadMeasuresFromFilenameUsingKeys = ["regularityMeasuresFilename", "regularityMeasuresFilename_ignoringGuardCells", "areaMeasuresPerCell"]
+    else:
+        loadMeasuresFromFilenameUsingKeys = ["regularityMeasuresFilename", "areaMeasuresPerCell"]
     createResultMeasureTable(allFolderContentsFilename, resultsFolder, includeCellId=False, scenarioName=specificContentsName,
-                             loadMeasuresFromFilenameUsingKeys=["regularityMeasuresFilename", "regularityMeasuresFilename_ignoringGuardCells", "areaMeasuresPerCell"])
+                             loadMeasuresFromFilenameUsingKeys=loadMeasuresFromFilenameUsingKeys)
     addRatioMeasuresToTable(resultsFolder, scenarioName=specificContentsName)
 
 def mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True):
@@ -426,16 +435,16 @@ def mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True):
     addRatioMeasuresToTable(resultsFolder, scenarioName)
 
 if __name__== "__main__":
-    # speechlessTissueIdentifier = [["speechless", "20210712_R1M001A", "96h"],
-    #                               ["speechless", "20210712_R2M001A", "96h"],
-    #                               ["speechless", "20210712_R5M001", "96h"],
-    #                              ]
-    # kwargs = {"createContents": {"geometricTableBaseName": "_geometricData.csv",
-    #                              "plyContourNameExtension": "_outlines.ply",
-    #                              "removeSmallCells": False}}
-    # mainCalculateOnNewCotyledons(scenarioName="full cotyledons", specificContentsName="full cotyledons speechless",
-    #                              reCalculateMeasures=True, tissueIdentifier=speechlessTissueIdentifier,
-    #                              checkWithoutGuardCellAdjacency=False, **kwargs)
+    speechlessTissueIdentifier = [["speechless", "20210712_R1M001A", "96h"],
+                                  ["speechless", "20210712_R2M001A", "96h"],
+                                  ["speechless", "20210712_R5M001", "96h"],
+                                 ]
+    kwargs = {"createContents": {"geometricTableBaseName": "_geometricData.csv",
+                                 "plyContourNameExtension": "_outlines.ply",
+                                 "removeSmallCells": False}}
+    mainCalculateOnNewCotyledons(scenarioName="full cotyledons", specificContentsName="full cotyledons speechless",
+                                 reCalculateMeasures=True, tissueIdentifier=speechlessTissueIdentifier,
+                                 checkWithoutGuardCellAdjacency=True, actuallyCreateGuardCellAdjacency=False, **kwargs)
     mainCalculateOnNewCotyledons(scenarioName="full cotyledons", reCalculateMeasures=True, checkWithoutGuardCellAdjacency=True)
     mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculateMeasures=True, checkWithoutGuardCellAdjacency=True)
-    # mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True)
+    mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True)
