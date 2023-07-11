@@ -98,7 +98,7 @@ class CorrelationDataPlotter (object):
             correlationAbbreviationName = "rho"
             r, p = scipy.stats.spearmanr(x, y)
         if showRegressionLine:
-            ax.plot(xLim, np.poly1d((m, b))(xLim), c="black", lw=lw, linestyle="dashed")
+            ax.plot(xLim, np.poly1d((m, b))(xLim), c="black", lw=lw, linestyle="dashed", zorder=10)
         textToAdd = ""
         if addLinearFormulaText or addRegressionText:
             if addLinearFormulaText:

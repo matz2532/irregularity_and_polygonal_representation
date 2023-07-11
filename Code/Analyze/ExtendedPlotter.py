@@ -49,11 +49,20 @@ class ExtendedPlotter(ResultsTableLoader):
                       testVsValue=None, figsize=(25, 12), fontSize=35, nextAxisYDistance=-0.075, ylim=None, ylimMin=None, yLabePad=25, xPos=-0.05,
                       addLinearRegression=False, doStatistics=True, compareAllAgainstAll=False, fixxedYLocator=None, addHLineAt=None,
                       givenXTicks=None, showCombinedColumnsNextToEachOther=True, drawLinesAtTicksParameter="tissueTicks", showMinimalXLabels=False, excludeYLabel=True,
-                      onlyPlotXLabel=None, useThisSingleColorInPlot=None, overwriteColors=True, logNormalize=False, capitalizeNumberOfSamples=False):
+                      onlyPlotXLabel=None, useThisSingleColorInPlot=None, overwriteColors=True, logNormalize=False, capitalizeNumberOfSamples=False,
+                      overWriteForWhichGroupingToShowText: str = None):
         plt.rcParams["font.size"] = fontSize
         plt.rcParams["font.family"] = "Arial"
         mpl.rcParams['axes.spines.right'] = False
         mpl.rcParams['axes.spines.top'] = False
+        mpl.rcParams["axes.linewidth"] = 5
+        mpl.rcParams["xtick.major.width"] = 7
+        mpl.rcParams["ytick.major.width"] = 7
+        mpl.rcParams["xtick.major.size"] = 10
+        mpl.rcParams["ytick.major.size"] = 10
+        mpl.rcParams["lines.markersize"] = 25
+        mpl.rcParams["lines.linewidth"] = 5
+        mpl.rcParams["boxplot.meanprops.markersize"] = 12
         if resultsTable is None:
             resultsTable = self.resultsTable
         isCombinedTable = isinstance(resultsTable, list)
@@ -103,7 +112,6 @@ class ExtendedPlotter(ResultsTableLoader):
                     else:
                         selectedXOffsets = xOffsets[i * numberOfColumnTypes:((i + 1) * numberOfColumnTypes)]
                         entryIdentifier = axisParameter["entryIdentifier"][i * numberOfColumnTypes:((i + 1) * numberOfColumnTypes)]
-
                     anovaPlotter.AddAllTestsOfTissueAndGenes(ax1, tableOfType.reset_index(drop=True), entryIdentifier,
                                                              measureCol, testVsValue=testVsValue, testAllAgainstAllAnova=compareAllAgainstAll,
                                                              yOffset=yOffset, xOffsets=selectedXOffsets, yOffsetFactor=yOffsetFactor, givenXTicks=givenXTicks,
@@ -141,10 +149,13 @@ class ExtendedPlotter(ResultsTableLoader):
             ylimMax = ax1.get_ylim()[1]
             ax1.set_ylim((ylimMin, ylimMax))
         groupColumnsBy = [self.pureGenotypeColName, self.tissueColName, self.timePointNameColName]
-        if addLinearRegression:
-            butShowOnlyFor = self.pureGenotypeColName
+        if overWriteForWhichGroupingToShowText is not None:
+            butShowOnlyFor = overWriteForWhichGroupingToShowText
         else:
-            butShowOnlyFor = self.tissueColName
+            if addLinearRegression:
+                butShowOnlyFor = self.pureGenotypeColName
+            else:
+                butShowOnlyFor = self.tissueColName
         textOfGroupValuePairsToAdd = self.determineNumberOfSamplesForValuesOfColumns(resultsTable, groupColumnsBy=groupColumnsBy, butShowOnlyFor=butShowOnlyFor, capitalize=capitalizeNumberOfSamples)
         if addLinearRegression:
             textOfGroupValuePairsToAdd, pooledRegressionResults = self.drawLinearRegression(resultsTable, yColName=measureCol, ax=ax1, axisParameter=axisParameter, textOfGroupValuePairsToAdd=textOfGroupValuePairsToAdd)
@@ -541,7 +552,7 @@ class ExtendedPlotter(ResultsTableLoader):
             x = resultsTable.loc[isGenotype][xColName]
             y = resultsTable.loc[isGenotype, yColName]
             regressionResults, regressionText = CorrelationDataPlotter().addRegressionLineAndText(ax, x, y, manuallyAddText=True,
-                                                                                          showRSquared=True, addLinearFormulaText=False, lw=3)
+                                                                                          showRSquared=True, addLinearFormulaText=False, lw=5)
             # additionally determine text to plot 
             if genotype in textOfGroupingToAdd:
                 textOfGroupingToAdd[genotype] += sepWith + regressionText
@@ -601,14 +612,14 @@ def mainCreateBoxPlotOf(measureName="lengthGiniCoeff", plotSelectedColumnsAdjace
                         fixxedYLocator=None, addHLineAt=None, resultsNameExtension="", onlyShowLastAndFirstTimePoint=False, furtherRemoveScenarioIds=None,
                         onlyPlotXLabel=None, reduceResultsToOnePerTissue=False, filenameToSave=None, overwriteTimePointRenamingWith=None, **kwargs):
     colorPalette = sns.color_palette("colorblind")
-    genotypeColorConversion = {"WT": colorPalette[7], "WT+Oryzalin": colorPalette[8], "ktn": colorPalette[0], "$\it{ktn1}$-$\it{2}$": colorPalette[0]}
+    genotypeColorConversion = {"WT": colorPalette[7], "WT+Oryzalin": colorPalette[8], "ktn": colorPalette[0], "$\it{ktn1}$-$\it{2}$": colorPalette[0], "speechless": colorPalette[1]}
     resultsTableFilenames = [f"{baseResultsFolder}{measuresBaseName.format(name)}" for name in tissueScenarioNames]
     renameTimePointDict = {"T0": "0-96h", "T1": "0-96h", "T2": "0-96h", "T3": "0-96h", "T4": "0-96h"} #, "T0": "0h", "T1": "24h", "T2": "48h", "T3": "72h", "T4":"96h"} #
     if not overwriteTimePointRenamingWith is None:
         for timePointName, renameTo in overwriteTimePointRenamingWith.items():
             renameTimePointDict[timePointName] = renameTo
     timePointConversionFromStrToNumber = {"0h": 0, '12h': 12, "24h": 24, '36h': 36, "48h": 48, '60h': 60, "72h": 72, '84h': 84, "96h": 96, '108h': 108, "120h": 120, '132h': 132, '144h': 144, "0-96h":0, "T0": 0, "T1": 24, "T2": 48, "T3": 72, "T4":96}
-    renameGenotypesDict = {"WT inflorescence meristem": "WT SAM", "col-0": "WT cotyledon", "WT": "WT cotyledon",
+    renameGenotypesDict = {"WT inflorescence meristem": "WT SAM", "col-0": "WT cotyledon", "WT": "WT cotyledon", "speechless": "speechless cotyledon",
                            "Oryzalin": "WT+Oryzalin cotyledon", "ktn1-2": "$\it{ktn1}$-$\it{2}$ cotyledon"}
     if saveFigure:
         if filenameToSave is None:
@@ -630,7 +641,7 @@ def mainCreateBoxPlotOf(measureName="lengthGiniCoeff", plotSelectedColumnsAdjace
 
 def plotPatchyCotyledonResults(plotAreaMeasures=False, plotRegularityMeasures=False,
                               doIgnoreGuardCells=False, plotFullDataSet=False, plotCombinedDataSet=False,
-                              allDataFontSize=40, reducedFontSize=45):
+                              allDataFontSize=60, reducedFontSize=60):
     patchyCotyledonOrdering = {"cotyledon": ["WT", "WT+Oryzalin", "$\it{ktn1}$-$\it{2}$"]}
     tissueComparisonOrdering = {"cotyledon": ["WT"], "SAM": ["WT"]}
     if plotAreaMeasures:
@@ -665,12 +676,16 @@ def plotPatchyCotyledonResults(plotAreaMeasures=False, plotRegularityMeasures=Fa
                                 tissueScenarioNames=["Eng2021Cotyledons"], tissueGeneNameOrdering=patchyCotyledonOrdering, addLinearRegression=True)
         if doIgnoreGuardCells:
             mainCreateBoxPlotOf(measureName="angleGiniCoeff_ignoringGuardCells", resultsNameExtension="_reducedTimePoints", resultsFolderExtensions="regularityResults/",
-                                compareAllAgainstAll=True, fontSize=reducedFontSize, yLabePad=4, showMinimalXLabels=True,
+                                fontSize=reducedFontSize, showMinimalXLabels=True,
                                 tissueScenarioNames=["Eng2021Cotyledons"], tissueGeneNameOrdering=patchyCotyledonOrdering, addLinearRegression=True)
             mainCreateBoxPlotOf(measureName="lengthGiniCoeff_ignoringGuardCells", resultsNameExtension="_reducedTimePoints", resultsFolderExtensions="regularityResults/",
-                                compareAllAgainstAll=True, fontSize=reducedFontSize, yLabePad=4, showMinimalXLabels=True,
+                                fontSize=reducedFontSize, showMinimalXLabels=True,
                                 tissueScenarioNames=["Eng2021Cotyledons"], tissueGeneNameOrdering=patchyCotyledonOrdering, addLinearRegression=True)
 
 if __name__ == '__main__':
-    plotPatchyCotyledonResults(plotAreaMeasures=True, plotRegularityMeasures=True,
-                               plotCombinedDataSet=True, plotFullDataSet=True, doIgnoreGuardCells=False)
+    plotPatchyCotyledonResults(plotAreaMeasures=True, plotRegularityMeasures=False,
+                           plotCombinedDataSet=False, plotFullDataSet=True, doIgnoreGuardCells=False)
+
+    mainCreateBoxPlotOf(measureName="Gini coefficient of ", plotSelectedColumnsAdjacent=["angleGiniCoeff_ignoringGuardCells", "lengthGiniCoeff_ignoringGuardCells"], resultsFolderExtensions="regularityResults/",
+                        resultsNameExtension="_WtTissueComparisonV5", tissueScenarioNames=["full cotyledons", "full cotyledons speechless"], tissueGeneNameOrdering={"cotyledon": ["WT", "speechless"], "SAM": ["WT"]},
+                        compareAllAgainstAll=True, drawLinesAtTicksParameter="genTicks", showMinimalXLabels=True, excludeYLabel=True, overWriteForWhichGroupingToShowText="gene name")
