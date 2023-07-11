@@ -26,6 +26,9 @@ __How to run the code (top-down perspective):__
 Execute the code from the base folder (so that you are in the folder of the README.md file).
 1. Run __\_\_mainCreateMeasures\_\_.py__ to create the irregularities and polygonal area ratios of the pavement cells from WT full cotyledons of 120h post germination (original data), pavement cells tracked over time from Eng et al. 2021, and cells from the central region of the shoot apical meristem from Matz et al. 2022. The measures are combined in the 'combinedMeasures_tissueTypeName.csv' with the tissueTypeName referring to 'full cotyledon', 'Eng2021Cotyledons', or 'Matz2022SAM', respectively.
 2. Run __\_\_mainVisualizeResults\_\_.py__ to create visualizations of results from pre-print paper.
+
+
+To properly create the measure data, you actually need the outlines and polygonal representations as .ply-files. However, due to size limitations I could not yet upload these files. Please, contact me to arrange data transferal. I'm sorry for the inconvenience. 
  
 
 __To run the code with your own data:__
