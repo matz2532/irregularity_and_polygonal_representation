@@ -688,4 +688,4 @@ if __name__ == '__main__':
 
     mainCreateBoxPlotOf(measureName="Gini coefficient of ", plotSelectedColumnsAdjacent=["lengthGiniCoeff_ignoringGuardCells", "angleGiniCoeff_ignoringGuardCells"], resultsFolderExtensions="regularityResults/",
                         resultsNameExtension="_WtTissueComparison_with_ignoringGuardCells", tissueScenarioNames=["full cotyledons", "full cotyledons speechless"], tissueGeneNameOrdering={"cotyledon": ["WT", "speechless"]},
-                        compareAllAgainstAll=True, drawLinesAtTicksParameter="genTicks", showMinimalXLabels=True, excludeYLabel=True, overWriteForWhichGroupingToShowText="gene name")
+                        compareAllAgainstAll=True, drawLinesAtTicksParameter="genTicks", showMinimalXLabels=True, excludeYLabel=True, overWriteForWhichGroupingToShowText="gene name", fontSize=60)
