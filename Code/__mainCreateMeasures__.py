@@ -255,7 +255,7 @@ def createResultMeasureTable(allFolderContentsFilename, resultsFolder,
 def addRatioMeasuresToTable(resultsFolder, scenarioName,
                             ratioBetween=[["originalPolygonArea", "labelledImageArea"], ["regularPolygonArea", "labelledImageArea"], ["regularPolygonArea", "originalPolygonArea"]],
                             tableBaseName="combinedMeasures_{}.csv",
-                            ratioNamePrefix="ratio_", ratioSeperatorName="_"):
+                            ratioNamePrefix="ratio_", ratioSeperatorName="_", doDifference: bool = False):
     measureTableName = resultsFolder + tableBaseName.format(scenarioName)
     measureResultsTidyDf = pd.read_csv(measureTableName)
     for dividendName, divisiorName in ratioBetween:
@@ -263,7 +263,10 @@ def addRatioMeasuresToTable(resultsFolder, scenarioName,
         assert divisiorName in measureResultsTidyDf.columns, f"The column {divisiorName} is not present in the table from {measureResultsTidyDf}, only the following columns are present {measureResultsTidyDf.columns}"
         dividendValues = measureResultsTidyDf[dividendName]
         divisorValues = measureResultsTidyDf[divisiorName]
-        ratioValues = dividendValues / divisorValues
+        if doDifference:
+            ratioValues = dividendValues - divisorValues
+        else:
+            ratioValues = dividendValues / divisorValues
         ratioColumnName = ratioNamePrefix + dividendName + ratioSeperatorName + divisiorName
         measureResultsTidyDf[ratioColumnName] = ratioValues
     measureResultsTidyDf.to_csv(measureTableName, index=False)
