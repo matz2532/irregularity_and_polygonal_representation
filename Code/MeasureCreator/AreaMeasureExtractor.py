@@ -78,7 +78,7 @@ class AreaMeasureExtractor (PolygonalRegularityCalculator):
             labelledImageArea = self.ExtractLabelledImageAreaOfCellLabels(labelledCellsImageFilename=labelledCellsImageFilename,
                                                                           allowedLabelFilename=allowedLabelFilename,
                                                                           getLabelsFromDictKeys=getLabelsFromDictKeys)
-            originalPolygonArea = self.ExtractOriginalPolygonAreas(allowedLabelFilename=allowedLabelFilename)
+            originalPolygonArea = self.ExtractOriginalPolygonAreas(allowedLabelFilename=orderedJunctionsPerCellFilename)
         self.areaMeasuresDict = {}
         self.areaMeasuresDict["labelledImageArea"] = labelledImageArea
         self.areaMeasuresDict["originalPolygonArea"] = originalPolygonArea
