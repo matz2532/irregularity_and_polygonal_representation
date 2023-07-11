@@ -20,7 +20,7 @@ def createAllPythonRelatedSubfigures():
     plotPatchyCotyledonResults(plotRegularityMeasures=True, plotCombinedDataSet=True)
     # Fig. 3 A, B
     irregularityOfEng2021CotyledonsFolder = "Results/Tissue Visualization/Eng2021Cotyledons/Fig3/"
-    mainFig3AOrB(save=True, figA=True, transposeFigureOutline=True, resultsFolder=irregularityOfEng2021CotyledonsFolder)
+    mainFig3AOrB(save=True, figA=True, resultsFolder=irregularityOfEng2021CotyledonsFolder)
     mainFig3AOrB(save=True, figA=False, selectedSubMeasureOfB="lengthGiniCoeff", resultsFolder=irregularityOfEng2021CotyledonsFolder)
     mainFig3AOrB(save=True, figA=False, selectedSubMeasureOfB="angleGiniCoeff", resultsFolder=irregularityOfEng2021CotyledonsFolder)
     # Fig. 3 C, D
