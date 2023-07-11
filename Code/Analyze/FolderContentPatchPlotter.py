@@ -515,9 +515,182 @@ def calcColorMapValueRange(allEntryIdentifiersPlusFolderContents, parameter, sel
     colorMapValueRange = [np.min(values), np.max(values)]
     return colorMapValueRange
 
-def mainFig3AOrB(save=True, showAllTogether=True, figA=False, resultsFolder="Results/Methodology Visualization/3A/",
+def initFigureAndParameter(x, y, baseSizeOfAxisInInch: int = 4, transposeFigureOutline: bool = False):
+    nrOfCols = len(x)
+    nrOfRows = len(y) // nrOfCols
+    if transposeFigureOutline:
+        nrOfCols, nrOfRows = nrOfRows, nrOfCols
+    rowSize, colSize = nrOfCols * baseSizeOfAxisInInch, nrOfRows * baseSizeOfAxisInInch
+    figSize = (rowSize, colSize)
+    fig = plt.figure(figsize=figSize)
+    figAxesParameterDict = {"fig": fig, "nrOfRows": nrOfRows, "nrOfCols": nrOfCols, "currentAxes": 1}
+    return figAxesParameterDict
+
+def convertCellLabelsToIds(folderContent, selectedCellIds, baseContourKey="contourFilename"):
+    myCellIdTracker = CellIdTracker()
+    myCellIdTracker.RunCellIdTracker(contourFile=folderContent.GetFilenameDictKeyValue(baseContourKey))
+    idsToLabelConverter = myCellIdTracker.GetIdsToLabelsDict()
+    selectedCellLabels = [idsToLabelConverter[id] for id in selectedCellIds]
+    return selectedCellLabels
+
+def extractCellProperties(folderContent, propertyKey: str, removeCellsExcept: list = None, loadKwargs: dict = dict(convertDictKeysToInt=True, convertDictValuesToNpArray=True)):
+    cellProperties = folderContent.LoadKeyUsingFilenameDict(propertyKey, **loadKwargs)
+    if removeCellsExcept is not None:
+        cellLabels = list(cellProperties.keys())
+        cellsToRemove = np.setdiff1d(cellLabels, removeCellsExcept)
+        for cellLabel in cellsToRemove:
+            cellProperties.pop(cellLabel)
+    return cellProperties
+
+def findMaxDistanceAccross(outlineProperties, axis=0):
+    max = []
+    for _, outline in outlineProperties.items():
+        distance = np.max(outline, axis=axis) - np.min(outline, axis=axis)
+        max.append(distance)
+    return np.max(max, axis=axis)
+
+def extractMaxDistanceOf(allEntryIdentifiersPlusFolderContents: list, selectedCellIds: dict, genotypesResolutionDict: dict = {},
+                         surfaceContourPerCellFilenameKey: str = "cellContours", overlaidContourEdgePerCellFilenameKey: str = "orderedJunctionsPerCellFilename"):
+    maxDistance = []
+    for i, entryIdentifier in enumerate(allEntryIdentifiersPlusFolderContents):
+        folderContent = entryIdentifier[-1].GetFolderContentOfIdentifier(entryIdentifier[:3])
+        scenarioReplicateId = (entryIdentifier[0], entryIdentifier[1])
+        if scenarioReplicateId in selectedCellIds:
+            removeCellIdsExcept = selectedCellIds[scenarioReplicateId]
+            removeCellLabelsExcept = convertCellLabelsToIds(folderContent, removeCellIdsExcept)
+        else:
+            removeCellLabelsExcept = None
+        if entryIdentifier[0] in genotypesResolutionDict:
+            resolution = genotypesResolutionDict[entryIdentifier[0]]
+        else:
+            resolution = 1
+        contour = extractCellProperties(folderContent, removeCellsExcept=removeCellLabelsExcept, propertyKey=surfaceContourPerCellFilenameKey)
+        maxDistance.append(findMaxDistanceAccross(contour) * resolution)
+        overlaidContour = extractCellProperties(folderContent, removeCellsExcept=removeCellLabelsExcept, propertyKey=overlaidContourEdgePerCellFilenameKey)
+        maxDistance.append(findMaxDistanceAccross(overlaidContour) * resolution)
+    maxDistance = np.max(maxDistance, axis=0)
+    return maxDistance
+
+def mainFig3A(save=True, resultsFolder="Results/Methodology Visualization/3A/",
+              allFolderContentsFilename="Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl",
+              transposeFigureOutline=True):
+    sys.path.insert(0, "./Images/")
+    from InputData import GetResolutions
+    genotypesResolutionDict = GetResolutions()
+    # Ryan's tissue selections uses col-0_20170327 WT S1, 20180618 ktn1-2 S1
+    replicateNamesOfGenotypes = {"col-0": "20170501 WT S1",
+                                 "Oryzalin": "20170731 oryzalin S2",
+                                 "ktn1-2":"20180618 ktn1-2 S2"}
+    selectedCellIds = {("col-0", "20170501 WT S1"): [9, 6, 5, 7],
+                       ("Oryzalin", "20170731 oryzalin S2"): [9, 11, 10, 6, 5],
+                       ("ktn1-2", "20180618 ktn1-2 S2"): [27, 29, 28, 6]}
+    saveAsFilename = "{}figure_patches.png"
+    allTimePoints = ["0h", "24h", "48h", "72h", "96h"]
+
+    surfaceContourPerCellFilenameKey="cellContours"
+    overlaidContourEdgePerCellFilenameKey="orderedJunctionsPerCellFilename"
+    offSetDistance = np.array([0, 0]) # in microns
+    scaleBarSize=20
+
+    outlineLineWidth=4
+    polygonOutlineLineWidth= 2
+    allEntryIdentifiersPlusFolderContents = []
+    for scenarioName, replicateName in replicateNamesOfGenotypes.items():
+        if type(replicateName) == str:
+            for t in allTimePoints:
+                allEntryIdentifiersPlusFolderContents.append([scenarioName, replicateName, t, MultiFolderContent(allFolderContentsFilename)])
+        else:
+            for r in replicateName:
+                for t in allTimePoints:
+                    allEntryIdentifiersPlusFolderContents.append([scenarioName, r, t, MultiFolderContent(allFolderContentsFilename)])
+    saveAsFilename = saveAsFilename.format(resultsFolder)
+    figAxesParameterDict = initFigureAndParameter(allTimePoints, allEntryIdentifiersPlusFolderContents,
+                                                  baseSizeOfAxisInInch=8, transposeFigureOutline=transposeFigureOutline)
+    fig = figAxesParameterDict["fig"]
+    ax = fig.add_subplot(projection="3d")
+    ax.view_init(elev=90, azim=-90)
+    distanceOffset = 1.9 * extractMaxDistanceOf(allEntryIdentifiersPlusFolderContents, selectedCellIds, genotypesResolutionDict=genotypesResolutionDict)
+    distanceOffset += offSetDistance
+
+    patchCreator = PatchCreator()
+
+    xmin, xmax,ymin, ymax = np.inf, - np.inf, np.inf, - np.inf
+    nrOfRows, nrOfCols = figAxesParameterDict["nrOfRows"], figAxesParameterDict["nrOfCols"]
+    for i, entryIdentifier in enumerate(allEntryIdentifiersPlusFolderContents):
+        folderContent = entryIdentifier[-1].GetFolderContentOfIdentifier(entryIdentifier[:3])
+        scenarioReplicateId = (entryIdentifier[0], entryIdentifier[1])
+        if scenarioReplicateId in selectedCellIds:
+            removeCellIdsExcept = selectedCellIds[scenarioReplicateId]
+            removeCellLabelsExcept = convertCellLabelsToIds(folderContent, removeCellIdsExcept)
+        else:
+            removeCellLabelsExcept = None
+        if entryIdentifier[0] in genotypesResolutionDict:
+            resolution = genotypesResolutionDict[entryIdentifier[0]]
+        else:
+            resolution = 1
+        contour = extractCellProperties(folderContent, removeCellsExcept=removeCellLabelsExcept, propertyKey=surfaceContourPerCellFilenameKey)
+        overlaidContour = extractCellProperties(folderContent, removeCellsExcept=removeCellLabelsExcept, propertyKey=overlaidContourEdgePerCellFilenameKey)
+        if transposeFigureOutline:
+            currentRow = i % nrOfRows
+            currentCol = i // nrOfRows
+        else:
+            currentCol = i % nrOfCols
+            currentRow = i // nrOfCols
+        currentDistanceOffset = [currentRow * distanceOffset[0], - currentCol * distanceOffset[1]]
+        for cellLabel, v in contour.items():
+            contour[cellLabel] = contour[cellLabel] * resolution
+        meanPos = np.mean([np.mean(v, axis=0) for v in contour.values()], axis=0)
+        for cellLabel, v in contour.items():
+            contour[cellLabel] += currentDistanceOffset - meanPos
+            min = np.min(contour[cellLabel], axis=0)
+            max = np.max(contour[cellLabel], axis=0)
+            if xmin > min[0]:
+                xmin = min[0]
+            if xmax < max[0]:
+                xmax = max[0]
+            if ymin > min[1]:
+                ymin = min[1]
+            if ymax < max[1]:
+                ymax = max[1]
+        for cellLabel, v in overlaidContour.items():
+            overlaidContour[cellLabel] = overlaidContour[cellLabel] * resolution
+        for cellLabel, v in overlaidContour.items():
+            overlaidContour[cellLabel] += currentDistanceOffset - meanPos
+        allPatches = patchCreator.create3DPatchesFromOutlines(contour, defaultLineWidth=outlineLineWidth)
+        for pc in allPatches:
+            ax.add_collection(pc)
+        polygonalBackgroundColor = patchCreator.create3DPatchesFromOutlines(overlaidContour, defaultEdgeColor="green", colorMapperForFaceColor=False, defaultLineWidth=polygonOutlineLineWidth)
+        for background in polygonalBackgroundColor:
+            ax.add_collection(background)
+    xDistance = xmax - xmin
+    yDistance = ymax - ymin
+    if xDistance > yDistance:
+        ymin = ymax - xDistance
+    elif xDistance < yDistance:
+        xmax = xmin + yDistance
+    plt.xlim(xmin, xmax)
+    plt.ylim(ymin, ymax)
+    if True:
+        ax.axis("off")
+    else:
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+
+    cellMin = np.min([np.min(v, axis=0) for v in contour.values()], axis=0)
+    cellMax = np.max([np.max(v, axis=0) for v in contour.values()], axis=0)
+    yScaleBarOffset = -5
+    ax.plot([cellMax[0]-scaleBarSize, cellMax[0]], [cellMin[1] + yScaleBarOffset, cellMin[1] + yScaleBarOffset], [0, 0], color="black", lw=4)
+    if save:
+        if not saveAsFilename is None:
+            Path(saveAsFilename).parent.mkdir(parents=True, exist_ok=True)
+            plt.savefig(saveAsFilename, bbox_inches="tight", dpi=600)
+            plt.close()
+    else:
+        plt.show()
+
+def mainFig3AOrB(save=True, showAllTogether=True, figA=False, resultsFolder="Results/Methodology Visualization/3A/", previousA=False,
                  selectedSubMeasureOfB="angleGiniCoeff", measureDataFilenameKey="regularityMeasuresFilename",
-                 selectedSubMeasureName=None, transposeFigureOutline=False, colorMapValueRange=None):
+                 selectedSubMeasureName=None, transposeFigureOutline=False, colorMapValueRange=None, unifySizesByFactors=False):
     sys.path.insert(0, "./Images/")
     from InputData import GetResolutions
     genotypesResolutionDict = GetResolutions()
@@ -529,6 +702,9 @@ def mainFig3AOrB(save=True, showAllTogether=True, figA=False, resultsFolder="Res
                        ("Oryzalin", "20170731 oryzalin S2"): [9, 11, 10, 6, 5],
                        ("ktn1-2", "20180618 ktn1-2 S2"): [27, 29, 28, 6]}
     if figA:
+        if not previousA:
+            mainFig3A(save=save, resultsFolder=resultsFolder, transposeFigureOutline=not transposeFigureOutline)
+            return
         saveAsFilename = "{}figure_patches.png"
         allTimePoints = ["0h", "24h", "48h", "72h", "96h"]
         parameter = dict(surfaceContourPerCellFilenameKey="cellContours",
@@ -728,6 +904,9 @@ def mainSupFig1A(save=False, resultsFolder="Results/Tissue Visualization/", zoom
             print(f'{axesParameter}')
 
 if __name__ == '__main__':
+
+    irregularityOfEng2021CotyledonsFolder = "Results/Tissue Visualization/Eng2021Cotyledons/Fig3/"
+    mainFig3A(save=True, resultsFolder=irregularityOfEng2021CotyledonsFolder)
     # mainFig2AB(save=True, zoomedIn=True)
     # mainFig2AB(save=True, zoomedIn=False)
     # mainFig2AB(save=True, zoomedIn=False)
@@ -750,5 +929,5 @@ if __name__ == '__main__':
     #              selectedSubMeasureName="ratio_regularPolygonArea_labelledImageArea",
     #              colorMapValueRange=combinedAreaRatioValueRange)
     # mainSupFig1A(save=True, zoomedIn=False)
-    mainSupFig1A(save=False, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="lengthGiniCoeff", colorMapValueRange=[0.011224633401410082, 0.1875771799706416])
+    # mainSupFig1A(save=False, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="lengthGiniCoeff", colorMapValueRange=[0.011224633401410082, 0.1875771799706416])
     # mainSupFig1A(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="angleGiniCoeff", colorMapValueRange=[0.00931882037513563, 0.08732278219992405])
