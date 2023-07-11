@@ -686,6 +686,6 @@ if __name__ == '__main__':
     plotPatchyCotyledonResults(plotAreaMeasures=True, plotRegularityMeasures=False,
                            plotCombinedDataSet=False, plotFullDataSet=True, doIgnoreGuardCells=False)
 
-    mainCreateBoxPlotOf(measureName="Gini coefficient of ", plotSelectedColumnsAdjacent=["angleGiniCoeff_ignoringGuardCells", "lengthGiniCoeff_ignoringGuardCells"], resultsFolderExtensions="regularityResults/",
-                        resultsNameExtension="_WtTissueComparisonV5", tissueScenarioNames=["full cotyledons", "full cotyledons speechless"], tissueGeneNameOrdering={"cotyledon": ["WT", "speechless"], "SAM": ["WT"]},
+    mainCreateBoxPlotOf(measureName="Gini coefficient of ", plotSelectedColumnsAdjacent=["lengthGiniCoeff_ignoringGuardCells", "angleGiniCoeff_ignoringGuardCells"], resultsFolderExtensions="regularityResults/",
+                        resultsNameExtension="_WtTissueComparison_with_ignoringGuardCells", tissueScenarioNames=["full cotyledons", "full cotyledons speechless"], tissueGeneNameOrdering={"cotyledon": ["WT", "speechless"]},
                         compareAllAgainstAll=True, drawLinesAtTicksParameter="genTicks", showMinimalXLabels=True, excludeYLabel=True, overWriteForWhichGroupingToShowText="gene name")

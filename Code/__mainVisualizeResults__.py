@@ -50,8 +50,8 @@ def createAllPythonRelatedSubfigures():
     mainSupFig1A(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="lengthGiniCoeff", colorMapValueRange=[0.011224633401410082, 0.1875771799706416])
     mainSupFig1A(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="angleGiniCoeff", colorMapValueRange=[0.00931882037513563, 0.08732278219992405])
     # Sup Fig 1 C
-    mainCreateBoxPlotOf(measureName="Gini coefficient of ", plotSelectedColumnsAdjacent=["angleGiniCoeff_ignoringGuardCells", "lengthGiniCoeff_ignoringGuardCells"], resultsFolderExtensions="regularityResults/",
-                        resultsNameExtension="_WtTissueComparisonV5", tissueScenarioNames=["full cotyledons", "full cotyledons speechless"], tissueGeneNameOrdering={"cotyledon": ["WT", "speechless"]},
+    mainCreateBoxPlotOf(measureName="Gini coefficient of ", plotSelectedColumnsAdjacent=["lengthGiniCoeff_ignoringGuardCells", "angleGiniCoeff_ignoringGuardCells"], resultsFolderExtensions="regularityResults/",
+                        resultsNameExtension="_WtTissueComparison_with_ignoringGuardCells", tissueScenarioNames=["full cotyledons", "full cotyledons speechless"], tissueGeneNameOrdering={"cotyledon": ["WT", "speechless"]},
                         compareAllAgainstAll=True, drawLinesAtTicksParameter="genTicks", showMinimalXLabels=True, excludeYLabel=True, fontSize=60, overWriteForWhichGroupingToShowText="gene name")
     # Sup Fig 2 A, B
     plotPatchyCotyledonResults(plotAreaMeasures=False, plotRegularityMeasures=True, plotCombinedDataSet=False, plotFullDataSet=False, doIgnoreGuardCells=True)
