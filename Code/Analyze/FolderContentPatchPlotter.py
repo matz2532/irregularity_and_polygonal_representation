@@ -640,16 +640,103 @@ def determineValueRangeForMultipleSubMeasures(measureDataFilenameKey, selectedSu
         colorMapValueRange.extend(currentRange)
     return [np.min(colorMapValueRange), np.max(colorMapValueRange)]
 
+def mainSupFig1A(save=False, resultsFolder="Results/Tissue Visualization/", zoomedIn=False,
+               measureDataFilenameKey=None, selectedSubMeasure=None, selectedSubMeasureName=None, colorMapValueRange=None):
+    baseFilename = f"{resultsFolder}{'{}'}/supFigure1A_{'{}'}_{'zoomedIn' if zoomedIn else 'overview'}_patches.png"
+    if not measureDataFilenameKey is None:
+        if selectedSubMeasureName is None:
+            selectedSubMeasureName = selectedSubMeasure
+        baseFilename = baseFilename.replace(".png", f"_{selectedSubMeasureName}.png")
+        surfaceContourPerCellFilenameKey = "orderedJunctionsPerCellFilename"
+        overlaidContourEdgePerCellFilenameKey = None
+    else:
+        surfaceContourPerCellFilenameKey = "cellContours"
+        overlaidContourEdgePerCellFilenameKey = "orderedJunctionsPerCellFilename"
+    allEntryIdentifiersPlusFolderContents = [
+        # ["speechless", "20210712_R1M001A", "96h", "Images/full cotyledons/full cotyledons speechless.pkl"],
+        # ["speechless", "20210712_R2M001A", "96h", "Images/full cotyledons/full cotyledons speechless.pkl"],
+        ["speechless", "20210712_R5M001", "96h", "Images/full cotyledons/full cotyledons speechless.pkl"],
+    ]
+    selectedCellIds = {("speechless", "20210712_R5M001"): [543, 357, 1155, 945]}
+    parameter = dict(surfaceContourPerCellFilenameKey=surfaceContourPerCellFilenameKey,
+                     overlaidContourEdgePerCellFilenameKey=overlaidContourEdgePerCellFilenameKey,
+                     measureDataFilenameKey=measureDataFilenameKey,
+                     selectedSubMeasure=selectedSubMeasure,
+                     setAxesParameterInSinglePlots=False,#not save, # to redo scaling of tissue set to True and allAxesParameter to {}
+                     showTitle=False,
+                     getCellIdByKeyStroke=False,
+                     showPlot=not save,
+                     removeNotSelectedContourCells=False
+                     )
+    scaleBarSize = 10
+    offsetOfContoursOfTissues = {("speechless", "20210712_R5M001"):[-24.5, -9.5]}
+    offsetOfOverlaidContours = {}
+    if zoomedIn:
+        allAxesParameter = {"speechless_20210712_R5M001_96h": {'xlim': [477.58, 568.04], 'ylim': [378.11, 470.81], 'zlim': [1.27, 3.73], 'azim': -90, 'elev': 90}}
+        allScaleBarOffsets = {("speechless", "20210712_R5M001"): [453, 364, 1.1]}
+    else:
+        allAxesParameter = {"speechless_20210712_R5M001_96h": {'xlim': [157.28, 586.98], 'ylim': [225.89, 735.06], 'zlim': [1.11, 3.89], 'azim': -90, 'elev': 90}}
+        allScaleBarOffsets = {("speechless", "20210712_R5M001"): [639, 116, 1.1]}
+    if not measureDataFilenameKey is None:
+        if colorMapValueRange is None:
+            colorMapValueRange = calcColorMapValueRange(allEntryIdentifiersPlusFolderContents, parameter, selectedCellIds)
+        colorMapper = PatchCreator().createColorMapper(colorMapValueRange=colorMapValueRange, alphaAsFloat=0.5)
+        parameter["colorMapper"] = colorMapper
+    for entryIdentifier in allEntryIdentifiersPlusFolderContents:
+        scenarioReplicateId = tuple(entryIdentifier[:2])
+        currentSelectedCellIds = None
+        if zoomedIn and scenarioReplicateId in selectedCellIds:
+            currentSelectedCellIds = selectedCellIds[scenarioReplicateId]
+        if scenarioReplicateId in offsetOfOverlaidContours:
+            overlaidContourOffset = offsetOfOverlaidContours[scenarioReplicateId]
+        else:
+            overlaidContourOffset = None
+        if scenarioReplicateId in offsetOfContoursOfTissues:
+            offsetOfContours = offsetOfContoursOfTissues[scenarioReplicateId]
+        else:
+            offsetOfContours = None
+        if scenarioReplicateId in allScaleBarOffsets:
+            scaleBarOffset = allScaleBarOffsets[scenarioReplicateId]
+        else:
+            scaleBarOffset = None
+        backgroundImageOffset = None
+        loadBackgroundFromKey = None
+        is3DBackground = False
+        backgroundFilename = None
+        ax = FolderContentPatchPlotter().plotPatchesOf(entryIdentifier, figAxesParameterDict=None, allAxesParameter=allAxesParameter, overlaidContourOffset=overlaidContourOffset, offsetOfContours=offsetOfContours,
+                                                       genotypeToScenarioName=genotypeToScenarioName, timePointToName=timePointToName, plotOutlines=True,
+                                                       # overlaidContourDistancesColorMapper=overlaidContourDistancesColorMapper,
+                                                       selectedCellLabels=currentSelectedCellIds, convertFromIdToLabel=False, scaleBarSize=scaleBarSize, scaleBarOffset=scaleBarOffset,
+                                                       backgroundFilename=backgroundFilename, loadBackgroundFromKey=loadBackgroundFromKey, is3DBackground=is3DBackground, backgroundImageOffset=backgroundImageOffset,
+                                                       **parameter)
+        if save:
+            scenarioName = Path(entryIdentifier[-1]).stem
+            saveAsFilename = baseFilename.format(scenarioName, scenarioReplicateId[0])
+            Path(saveAsFilename).parent.mkdir(parents=True, exist_ok=True)
+            print(saveAsFilename)
+            plt.savefig(saveAsFilename, bbox_inches="tight", dpi=300)
+            plt.close()
+
+        if parameter["setAxesParameterInSinglePlots"]:
+            decimal = 2
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+            zlim = ax.get_zlim()
+            azim = ax.azim
+            elev = ax.elev
+            axesParameter = {"xlim": np.round(xlim, decimal).tolist(), "ylim": np.round(ylim, decimal).tolist(), "zlim": np.round(zlim, decimal).tolist(), "azim": np.round(azim, decimal), "elev": np.round(elev, decimal)}
+            print(f'{axesParameter}')
+
 if __name__ == '__main__':
     # mainFig2AB(save=True, zoomedIn=True)
     # mainFig2AB(save=True, zoomedIn=False)
     # mainFig2AB(save=True, zoomedIn=False)
     # mainFig2AB(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="lengthGiniCoeff")
     # mainFig2AB(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="angleGiniCoeff")
-    mainFig2AB(save=True, zoomedIn=True, colorMapValueRange=[0.9276042480508213, 1.2338458881519452],measureDataFilenameKey="areaMeasuresPerCell",
-               selectedSubMeasure={"ratio": ["regularPolygonArea", "labelledImageArea"]}, selectedSubMeasureName="ratio_regularPolygonArea_labelledImageArea")
-    mainFig2AB(save=True, zoomedIn=True, colorMapValueRange=[0.9276042480508213, 1.2338458881519452], measureDataFilenameKey="areaMeasuresPerCell",
-               selectedSubMeasure={"ratio": ["originalPolygonArea", "labelledImageArea"]}, selectedSubMeasureName="ratio_originalPolygonArea_labelledImageArea")
+    # mainFig2AB(save=True, zoomedIn=True, colorMapValueRange=[0.9276042480508213, 1.2338458881519452],measureDataFilenameKey="areaMeasuresPerCell",
+    #            selectedSubMeasure={"ratio": ["regularPolygonArea", "labelledImageArea"]}, selectedSubMeasureName="ratio_regularPolygonArea_labelledImageArea")
+    # mainFig2AB(save=True, zoomedIn=True, colorMapValueRange=[0.9276042480508213, 1.2338458881519452], measureDataFilenameKey="areaMeasuresPerCell",
+    #            selectedSubMeasure={"ratio": ["originalPolygonArea", "labelledImageArea"]}, selectedSubMeasureName="ratio_originalPolygonArea_labelledImageArea")
     # mainFig3AOrB(save=False, figA=True, transposeFigureOutline=True)
     # mainFig3AOrB(save=True, figA=False, selectedSubMeasureOfB="angleGiniCoeff")
     # mainFig3AOrB(save=True, figA=False, selectedSubMeasureOfB="lengthGiniCoeff")
@@ -662,3 +749,6 @@ if __name__ == '__main__':
     #              measureDataFilenameKey="areaMeasuresPerCell", selectedSubMeasureOfB={"ratio": ["regularPolygonArea", "labelledImageArea"]},
     #              selectedSubMeasureName="ratio_regularPolygonArea_labelledImageArea",
     #              colorMapValueRange=combinedAreaRatioValueRange)
+    # mainSupFig1A(save=True, zoomedIn=False)
+    mainSupFig1A(save=False, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="lengthGiniCoeff", colorMapValueRange=[0.011224633401410082, 0.1875771799706416])
+    # mainSupFig1A(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="angleGiniCoeff", colorMapValueRange=[0.00931882037513563, 0.08732278219992405])
