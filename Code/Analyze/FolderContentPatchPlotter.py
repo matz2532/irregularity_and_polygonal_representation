@@ -690,7 +690,7 @@ def mainFig3A(save=True, resultsFolder="Results/Methodology Visualization/3A/",
 
 def mainFig3AOrB(save=True, showAllTogether=True, figA=False, resultsFolder="Results/Methodology Visualization/3A/", previousA=False,
                  selectedSubMeasureOfB="angleGiniCoeff", measureDataFilenameKey="regularityMeasuresFilename",
-                 selectedSubMeasureName=None, transposeFigureOutline=False, colorMapValueRange=None, unifySizesByFactors=False):
+                 selectedSubMeasureName=None, transposeFigureOutline=False, colorMapValueRange=None):
     sys.path.insert(0, "./Images/")
     from InputData import GetResolutions
     genotypesResolutionDict = GetResolutions()
