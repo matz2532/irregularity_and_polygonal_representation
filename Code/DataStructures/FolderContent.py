@@ -212,11 +212,24 @@ class FolderContent (object):
             with open(saveToFilename, "wb") as fh:
                 pickle.dump(dataToSave, fh)
         elif suffix == ".json":
+            dataToSave = self.ensureSavabilityAsJson(dataToSave)
             if prettyDumpJson:
                 self.prettyDumpJson(dataToSave, saveToFilename)
             else:
                 with open(saveToFilename, "w") as fh:
                     json.dump(dataToSave, fh)
+
+    def ensureSavabilityAsJson(self, dataToSave, recursiveLayer: int = 0, maxRecursiveLayer: int = 5):
+        if isinstance(dataToSave, dict):
+            for k, v in dataToSave.items():
+                dataToSave[k] = self.ensureSavabilityAsJson(v, recursiveLayer+1)
+        elif isinstance(dataToSave, (list, tuple)):
+            for i, v in enumerate(dataToSave):
+                dataToSave[i] = self.ensureSavabilityAsJson(v, recursiveLayer+1)
+        elif isinstance(dataToSave, np.ndarray):
+            dataToSave = dataToSave.tolist()
+            dataToSave = self.ensureSavabilityAsJson(dataToSave, recursiveLayer+1)
+        return dataToSave
 
     def prettyDumpJson(self, obj: dict, filename: str, indent: int = 2, omitWarning: bool = False):
         if not isinstance(obj, dict):
