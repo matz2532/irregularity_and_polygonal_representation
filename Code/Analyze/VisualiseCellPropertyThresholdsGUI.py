@@ -21,6 +21,7 @@ class VisualiseCellPropertyThresholdsGUI (PatchCreator):
     cellLabelColumnName: str = "Label"
     valueColumnName: str = "Area (µm²)"
     # coloring and naming schemes
+    startingPercentileSliderValue: float = 65
     aboveThresholdColor: str = "#00ff00ff"
     bellowThresholdColor: str = "#ff0000ff"
     selectedOrNotColorLabel: list = ["selected", "not selected"]
@@ -37,7 +38,7 @@ class VisualiseCellPropertyThresholdsGUI (PatchCreator):
             if useMeanAsDefault:
                 self.defaultSliderValue = self.cellValueDf.iloc[:, 1].mean()
             else:
-                self.defaultSliderValue = np.percentile(self.cellValueDf.iloc[:, 1], 25)
+                self.defaultSliderValue = np.percentile(self.cellValueDf.iloc[:, 1], self.startingPercentileSliderValue)
         else:
             self.defaultSliderValue = defaultSliderValue
         self.yFigSizeInInch = yFigSizeInInch
