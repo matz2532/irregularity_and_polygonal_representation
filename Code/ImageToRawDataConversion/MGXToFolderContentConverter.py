@@ -280,6 +280,10 @@ def mainCreateAllFullCotyledons(saveFolderContentsUnder=None, cotyledonBaseFolde
         multiFolderContent = MultiFolderContent(saveFolderContentsUnder)
     if cellTypeNamesToKeep is not None:
         kwargs["cellTypeNamesToKeep"] = cellTypeNamesToKeep
+    if "removeSmallCellsPerGenotype" in kwargs and "removeSmallCells" not in kwargs:
+        removeSmallCellsPerGenotype = kwargs["removeSmallCellsPerGenotype"]
+    else:
+        removeSmallCellsPerGenotype = None
     for tissueIdentifier in allTissueIdentifiers:
         assert len(tissueIdentifier) == 2 or len(tissueIdentifier) == 3, f"The tissue identifier {tissueIdentifier} contains neither 2 nor 3 tissueIdentifier, but {len(tissueIdentifier)}, which is not yet implemented."
         if len(tissueIdentifier) == 2:
@@ -288,6 +292,9 @@ def mainCreateAllFullCotyledons(saveFolderContentsUnder=None, cotyledonBaseFolde
             genotype, tissueReplicateId, timePoint = tissueIdentifier
             kwargs["defaultTimePoint"] = timePoint
         tissuePathFolder = Path(f"{cotyledonBaseFolder}{genotype}/{tissueReplicateId}/")
+        if removeSmallCellsPerGenotype is not None:
+            assert genotype in removeSmallCellsPerGenotype, f"When removing small cells per genotype the {genotype=} needs to be present only the following are present {list(removeSmallCellsPerGenotype.keys())}"
+            kwargs["removeSmallCells"] = removeSmallCellsPerGenotype[genotype]
         myMGXToFolderContentConverter = MGXToFolderContentConverter(tissuePathFolder, plyContourNameExtension=plyContourNameExtension, **kwargs)
         folderContent = myMGXToFolderContentConverter.GetFolderContent()
         multiFolderContent.AppendFolderContent(folderContent)

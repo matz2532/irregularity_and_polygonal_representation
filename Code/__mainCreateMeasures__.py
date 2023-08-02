@@ -110,9 +110,17 @@ def createGuardCellAdjacency(dataBaseFolder, allFolderContentsFilename, isSegmen
                              isAngleAtGuardCellJunctionKey="isAngleAtGuardCellJunction",
                              orderedJunctionsPerCellFilenameKey="orderedJunctionsPerCellFilename",
                              guardCellJunctionPositionsFilenameKey="guardCellJunctionPositions",
-                             distanceThreshold=1): # distance threshold of cells junction to guard cell junctions, if greater than threshold its not a guard cell junction
+                             distanceThreshold=1, # distance threshold of cells junction to guard cell junctions, if greater than threshold its not a guard cell junction
+                             specifyGenotypeForWhichToCreateAdjacency: dict = None):
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
     for folderContent in multiFolderContent:
+        if specifyGenotypeForWhichToCreateAdjacency is not None:
+            genotype = folderContent.GetGenotype()
+            if genotype in specifyGenotypeForWhichToCreateAdjacency:
+                if not specifyGenotypeForWhichToCreateAdjacency[genotype]:
+                    if globalVerbosity >= 2:
+                        print("skipped guard cell adjacency creation", folderContent.GetTissueName())
+                    continue
         orderedJunctionsPerCell = folderContent.LoadKeyUsingFilenameDict(orderedJunctionsPerCellFilenameKey)
         guardCellJunctionPositions = folderContent.LoadKeyUsingFilenameDict(guardCellJunctionPositionsFilenameKey)
         segmentAdjacencyToGuardCell = {}
@@ -389,7 +397,7 @@ def mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculat
 
 def mainCalculateOnNewCotyledons(scenarioName: str = "full cotyledons", reCalculateMeasures: bool = True,
                                  tissueIdentifier: list = [["WT", '20200220 WT S1', '120h'], ["WT", '20200221 WT S2', '120h'], ["WT", '20200221 WT S3', '120h'], ["WT", '20200221 WT S5', '120h']],
-                                 specificContentsName: str = None, checkWithoutGuardCellAdjacency: bool = True, actuallyCreateGuardCellAdjacency: bool = True, **kwargs):
+                                 specificContentsName: str = None, checkWithoutGuardCellAdjacency: bool = True, actuallyCreateGuardCellAdjacency: bool = True, removeSmallCells: bool = True, **kwargs):
     if specificContentsName is None:
         specificContentsName = scenarioName
     dataBaseFolder = f"Images/{scenarioName}/"
@@ -399,6 +407,8 @@ def mainCalculateOnNewCotyledons(scenarioName: str = "full cotyledons", reCalcul
         createContentsKwargs = kwargs["createContents"]
     else:
         createContentsKwargs = {}
+    if removeSmallCells is not None and "removeSmallCellsPerGenotype" not in createContentsKwargs:
+        createContentsKwargs["removeSmallCells"] = removeSmallCells
     if reCalculateMeasures:
         if "geometricTableBaseName" in createContentsKwargs:
             createGeometricdataTableWithRemovedStomata(dataBaseFolder, tissueIdentifier, geometricTableBaseName=createContentsKwargs["geometricTableBaseName"])
@@ -408,8 +418,11 @@ def mainCalculateOnNewCotyledons(scenarioName: str = "full cotyledons", reCalcul
         createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder,
                                      checkCellsPresentInLabelledImage=False)
         if checkWithoutGuardCellAdjacency:
-            if actuallyCreateGuardCellAdjacency:
-                createGuardCellAdjacency(dataBaseFolder, allFolderContentsFilename)
+            if isinstance(actuallyCreateGuardCellAdjacency, bool):
+                if actuallyCreateGuardCellAdjacency:
+                    createGuardCellAdjacency(dataBaseFolder, allFolderContentsFilename)
+            elif isinstance(actuallyCreateGuardCellAdjacency, dict):
+                createGuardCellAdjacency(dataBaseFolder, allFolderContentsFilename, specifyGenotypeForWhichToCreateAdjacency=actuallyCreateGuardCellAdjacency)
             createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder,
                                          checkCellsPresentInLabelledImage=False, ignoreGuardCells=True)
         createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder, useGeometricData=True)
@@ -435,16 +448,20 @@ def mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True):
     addRatioMeasuresToTable(resultsFolder, scenarioName)
 
 if __name__== "__main__":
-    speechlessTissueIdentifier = [["speechless", "20210712_R1M001A", "96h"],
+    speechlessTissueIdentifier = [["WT_4dag", "20210712_XVE_5_0_A_merged_Region1", "96h"],
+                                  ["WT_4dag", "20210712_XVE_5_0_A_merged_Region2", "96h"],
+                                  ["WT_4dag", "20210712_XVE_5_0_A_merged_Region3", "96h"],
+                                  ["speechless", "20210712_R1M001A", "96h"],
                                   ["speechless", "20210712_R2M001A", "96h"],
                                   ["speechless", "20210712_R5M001", "96h"],
                                  ]
     kwargs = {"createContents": {"geometricTableBaseName": "_geometricData.csv",
                                  "plyContourNameExtension": "_outlines.ply",
-                                 "removeSmallCells": False}}
-    mainCalculateOnNewCotyledons(scenarioName="full cotyledons", specificContentsName="full cotyledons speechless",
+                                 "removeSmallCellsPerGenotype": {"WT_4dag": True, "speechless": False}}}
+    mainCalculateOnNewCotyledons(scenarioName="Smit2023Cotyledons",
                                  reCalculateMeasures=True, tissueIdentifier=speechlessTissueIdentifier,
-                                 checkWithoutGuardCellAdjacency=True, actuallyCreateGuardCellAdjacency=False, **kwargs)
+                                 checkWithoutGuardCellAdjacency=True, actuallyCreateGuardCellAdjacency={"WT_4dag": True, "speechless": False}, **kwargs)
     mainCalculateOnNewCotyledons(scenarioName="full cotyledons", reCalculateMeasures=True, checkWithoutGuardCellAdjacency=True)
     mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculateMeasures=True, checkWithoutGuardCellAdjacency=True)
     mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True)
+
