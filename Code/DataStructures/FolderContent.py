@@ -2,9 +2,10 @@ import json
 import numpy as np
 import pandas as pd
 import pickle
+import platform
 import skimage.io
-import sys
 
+from MyEncoder import MyEncoder, NoIndent
 from pathlib import Path
 
 class FolderContent (object):
@@ -68,6 +69,8 @@ class FolderContent (object):
 
     def loadFile(self, filename, convertDictKeysToInt=False, convertNestedDictKeysToInt=False, convertDictValuesToNpArray=False, **kwargs):
         suffix = Path(filename).suffix
+        if platform.system() == "Linux":
+            filename = self.convertFilenameToLinux(filename)
         if suffix == ".csv":
             file = pd.read_csv(filename, engine="python", **kwargs)
         elif suffix == ".npy":
@@ -83,8 +86,7 @@ class FolderContent (object):
             with open(filename, "r") as fh:
                 file = json.load(fh)
         else:
-            print(f"The extension of the {suffix=} is not yet implemented. Aborting while loading {filename=}")
-            sys.exit(1)
+            raise NotImplementedError(f"The extension of the {suffix=} is not yet implemented. Aborting while loading {filename=}")
         if convertDictKeysToInt:
             tmpDict = {}
             for k, v in file.items():
@@ -103,6 +105,14 @@ class FolderContent (object):
                 file[k] = np.array(v)
         return file
 
+    def convertFilenameToLinux(self, filename: str or Path):
+        if isinstance(filename, str):
+            if "\\" in filename:
+                filename = filename.replace("\\", "/")
+        else:
+            filename = filename.as_posix()
+        return filename
+
     def GetExtractedFilesDict(self):
         return self.folderContent["extractedFilesDict"]
 
@@ -115,7 +125,10 @@ class FolderContent (object):
 
     def GetFilenameDictKeyValue(self, key):
         assert key in self.folderContent["filenameDict"], "The key {} is not in the filenameDict of {}".format(key, str(self))
-        return self.folderContent["filenameDict"][key]
+        filename = self.folderContent["filenameDict"][key]
+        if platform.system() == "Linux":
+            filename = self.convertFilenameToLinux(filename)
+        return filename
 
     def GetFolder(self):
         folderName = self.combineNames("/", addSeperatorAtEnd=True)
@@ -187,7 +200,7 @@ class FolderContent (object):
         with open(saveToFilename, "wb") as fh:
             pickle.dump(dataToSave, fh)
 
-    def SaveDataFilesTo(self, dataToSave, saveToFilename, convertDictValuesToList=False):
+    def SaveDataFilesTo(self, dataToSave, saveToFilename: str, convertDictValuesToList: bool = False, prettyDumpJson: bool = True):
         implementedSuffixes = (".pkl", ".json")
         suffix = Path(saveToFilename).suffix
         assert suffix in implementedSuffixes, f"The {suffix=} is not present in the implemented suffixes {implementedSuffixes} for the filename {saveToFilename}"
@@ -199,8 +212,35 @@ class FolderContent (object):
             with open(saveToFilename, "wb") as fh:
                 pickle.dump(dataToSave, fh)
         elif suffix == ".json":
-            with open(saveToFilename, "w") as fh:
-                json.dump(dataToSave, fh)
+            if prettyDumpJson:
+                self.prettyDumpJson(dataToSave, saveToFilename)
+            else:
+                with open(saveToFilename, "w") as fh:
+                    json.dump(dataToSave, fh)
+
+    def prettyDumpJson(self, obj: dict, filename: str, indent: int = 2, omitWarning: bool = False):
+        if not isinstance(obj, dict):
+            if not omitWarning:
+                print(f"Warning: Pretty dumping json file with {filename=} is of type {type(dict)} != dict and therefore not made more pretty.")
+            with open(filename, "w") as f:
+                json.dump(obj, f)
+        else:
+            data_structure = self.recursiveDictNotImplementationDecision(obj, depth=0)
+            prettyJsonFormattedObject = json.dumps(data_structure, cls=MyEncoder, indent=indent)
+            with open(filename, "w") as f:
+                f.write(prettyJsonFormattedObject)
+
+    def recursiveDictNotImplementationDecision(self, obj, depth: int, maxDepth: int = 2):
+        data_structure = {}
+        for key, value in obj.items():
+            if isinstance(value, dict):
+                if depth < maxDepth:
+                    data_structure[key] = self.recursiveDictNotImplementationDecision(value, depth=depth + 1, maxDepth=maxDepth)
+                else:
+                    data_structure[key] = NoIndent(value)
+            else:
+                data_structure[key] = NoIndent(value)
+        return data_structure
 
     def SetFilenameDict(self, filenameDict):
         self.folderContent["filenameDict"] = filenameDict
