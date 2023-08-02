@@ -232,7 +232,7 @@ def extractLeafCellTypesOf(tissueBaseFilename, tissueGraph=None, fullGeometricTa
     areaValues = pd.read_csv(tissueBaseFilename + withoutStomataGeometricTableBaseName, skipfooter=skipfooter, engine="python")
     if seperateSmallCells:
         # select cut of for which cells smaller than this value are selected as small cells
-        smallCellValues = np.percentile(areaValues.iloc[:, 1], 25)
+        smallCellValues = np.percentile(areaValues.iloc[:, 1], 65)
     else:
         smallCellValues = areaValues.iloc[:, 1].min() - 1
     myCellTypeSelector = CellTypeSelector(tissueBaseFilename, tissuesGraphFilename=tissueGraph)
