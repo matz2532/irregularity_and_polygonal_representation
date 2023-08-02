@@ -180,6 +180,7 @@ class MGXToFolderContentConverter (object):
 
     def addContourInfoTo(self, folderContent, cellTypesDict=None, extractPeripheralCellsFromJunctions=False,
                          plyExtension=".ply", fileResultsNameExtension="_exampleExtension.pkl", filenameKey="exampleFilenameKey",
+                         allContoursExtraExtension="_withAllCells.json",
                          save=True):
         plyFilename = self.tissueBaseFilename + plyExtension
         contourReader = MGXContourFromPlyFileReader(plyFilename, extract3DContours=self.extract3DContours)
@@ -198,6 +199,11 @@ class MGXToFolderContentConverter (object):
             else:
                 cellSizesOfCellsToKeep = None
         if save:
+            allContoursExtension = Path(fileResultsNameExtension).stem + allContoursExtraExtension
+            allContoursFilename = contourReader.SaveCellsContoursPositions(tissueBaseFilename=self.tissueBaseFilename,
+                                                                           resultsNameExtension=allContoursExtension)
+            allContoursFilenameKey = filenameKey + Path(allContoursExtraExtension).stem
+            folderContent.AddDataToFilenameDict(allContoursFilename, allContoursFilenameKey)
             contoursFilename = contourReader.SaveCellsContoursPositions(tissueBaseFilename=self.tissueBaseFilename,
                                                                         resultsNameExtension=fileResultsNameExtension,
                                                                         onlyKeepCellLabels=onlyKeepCellLabels,

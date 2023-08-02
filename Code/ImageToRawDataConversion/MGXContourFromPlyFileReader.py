@@ -5,6 +5,8 @@ import re
 import sys
 import warnings
 
+sys.path.insert(0, "./Code/DataStructures/")
+from FolderContent import FolderContent
 from pathlib import Path
 
 class MGXContourFromPlyFileReader (object):
@@ -110,8 +112,7 @@ class MGXContourFromPlyFileReader (object):
                 dictOfCellsContourPositions[cellLabel] = self.dictOfCellsContourPositions[cellLabel]
         else:
             dictOfCellsContourPositions = self.dictOfCellsContourPositions
-        with open(filenameToSave, "wb") as fh:
-            pickle.dump(dictOfCellsContourPositions, fh)
+        FolderContent().SaveDataFilesTo(dictOfCellsContourPositions, filenameToSave)
         return filenameToSave
 
 
