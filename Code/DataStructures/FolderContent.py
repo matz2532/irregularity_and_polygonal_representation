@@ -226,15 +226,24 @@ class FolderContent (object):
                     json.dump(dataToSave, fh)
 
     def ensureSavabilityAsJson(self, dataToSave, recursiveLayer: int = 0, maxRecursiveLayer: int = 5):
+        if recursiveLayer >= maxRecursiveLayer:
+            return dataToSave
         if isinstance(dataToSave, dict):
+            dataToSaveCopy = {}
             for k, v in dataToSave.items():
-                dataToSave[k] = self.ensureSavabilityAsJson(v, recursiveLayer+1)
+                if not isinstance(k, (str, int, float, bool)):
+                    try:
+                        k = str(k)
+                    except:
+                        raise NotImplementedError(f"The key={k} could not be converted into a string.")
+                dataToSaveCopy[k] = self.ensureSavabilityAsJson(v, recursiveLayer + 1)
+            return dataToSaveCopy
         elif isinstance(dataToSave, (list, tuple)):
             for i, v in enumerate(dataToSave):
-                dataToSave[i] = self.ensureSavabilityAsJson(v, recursiveLayer+1)
+                dataToSave[i] = self.ensureSavabilityAsJson(v, recursiveLayer + 1)
         elif isinstance(dataToSave, np.ndarray):
             dataToSave = dataToSave.tolist()
-            dataToSave = self.ensureSavabilityAsJson(dataToSave, recursiveLayer+1)
+            dataToSave = self.ensureSavabilityAsJson(dataToSave, recursiveLayer + 1)
         return dataToSave
 
     def prettyDumpJson(self, obj: dict, filename: str, indent: int = 2, omitWarning: bool = False):
