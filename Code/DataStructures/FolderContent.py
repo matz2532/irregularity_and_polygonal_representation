@@ -32,9 +32,15 @@ class FolderContent (object):
     def AddDataToExtractedFilesDict(self, data, key):
         self.folderContent["extractedFilesDict"][key] = data
 
-    def AddDataToFilenameDict(self, data, key):
+    def AddDataToFilenameDict(self, data, key, supressDataConversionToString: bool = False):
         if key in self.folderContent["filenameDict"] and self.verbose >= 1:
             print("Overwriting {} of key {} in filenameDict to {}".format(self.folderContent["filenameDict"][key], key, data))
+        if not supressDataConversionToString:
+            try:
+                data = str(data)
+            except:
+                if self.verbose >= 1:
+                    print(f"The value {data} of data type {type(data)} from the {key=} could not be converted to a string, which could lead to errors when transferring the folder content between operating systems.")
         self.folderContent["filenameDict"][key] = data
 
     def IsKeyInExtractedFilesDict(self, key):
