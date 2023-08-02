@@ -612,14 +612,14 @@ def mainCreateBoxPlotOf(measureName="lengthGiniCoeff", plotSelectedColumnsAdjace
                         fixxedYLocator=None, addHLineAt=None, resultsNameExtension="", onlyShowLastAndFirstTimePoint=False, furtherRemoveScenarioIds=None,
                         onlyPlotXLabel=None, reduceResultsToOnePerTissue=False, filenameToSave=None, overwriteTimePointRenamingWith=None, **kwargs):
     colorPalette = sns.color_palette("colorblind")
-    genotypeColorConversion = {"WT": colorPalette[7], "WT+Oryzalin": colorPalette[8], "ktn": colorPalette[0], "$\it{ktn1}$-$\it{2}$": colorPalette[0], "speechless": colorPalette[1]}
+    genotypeColorConversion = {"WT": colorPalette[7], "WT_4dag": colorPalette[7], "WT+Oryzalin": colorPalette[8], "ktn": colorPalette[0], "$\it{ktn1}$-$\it{2}$": colorPalette[0], "speechless": colorPalette[1]}
     resultsTableFilenames = [f"{baseResultsFolder}{measuresBaseName.format(name)}" for name in tissueScenarioNames]
     renameTimePointDict = {"T0": "0-96h", "T1": "0-96h", "T2": "0-96h", "T3": "0-96h", "T4": "0-96h"} #, "T0": "0h", "T1": "24h", "T2": "48h", "T3": "72h", "T4":"96h"} #
     if not overwriteTimePointRenamingWith is None:
         for timePointName, renameTo in overwriteTimePointRenamingWith.items():
             renameTimePointDict[timePointName] = renameTo
     timePointConversionFromStrToNumber = {"0h": 0, '12h': 12, "24h": 24, '36h': 36, "48h": 48, '60h': 60, "72h": 72, '84h': 84, "96h": 96, '108h': 108, "120h": 120, '132h': 132, '144h': 144, "0-96h":0, "T0": 0, "T1": 24, "T2": 48, "T3": 72, "T4":96}
-    renameGenotypesDict = {"WT inflorescence meristem": "WT SAM", "col-0": "WT cotyledon", "WT": "WT cotyledon", "speechless": "speechless cotyledon",
+    renameGenotypesDict = {"WT inflorescence meristem": "WT SAM", "col-0": "WT cotyledon", "WT": "WT cotyledon", "WT_4dag": "WT cotyledon", "speechless": "speechless cotyledon",
                            "Oryzalin": "WT+Oryzalin cotyledon", "ktn1-2": "$\it{ktn1}$-$\it{2}$ cotyledon"}
     if saveFigure:
         if filenameToSave is None:
@@ -648,7 +648,7 @@ def plotPatchyCotyledonResults(plotAreaMeasures=False, plotRegularityMeasures=Fa
         print("Plotting area measures")
         if plotCombinedDataSet:
             mainCreateBoxPlotOf(measureName="Ratio", plotSelectedColumnsAdjacent=["ratio_originalPolygonArea_labelledImageArea", "ratio_regularPolygonArea_labelledImageArea"],
-                                resultsNameExtension="_WtTissueComparison", tissueScenarioNames=["full cotyledons", "Matz2022SAM"], tissueGeneNameOrdering=tissueComparisonOrdering,
+                                resultsNameExtension="_WtTissueComparison", tissueScenarioNames=["Smit2023Cotyledons", "Matz2022SAM"], tissueGeneNameOrdering=tissueComparisonOrdering,
                                 compareAllAgainstAll=True, drawLinesAtTicksParameter="genTicks", showMinimalXLabels=True, excludeYLabel=True,
                                 resultsFolderExtensions="ratioResults/", testVsValue=1, addHLineAt=1, fontSize=reducedFontSize)
         if plotFullDataSet:
@@ -665,7 +665,7 @@ def plotPatchyCotyledonResults(plotAreaMeasures=False, plotRegularityMeasures=Fa
         print("Plotting regularity measures")
         if plotCombinedDataSet:
             mainCreateBoxPlotOf(measureName="Gini coefficient of ", plotSelectedColumnsAdjacent=["lengthGiniCoeff", "angleGiniCoeff"], resultsFolderExtensions="regularityResults/",
-                                resultsNameExtension="_WtTissueComparison", tissueScenarioNames=["full cotyledons", "Matz2022SAM"], tissueGeneNameOrdering=tissueComparisonOrdering,
+                                resultsNameExtension="_WtTissueComparison", tissueScenarioNames=["Smit2023Cotyledons", "Matz2022SAM"], tissueGeneNameOrdering=tissueComparisonOrdering,
                                 compareAllAgainstAll=True, drawLinesAtTicksParameter="genTicks", showMinimalXLabels=True, excludeYLabel=True, fontSize=reducedFontSize)
         if plotFullDataSet:
             mainCreateBoxPlotOf(measureName="lengthGiniCoeff",  resultsFolderExtensions="regularityResults/",
@@ -683,9 +683,9 @@ def plotPatchyCotyledonResults(plotAreaMeasures=False, plotRegularityMeasures=Fa
                                 tissueScenarioNames=["Eng2021Cotyledons"], tissueGeneNameOrdering=patchyCotyledonOrdering, addLinearRegression=True)
 
 if __name__ == '__main__':
-    plotPatchyCotyledonResults(plotAreaMeasures=True, plotRegularityMeasures=False,
-                           plotCombinedDataSet=False, plotFullDataSet=True, doIgnoreGuardCells=False)
-
+    # plotPatchyCotyledonResults(plotAreaMeasures=True, plotRegularityMeasures=False,
+    #                        plotCombinedDataSet=False, plotFullDataSet=True, doIgnoreGuardCells=False)
+    #
     mainCreateBoxPlotOf(measureName="Gini coefficient of ", plotSelectedColumnsAdjacent=["lengthGiniCoeff_ignoringGuardCells", "angleGiniCoeff_ignoringGuardCells"], resultsFolderExtensions="regularityResults/",
-                        resultsNameExtension="_WtTissueComparison_with_ignoringGuardCells", tissueScenarioNames=["full cotyledons", "full cotyledons speechless"], tissueGeneNameOrdering={"cotyledon": ["WT", "speechless"]},
+                        resultsNameExtension="_WtTissueComparison_with_ignoringGuardCells", tissueScenarioNames=["Smit2023Cotyledons"], tissueGeneNameOrdering={"cotyledon": ["WT", "speechless"]},
                         compareAllAgainstAll=True, drawLinesAtTicksParameter="genTicks", showMinimalXLabels=True, excludeYLabel=True, overWriteForWhichGroupingToShowText="gene name", fontSize=60)

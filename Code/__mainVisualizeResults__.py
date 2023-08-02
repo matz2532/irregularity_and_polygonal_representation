@@ -51,7 +51,7 @@ def createAllPythonRelatedSubfigures():
     mainSupFig1A(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="angleGiniCoeff", colorMapValueRange=[0.00931882037513563, 0.08732278219992405])
     # Sup Fig 1 C
     mainCreateBoxPlotOf(measureName="Gini coefficient of ", plotSelectedColumnsAdjacent=["lengthGiniCoeff_ignoringGuardCells", "angleGiniCoeff_ignoringGuardCells"], resultsFolderExtensions="regularityResults/",
-                        resultsNameExtension="_WtTissueComparison_with_ignoringGuardCells", tissueScenarioNames=["full cotyledons", "full cotyledons speechless"], tissueGeneNameOrdering={"cotyledon": ["WT", "speechless"]},
+                        resultsNameExtension="_WtTissueComparison_with_ignoringGuardCells", tissueScenarioNames=["Smit2023Cotyledons"], tissueGeneNameOrdering={"cotyledon": ["WT", "speechless"]},
                         compareAllAgainstAll=True, drawLinesAtTicksParameter="genTicks", showMinimalXLabels=True, excludeYLabel=True, fontSize=60, overWriteForWhichGroupingToShowText="gene name")
     # Sup Fig 2 A, B
     plotPatchyCotyledonResults(plotAreaMeasures=False, plotRegularityMeasures=True, plotCombinedDataSet=False, plotFullDataSet=False, doIgnoreGuardCells=True)
