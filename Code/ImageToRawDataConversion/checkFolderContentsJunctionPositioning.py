@@ -1,6 +1,5 @@
 import json
 import numpy as np
-import pickle
 import skimage.io
 import sys
 
@@ -11,7 +10,6 @@ from PreProcessorDummy import PreProcessorDummy
 from TriWayJunctionFinder import TriWayJunctionFinder
 
 def extractAndSaveContourAndBaseJunctions(folderContent, dataBaseFolder,
-                                   cellContourName="cellContours.pickle",
                                    simpleJunctionBaseName="baseTriWayJunctions.npy",
                                    globalVerbosity=3):
     tissueFolderExtension = folderContent.GetFolder()
@@ -33,7 +31,6 @@ def extractAndSaveContourAndBaseJunctions(folderContent, dataBaseFolder,
     folderContent.AddDataToFilenameDict(baseTriWayJunctionFilename, "baseTriWayJunctions")
 
 def checkFolderContentsJunctionPositioning(folderContent, dataBaseFolder,
-                                   cellContourName="cellContours.pickle",
                                    finalJunctionBaseName="correctedTriWayJunctions.npy",
                                    guardCellJunctionBaseName="guardCellJunctionPositions.npy",
                                    finalCorrespondingJunctionName="correctedCorresponding.json",
@@ -44,7 +41,6 @@ def checkFolderContentsJunctionPositioning(folderContent, dataBaseFolder,
             triWayJunctions = folderContent.LoadKeyUsingFilenameDict("baseTriWayJunctions")
         else:
             extractAndSaveContourAndBaseJunctions(folderContent, dataBaseFolder,
-                                               cellContourName=cellContourName,
                                                globalVerbosity=globalVerbosity)
             triWayJunctions = folderContent.LoadKeyUsingFilenameDict("baseTriWayJunctions")
         originalImage = folderContent.LoadKeyUsingFilenameDict("originalImageFilename")

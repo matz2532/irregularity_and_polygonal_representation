@@ -1,7 +1,6 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import pickle
 import pandas as pd
 # import pingouin as pg
 import seaborn as sns

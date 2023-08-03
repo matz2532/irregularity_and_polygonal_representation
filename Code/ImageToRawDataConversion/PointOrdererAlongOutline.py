@@ -1,5 +1,4 @@
 import numpy as np
-import pickle
 
 from copy import deepcopy
 from shapely.geometry import MultiPoint, Point
@@ -88,7 +87,7 @@ class PointOrdererAlongOutline (object):
         if len(idx) > 0:
             return idx[0]
 
-def saveOrderedJunctionsOf(folderContent, dataBaseFolder="", orderedJunctionsBaseName="orderedJunctionsPerCell.pkl"):
+def saveOrderedJunctionsOf(folderContent, dataBaseFolder="", orderedJunctionsBaseName="orderedJunctionsPerCell.json"):
     triWayJunctions = folderContent.LoadKeyUsingFilenameDict("finalJunctionFilename")
     cellContourDict = folderContent.LoadKeyUsingFilenameDict("cellContours", convertDictKeysToInt=True, convertDictValuesToNpArray=True)
     if folderContent.IsKeyInFilenameDict("additionalJunctionsDict"):
@@ -101,8 +100,7 @@ def saveOrderedJunctionsOf(folderContent, dataBaseFolder="", orderedJunctionsBas
     orderedJunctionsPerCell = myPointOrdererAlongOutline.GetAllOrderedJunctions()
     dataFolder = dataBaseFolder + folderContent.GetFolder()
     orderedJunctionsPerCellFilename = dataFolder + orderedJunctionsBaseName
-    with open(orderedJunctionsPerCellFilename, "wb") as fh:
-        pickle.dump(orderedJunctionsPerCell, fh)
+    folderContent.SaveDataFilesTo(orderedJunctionsPerCell, orderedJunctionsPerCellFilename)
     folderContent.AddDataToFilenameDict(orderedJunctionsPerCellFilename, "orderedJunctionsPerCellFilename")
 
 def main():

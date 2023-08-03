@@ -1,6 +1,5 @@
 import json
 import numpy as np
-import pickle
 import sys
 import warnings
 
@@ -86,8 +85,7 @@ class AreaMeasureExtractor (PolygonalRegularityCalculator):
         self.areaMeasuresDict["regularPolygonArea"] = regularPolygonArea
         if not saveAreaMeasuresAsFilename is None:
             Path(saveAreaMeasuresAsFilename).parent.mkdir(parents=True, exist_ok=True)
-            with open(saveAreaMeasuresAsFilename, "wb") as fh:
-                pickle.dump(self.areaMeasuresDict, fh)
+            self.folderContent.SaveDataFilesTo(self.areaMeasuresDict, saveAreaMeasuresAsFilename)
             if not self.folderContent is None:
                 self.folderContent.AddDataToFilenameDict(saveAreaMeasuresAsFilename, self.areaMeasuresKey)
         return self.areaMeasuresDict
@@ -311,7 +309,7 @@ def main():
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
     for folderContent in multiFolderContent:
         filenameDict = folderContent.GetFilenameDict()
-        myAreaMeasureExtractor = AreaMeasureExtractor(folderContent, saveAreaMeasuresAsFilename="test.pkl", useGeometricData=True)
+        myAreaMeasureExtractor = AreaMeasureExtractor(folderContent, saveAreaMeasuresAsFilename="test.json", useGeometricData=True)
         areaResults = myAreaMeasureExtractor.GetAreaMeasuresDict()
         firstCellLabel = list(list(areaResults.values())[0].keys())[0]
         print([v[firstCellLabel] for v in areaResults.values()])
@@ -330,7 +328,7 @@ def testIndividualTissue():
     replicateName = replicateName
     folderExtension = scenarioName + "/" + replicateName + "/"
     baseResultsFilename = dataBaseFolder + folderExtension + replicateName + "_"
-    saveAreaMeasuresAsFilename = baseResultsFilename + areaMeasuresKey + ".pkl"
+    saveAreaMeasuresAsFilename = baseResultsFilename + areaMeasuresKey + ".json"
     areaExtractor = AreaMeasureExtractor(folderContent)
     areaExtractor.RunAndSaveAllAreaMeasures(useGeometricData=useGeometricData, saveAreaMeasuresAsFilename=saveAreaMeasuresAsFilename)
     # multiFolderContent.UpdateFolderContents()

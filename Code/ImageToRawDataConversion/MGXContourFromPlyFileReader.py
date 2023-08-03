@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import pickle
 import re
 import sys
 import warnings
@@ -16,8 +15,9 @@ class MGXContourFromPlyFileReader (object):
     pointCloudPositions=None
     dictOfCellsContourIndices=None
     dictOfCellsContourPositions=None
+    geometricData: pd.DataFrame = None
     # default filename extension (for saving)
-    resultsNameExtension="orderedJunctionsPerCell.pkl"
+    resultsNameExtension="orderedJunctionsPerCell.json"
     # default patterns in ply file
     endHeaderPattern="end_header"
     beforeContourPattern="element vertex (\d+)"
@@ -180,7 +180,7 @@ def main():
     save = False
     if extractCellContours:
         junctionPlyFilename = baseName + "_only pavement cells.ply"
-        resultsNameExtension = "cellContour.pkl"
+        resultsNameExtension = "cellContour.json"
     else:
         junctionPlyFilename = baseName + "_only junctions.ply"
         resultsNameExtension = None
@@ -189,9 +189,8 @@ def main():
         filename = myMGXContourFromPlyFileReader.SaveCellsContoursPositions(resultsNameExtension=resultsNameExtension)
     cellContours = myMGXContourFromPlyFileReader.GetCellsContourPositions()
     if extractCellContours:
-        highlightedPoints = baseName + "_orderedJunctionsPerCell.pkl"
-        with open(highlightedPoints, "rb") as fh:
-            highlightedPoints = pickle.load(fh)
+        highlightedPoints = baseName + "_orderedJunctionsPerCell.json"
+        highlightedPoints = FolderContent().loadFile(highlightedPoints)
     else:
         highlightedPoints = None
     fig, ax = plt.subplots(1, 1)
@@ -207,7 +206,7 @@ def main():
 
 def correctlyAddOutlines():
     outlinePlyExtension = "_just outlines.ply"
-    contourNameExtension = "_cellContour.pkl"
+    contourNameExtension = "_cellContour.json"
     baseImageFolder = "Images"
     allContourPlyBaseFilenames = []
     folderExtension = "first_leaf_LeGloanec2022"
@@ -236,7 +235,7 @@ def correctlyAddOutlines():
             continue
         contourFilename = tissueBaseFilename + contourNameExtension
         myMGXContourFromPlyFileReader = MGXContourFromPlyFileReader(junctionPlyFilename, extract3DContours=True)
-        originalContours = pickle.load(open(contourFilename, "rb"))
+        originalContours = FolderContent().loadFile(contourFilename)
         onlyKeepCellLabels = list(originalContours.keys())
         myMGXContourFromPlyFileReader.SaveCellsContoursPositions(filenameToSave=contourFilename, onlyKeepCellLabels=onlyKeepCellLabels)
         sys.exit()

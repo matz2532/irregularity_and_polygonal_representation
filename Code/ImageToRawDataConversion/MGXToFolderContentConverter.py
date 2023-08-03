@@ -1,7 +1,5 @@
-import json
 import numpy as np
 import pandas as pd
-import pickle
 import re
 import shutil
 import sys
@@ -30,9 +28,9 @@ class MGXToFolderContentConverter (object):
     # filename name extensions
     adjacencyListNameExtension             ="_adjacencyList.json"
     cellTypesBaseName                      ="_cellTypes.json"
-    contourNameExtension                   ="_cellContour.pkl"
-    guardCellJunctionPositionsNameExtension="_guardCellJunctionPositions.npy"
-    orderedJunctionsNameExtension          ="_orderedJunctionsPerCell.pkl"
+    contourNameExtension                   ="_cellContour.json"
+    guardCellJunctionPositionsNameExtension="_guardCellJunctionPositions.json"
+    orderedJunctionsNameExtension          ="_orderedJunctionsPerCell.json"
     # filename keys
     adjacencyListFilenameKey             ="labelledImageAdjacencyList"
     cellTypeFilenameKey                  ="cellType"
@@ -179,11 +177,12 @@ class MGXToFolderContentConverter (object):
         return cellTypesDict
 
     def addContourInfoTo(self, folderContent, cellTypesDict=None, extractPeripheralCellsFromJunctions=False,
-                         plyExtension=".ply", fileResultsNameExtension="_exampleExtension.pkl", filenameKey="exampleFilenameKey",
+                         plyExtension=".ply", fileResultsNameExtension="_exampleExtension.json", filenameKey="exampleFilenameKey",
                          allContoursExtraExtension="_withAllCells.json",
                          save=True):
         plyFilename = self.tissueBaseFilename + plyExtension
-        contourReader = MGXContourFromPlyFileReader(plyFilename, extract3DContours=self.extract3DContours)
+        geometricData = folderContent.LoadKeyUsingFilenameDict(self.geometricDataFilenameKey, skipfooter=4)
+        contourReader = MGXContourFromPlyFileReader(plyFilename, extract3DContours=self.extract3DContours, geometricData=geometricData)
         if cellTypesDict is None:
             onlyKeepCellLabels = None
         else:
@@ -230,8 +229,7 @@ class MGXToFolderContentConverter (object):
             for cellLabel in cellLabelsMissingJunctions:
                 cellsContours.pop(cellLabel)
             contoursFilename = folderContent.GetFilenameDict()[self.contoursFilenameKey]
-            with open(contoursFilename, "wb") as fh:
-                pickle.dump(cellsContours, fh)
+            folderContent.SaveDataFilesTo(cellsContours, contoursFilename)
         return cellLabelsMissingJunctions
 
     def saveCellTypes(self, cellTypesDict, cellLabelsMissingJunctions: list = []):
@@ -257,7 +255,7 @@ class MGXToFolderContentConverter (object):
                     duplicateCoordinates.append(i + 1 + j)
         guardCellJunctionPositions = np.delete(guardCellJunctionPositions, duplicateCoordinates, axis=0)
         guardCellJunctionPositionsFilename = self.tissueBaseFilename + self.guardCellJunctionPositionsNameExtension
-        np.save(guardCellJunctionPositionsFilename, guardCellJunctionPositions)
+        folderContent.SaveDataFilesTo(guardCellJunctionPositions, guardCellJunctionPositionsFilename)
         folderContent.AddDataToFilenameDict(guardCellJunctionPositionsFilename, self.guardCellJunctionPositionsFilenameKey)
 
     def addGraphAdjacencyList(self, folderContent, tissuePathFolder):

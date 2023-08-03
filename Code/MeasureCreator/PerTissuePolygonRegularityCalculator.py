@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-import pickle
 import sys
 
 sys.path.insert(0, "./Code/ImageToRawDataConversion/")
+sys.path.insert(0, "./Code/DataStructures/")
 from PolygonalRegularityCalculator import PolygonalRegularityCalculator
 
 class PerTissuePolygonRegularityCalculator (PolygonalRegularityCalculator):
@@ -195,14 +195,12 @@ class PerTissuePolygonRegularityCalculator (PolygonalRegularityCalculator):
         self.ignoreAnglesDict = ignoreAnglesDict
 
 def extractPolygonalComplexityOf(folder):
-    contourFilenames = folder + "cellContours.pkl"
+    contourFilenames = folder + "cellContours.json"
     labelledImageFilename = folder + "labelledImage.npy"
     labelledImgArray = np.load(labelledImageFilename)
-    with open(contourFilenames, "rb") as fh:
-        allContours = pickle.load(fh)
+    allContours = FolderContent().loadFile(contourFilenames)
     triWayJunctionsFilename = folder + "correctTriWayJunctions.pkl"
-    with open(triWayJunctionsFilename, "rb") as fh:
-        triWayJunctions = pickle.load(fh)
+    triWayJunctions = FolderContent().loadFile(triWayJunctionsFilename)
     triWayJunctions = triWayJunctions.astype(int)
     myPolygonalRegularityCalculator = PerTissuePolygonRegularityCalculator(labelledImgArray, allContours, triWayJunctions)
     return myPolygonalRegularityCalculator

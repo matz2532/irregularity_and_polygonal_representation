@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import pickle
 import sys
 
 sys.path.insert(0, "./Code/DataStructures/")
@@ -121,7 +120,7 @@ def createGuardCellAdjacency(dataBaseFolder, allFolderContentsFilename, isSegmen
                     if globalVerbosity >= 2:
                         print("skipped guard cell adjacency creation", folderContent.GetTissueName())
                     continue
-        orderedJunctionsPerCell = folderContent.LoadKeyUsingFilenameDict(orderedJunctionsPerCellFilenameKey)
+        orderedJunctionsPerCell = folderContent.LoadKeyUsingFilenameDict(orderedJunctionsPerCellFilenameKey, convertDictKeysToInt=True, convertDictValuesToNpArray=True)
         guardCellJunctionPositions = folderContent.LoadKeyUsingFilenameDict(guardCellJunctionPositionsFilenameKey)
         segmentAdjacencyToGuardCell = {}
         junctionAdjacencyToGuardCell = {}
@@ -142,16 +141,16 @@ def createGuardCellAdjacency(dataBaseFolder, allFolderContentsFilename, isSegmen
             segmentAdjacencyToGuardCell[cellLabel] = isSegmentAdjacentToGuardCell
             junctionAdjacencyToGuardCell[cellLabel] = np.concatenate( [ [isJunctionGuardCellJunction[-1]], isJunctionGuardCellJunction[:-1] ] )
         tissueFolderExtension = folderContent.GetFolder()
-        filename = dataBaseFolder + tissueFolderExtension + isSegmentNeighboringGuardCellKey + ".pkl"
+        filename = dataBaseFolder + tissueFolderExtension + isSegmentNeighboringGuardCellKey + ".json"
         folderContent.SaveDataFilesTo(segmentAdjacencyToGuardCell, filename)
         folderContent.AddDataToFilenameDict(filename, isSegmentNeighboringGuardCellKey)
-        filename = dataBaseFolder + tissueFolderExtension + isAngleAtGuardCellJunctionKey + ".pkl"
+        filename = dataBaseFolder + tissueFolderExtension + isAngleAtGuardCellJunctionKey + ".json"
         folderContent.SaveDataFilesTo(junctionAdjacencyToGuardCell, filename)
         folderContent.AddDataToFilenameDict(filename, isAngleAtGuardCellJunctionKey)
         multiFolderContent.UpdateFolderContents()
 
 def createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder, ignoreGuardCells=False,
-                      regularityMeasuresBaseName="regularityMeasures.pkl", regularityMeasuresFilenameKey="regularityMeasuresFilename",
+                      regularityMeasuresBaseName="regularityMeasures.json", regularityMeasuresFilenameKey="regularityMeasuresFilename",
                       ignoreGuardCellExtension="_ignoringGuardCells", genotypeResolutionDict=None, checkCellsPresentInLabelledImage=True):
     if globalVerbosity >= 2:
         print(f"Run regularity analysis.")
@@ -159,14 +158,14 @@ def createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder, igno
     regularityCalculator = PerTissuePolygonRegularityCalculator(None, None, None)
     if ignoreGuardCells:
         regularityMeasuresFilenameKey += ignoreGuardCellExtension
-        regularityMeasuresBaseName = regularityMeasuresBaseName.replace(".pkl", ignoreGuardCellExtension + ".pkl")
+        regularityMeasuresBaseName = regularityMeasuresBaseName.replace(".json", ignoreGuardCellExtension + ".json")
     for folderContent in multiFolderContent:
         if globalVerbosity >= 3:
             print(f"Run {folderContent.GetTissueName()} regularity analysis.")
         if checkCellsPresentInLabelledImage:
             labelledImage = folderContent.LoadKeyUsingFilenameDict("labelledImageFilename")
         allContours = folderContent.LoadKeyUsingFilenameDict("cellContours", convertDictKeysToInt=True, convertDictValuesToNpArray=True)
-        orderedJunctionsPerCell = folderContent.LoadKeyUsingFilenameDict("orderedJunctionsPerCellFilename")
+        orderedJunctionsPerCell = folderContent.LoadKeyUsingFilenameDict("orderedJunctionsPerCellFilename", convertDictKeysToInt=True, convertDictValuesToNpArray=True)
         genotypeName = folderContent.GetGenotype()
         resolution = 1
         if not genotypeResolutionDict is None:
@@ -177,13 +176,13 @@ def createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder, igno
         Path(regularityMeasuresFilename).parent.mkdir(parents=True, exist_ok=True)
         if ignoreGuardCells:
             if not folderContent.IsKeyInFilenameDict("isSegmentNeighboringGuardCell") or not folderContent.IsKeyInFilenameDict("isAngleAtGuardCellJunction"):
-                previousRegularityFilename = dataFolder + regularityMeasuresBaseName.replace(ignoreGuardCellExtension + ".pkl", ".pkl")
+                previousRegularityFilename = dataFolder + regularityMeasuresBaseName.replace(ignoreGuardCellExtension + ".json", ".json")
                 print(f"guard cell segment neighbor and angle is missing, so just copied regularity measure results from {previousRegularityFilename} to name of {regularityMeasuresFilename}")
                 previousRegularityFile = folderContent.LoadKeyUsingFilenameDict(regularityMeasuresFilenameKey.replace(ignoreGuardCellExtension, ""))
                 copiedRegularityFileOfIgnoringGuardCells = {}
                 for key, values in previousRegularityFile.items():
                     copiedRegularityFileOfIgnoringGuardCells[key + ignoreGuardCellExtension] = values
-                pickle.dump(copiedRegularityFileOfIgnoringGuardCells, open(regularityMeasuresFilename, "wb"))
+                folderContent.SaveDataFilesTo(copiedRegularityFileOfIgnoringGuardCells, regularityMeasuresFilename)
                 folderContent.AddDataToFilenameDict(regularityMeasuresFilename, regularityMeasuresFilenameKey)
                 multiFolderContent.UpdateFolderContents()
                 continue
@@ -202,8 +201,7 @@ def createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder, igno
                                                               ignoreSegmentsDict=isSegmentNeighboringGuardCell, ignoreAnglesDict=isAngleAtGuardCellJunction)
         regularityCalculator.CalcPolygonalComplexityForTissue()
         regularityMeasures = regularityCalculator.GetRegularityMeasuresDict()
-        with open(regularityMeasuresFilename, "wb") as fh:
-            pickle.dump(regularityMeasures, fh)
+        folderContent.SaveDataFilesTo(regularityMeasures, regularityMeasuresFilename)
         folderContent.AddDataToFilenameDict(regularityMeasuresFilename, regularityMeasuresFilenameKey)
         multiFolderContent.UpdateFolderContents()
 
@@ -225,10 +223,10 @@ def createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder,
             replicateName = replicateName
             folderExtension = scenarioName + "/" + replicateName + "/"
         baseResultsFilename = dataBaseFolder + folderExtension + replicateName + "_"
-        saveAreaMeasuresAsFilename = baseResultsFilename + areaMeasuresKey + ".pkl"
+        saveAreaMeasuresAsFilename = baseResultsFilename + areaMeasuresKey + ".json"
         areaExtractor.SetFolderContent(folderContent)
         areaExtractor.RunAndSaveAllAreaMeasures(useGeometricData=useGeometricData, saveAreaMeasuresAsFilename=saveAreaMeasuresAsFilename)
-        areaExtractor.RunAndSaveAllGeometricCentersAndDistances(useGeometricData=useGeometricData, baseResultsFilename=baseResultsFilename)
+        # areaExtractor.RunAndSaveAllGeometricCentersAndDistances(useGeometricData=useGeometricData, baseResultsFilename=baseResultsFilename)
         multiFolderContent.UpdateFolderContents()
 
 def createResultMeasureTable(allFolderContentsFilename, resultsFolder,
