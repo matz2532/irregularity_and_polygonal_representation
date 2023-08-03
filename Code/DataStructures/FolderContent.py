@@ -249,7 +249,7 @@ class FolderContent (object):
     def prettyDumpJson(self, obj: dict, filename: str, indent: int = 2, omitWarning: bool = False):
         if not isinstance(obj, dict):
             if not omitWarning:
-                print(f"Warning: Pretty dumping json file with {filename=} is of type {type(dict)} != dict and therefore not made more pretty.")
+                warnings.warn(f"Warning: Pretty dumping json file with {filename=} is of type {type(obj)} != dict and therefore not made more pretty.")
             with open(filename, "w") as f:
                 json.dump(obj, f)
         else:
