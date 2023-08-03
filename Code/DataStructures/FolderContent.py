@@ -4,6 +4,7 @@ import pandas as pd
 import pickle
 import platform
 import skimage.io
+import warnings
 
 from MyEncoder import MyEncoder, NoIndent
 from pathlib import Path
@@ -73,7 +74,8 @@ class FolderContent (object):
                 print(f"The {numberOfCellsWithNumerator=} != {numberOfCellsWithDenominator=} != {numberOfCellsWithRatios=}, with the present labels being\nnumeratorCellLabels={list(numeratorValuesOfCells.keys())}\ndenominatorCellLabels={list(denominatorValuesOfCells.keys())}\nratiosCellLabels={list(numberOfCellsWithRatios.keys())}")
         return ratioValuesDict
 
-    def loadFile(self, filename, convertDictKeysToInt=False, convertNestedDictKeysToInt=False, convertDictValuesToNpArray=False, **kwargs):
+    def loadFile(self, filename, convertDictKeysToInt=True, convertDictValuesToNpArray=True,
+                 convertNestedDictKeysToInt=True, supressConversionWarning=False, **kwargs):
         suffix = Path(filename).suffix
         if platform.system() == "Linux":
             filename = self.convertFilenameToLinux(filename)
@@ -93,22 +95,22 @@ class FolderContent (object):
                 file = json.load(fh)
         else:
             raise NotImplementedError(f"The extension of the {suffix=} is not yet implemented. Aborting while loading {filename=}")
-        if convertDictKeysToInt:
-            tmpDict = {}
-            for k, v in file.items():
-                tmpDict[int(k)] = v
-            file = tmpDict
-        elif convertNestedDictKeysToInt:
-            tmpDict = {}
-            for kOuter, d in file.items():
-                tmpInnerDict = {}
-                for kInner, v in d.items():
-                    tmpInnerDict[int(kInner)] = v
-                tmpDict[kOuter] = tmpInnerDict
-            file = tmpDict
-        if convertDictValuesToNpArray:
-            for k, v in file.items():
-                file[k] = np.array(v)
+        if isinstance(file, dict):
+            if convertDictKeysToInt:
+                file = self.convertKeysToType(file, typeToConvert=int, filename=filename, supressConversionWarning=supressConversionWarning)
+            if convertNestedDictKeysToInt:
+                if np.any([isinstance(v, dict) for v in file.values()]):
+                    tmpDict = {}
+                    for kOuter, innerDict in file.items():
+                        if isinstance(innerDict, dict):
+                            tmpDict[kOuter] = self.convertKeysToType(innerDict, typeToConvert=int, filename=filename,
+                                                                     supressConversionWarning=supressConversionWarning)
+                        else:
+                            tmpDict[kOuter] = innerDict
+                    file = tmpDict
+            if convertDictValuesToNpArray:
+                for k, v in file.items():
+                    file[k] = np.array(v)
         return file
 
     def convertFilenameToLinux(self, filename: str or Path):
@@ -118,6 +120,17 @@ class FolderContent (object):
         else:
             filename = filename.as_posix()
         return filename
+
+    def convertKeysToType(self, selectedDict: dict, typeToConvert = int, filename: str = None, supressConversionWarning: bool = False):
+        tmpDict = {}
+        for k, v in selectedDict.items():
+            try:
+                k = typeToConvert(k)
+            except ValueError as e:
+                if not supressConversionWarning:
+                    warnings.warn(f"The key {k} could not be converted into an integer, file loaded from {filename=}. Supress warning to convert to {typeToConvert} by setting supressConversionWarning to True")
+            tmpDict[k] = v
+        return tmpDict
 
     def GetExtractedFilesDict(self):
         return self.folderContent["extractedFilesDict"]
