@@ -71,7 +71,7 @@ class PatchCreator (object):
             self.cellLabels = list(outlineDict.keys())
             self.cellPositions = np.array([np.mean(contourPoints, axis=0) for contourPoints in outlineDict.values()])
             self.getCellIdByKeyStroke = getCellIdByKeyStroke
-            fig.canvas.mpl_connect("key_press_event", self.onPress)
+            fig.canvas.mpl_connect("key_press_event", self.onPress) # when using this call you need to use plt.show() inside this class. For more infos see: https://stackoverflow.com/questions/55866439/why-doesnt-mpl-connect-work-when-called-in-the-init-of-a-class
         else:
             self.ax = ax
         if measureData is None:

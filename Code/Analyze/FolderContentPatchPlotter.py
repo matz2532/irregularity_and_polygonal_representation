@@ -415,6 +415,7 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
                      selectedSubMeasure=selectedSubMeasure,
                      setAxesParameterInSinglePlots=manualVisualizationMode,
                      getCellIdByKeyStroke=manualVisualizationMode,
+                     showPlot=manualVisualizationMode,
                      showTitle=False,
                      )
     patchKwargsForEntries = {("WT_4dag", "20210712_XVE_5_0_A_merged_Region1"): {"outlineLineWidth": 0.7}}
@@ -483,7 +484,8 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
             plt.close()
             print("saved tissue visualization:", saveAsFilename)
         else:
-            plt.show()
+            if not manualVisualizationMode:
+                plt.show()
 
         if parameter["setAxesParameterInSinglePlots"]:
             decimal = 2
