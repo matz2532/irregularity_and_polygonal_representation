@@ -297,7 +297,7 @@ def mainCreateAllFullCotyledons(saveFolderContentsUnder=None, cotyledonBaseFolde
             kwargs["defaultTimePoint"] = timePoint
         tissuePathFolder = Path(f"{cotyledonBaseFolder}{genotype}/{tissueReplicateId}/")
         if removeSmallCellsPerGenotype is not None:
-            assert genotype in removeSmallCellsPerGenotype, f"When removing small cells per genotype the {genotype=} needs to be present only the following are present {list(removeSmallCellsPerGenotype.keys())}"
+            assert genotype in removeSmallCellsPerGenotype, f"When removing small cells per genotype the {genotype=} needs to be present, but only the following genotypes are present {list(removeSmallCellsPerGenotype.keys())}"
             kwargs["removeSmallCells"] = removeSmallCellsPerGenotype[genotype]
         myMGXToFolderContentConverter = MGXToFolderContentConverter(tissuePathFolder, plyContourNameExtension=plyContourNameExtension, **kwargs)
         folderContent = myMGXToFolderContentConverter.GetFolderContent()
