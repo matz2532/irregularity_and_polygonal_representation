@@ -494,6 +494,8 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
             elev = ax.elev
             axesParameter = {"xlim": np.round(xlim, decimal).tolist(), "ylim": np.round(ylim, decimal).tolist(), "zlim": np.round(zlim, decimal).tolist(), "azim": np.round(azim, decimal), "elev": np.round(elev, decimal)}
             print(f'{axesParameter}')
+    if measureDataFilenameKey is not None:
+        return colorMapValueRange
 
 def convertCellLabelsToId(folderContent: FolderContent, cellLabels: list, contourFilenameKey: str = "contourFilename", printOut: bool = True):
     myCellIdTracker = CellIdTracker()
