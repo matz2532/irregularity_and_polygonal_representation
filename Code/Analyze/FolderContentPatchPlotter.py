@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sys
+import warnings
 
 sys.path.insert(0, "./Code/DataStructures/")
 from CellIdTracker import CellIdTracker
@@ -156,8 +157,15 @@ class FolderContentPatchPlotter (PatchCreator):
                 if isinstance(measureData[list(measureData.keys())[0]], dict):
                     if "ratio" in selectedSubMeasure:
                         measureData = self.calculateRatioMeasureData(measureData, selectedSubMeasure, entryIdentifier)
+                    elif "selectedSubMeasure" in selectedSubMeasure:
+                        measureData = self.extractSubMeasureOfCellsFromDict(selectedSubMeasure["selectedSubMeasure"], measureData, entryIdentifier)
                     else:
                         measureData = self.extractSubMeasureOfCellsFromDict(selectedSubMeasure, measureData, entryIdentifier)
+                    if "absDiffToMean" in selectedSubMeasure:
+                        values = np.array(list(measureData.values()))
+                        mean = np.mean(values)
+                        absoluteDifferenceToMeanValues = np.abs(values - mean)
+                        measureData = dict(zip(list(measureData.keys()), absoluteDifferenceToMeanValues))
             else:
                 measureData, measureDataArray, faceColorDict = self.determineMeasureData(measureData, overwritingMeasureDataKwargs, faceColorDict=faceColorDict)
             if visualiseAbsDiffToMeanOfValues:
@@ -390,16 +398,6 @@ def calcOffsetToAlignPlyFileWithContours(plyFilename, entryIdentifier, surfaceCo
 def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomedIn=False,
                measureDataFilenameKey=None, selectedSubMeasure=None, selectedSubMeasureName=None, colorMapValueRange=None,
                manualVisualizationMode: bool = False):
-    baseFilename = f"{resultsFolder}{'{}'}/figure2AB_{'{}'}_{'zoomedIn' if zoomedIn else 'overview'}_patches.png"
-    if not measureDataFilenameKey is None:
-        if selectedSubMeasureName is None:
-            selectedSubMeasureName = selectedSubMeasure
-        baseFilename = baseFilename.replace(".png", f"_{selectedSubMeasureName}.png")
-        surfaceContourPerCellFilenameKey = "orderedJunctionsPerCellFilename"
-        overlaidContourEdgePerCellFilenameKey = None
-    else:
-        surfaceContourPerCellFilenameKey = "cellContours_withAllCells"
-        overlaidContourEdgePerCellFilenameKey = "orderedJunctionsPerCellFilename"
     allEntryIdentifiersPlusFolderContents = [
         ["WT_4dag", "20210712_XVE_5_0_A_merged_Region1", "96h", "Images/Smit2023Cotyledons/Smit2023Cotyledons.pkl"],
         ["WT inflorescence meristem", "P2", "T0", "Images/Matz2022SAM/Matz2022SAM.pkl"],
@@ -411,6 +409,34 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
                        # ("WT_4dag", "20210712_XVE_5_0_A_merged_Region1"): [111008 , 110249 , 111012 , 111005],
                        ("WT_4dag", "20210712_XVE_5_0_A_merged_Region1"): [109781, 111549, 108828, 108728, 109367],
                       ("WT", "20200220 WT S1"): [841860, 841670, 841855, 841669, 841666]}
+    if manualVisualizationMode:
+        if selectedSubMeasure is not None:
+            if isinstance(selectedSubMeasure, dict):
+                selectedSubMeasure["absDiffToMean"] = True
+            elif isinstance(selectedSubMeasure, str):
+                selectedSubMeasure = {"selectedSubMeasure": selectedSubMeasure, "absDiffToMean": True}
+            else:
+                raise NotImplementedError(f"The selectedSubMeasure is not implemented as data type {type(selectedSubMeasure)} != dict or str during the initialization of the manualVisualizationMode.")
+    baseFilename = f"{resultsFolder}{'{}'}/figure2AB_{'{}'}_{'zoomedIn' if zoomedIn else 'overview'}_patches.png"
+    if not measureDataFilenameKey is None:
+        if selectedSubMeasureName is None:
+            if isinstance(selectedSubMeasure, dict):
+                if "ratio" in selectedSubMeasure:
+                    valuesToJoin = ["ratio"]
+                    valuesToJoin.extend(selectedSubMeasure["ratio"])
+                    selectedSubMeasureName = "_".join(valuesToJoin)
+                elif "selectedSubMeasure" in selectedSubMeasure:
+                    selectedSubMeasureName = selectedSubMeasure["selectedSubMeasure"]
+                else:
+                    warnings.warn(f"The selected selectedSubMeasureName could not be extracted from the {selectedSubMeasure=} either provide selectedSubMeasure as a string or provide the keys 'ratio' or 'selectedSubMeasure'")
+            else:
+                selectedSubMeasureName = selectedSubMeasure
+        baseFilename = baseFilename.replace(".png", f"_{selectedSubMeasureName}.png")
+        surfaceContourPerCellFilenameKey = "orderedJunctionsPerCellFilename"
+        overlaidContourEdgePerCellFilenameKey = None
+    else:
+        surfaceContourPerCellFilenameKey = "cellContours_withAllCells"
+        overlaidContourEdgePerCellFilenameKey = "orderedJunctionsPerCellFilename"
     parameter = dict(surfaceContourPerCellFilenameKey=surfaceContourPerCellFilenameKey,
                      overlaidContourEdgePerCellFilenameKey=overlaidContourEdgePerCellFilenameKey,
                      measureDataFilenameKey=measureDataFilenameKey,
@@ -530,7 +556,12 @@ def calcColorMapValueRange(allEntryIdentifiersPlusFolderContents, parameter, sel
         if type(selectedSubMeasure) != dict:
             valuesOfCells = valuesOfCells[selectedSubMeasure]
         else:
-            valuesOfCells = FolderContentPatchPlotter().calculateRatioMeasureData(valuesOfCells, selectedSubMeasure)
+            if "ratio" in selectedSubMeasure:
+                valuesOfCells = FolderContentPatchPlotter().calculateRatioMeasureData(valuesOfCells, selectedSubMeasure)
+            elif "selectedSubMeasure" in selectedSubMeasure:
+                valuesOfCells = valuesOfCells[selectedSubMeasure["selectedSubMeasure"]]
+            else:
+                raise NotImplementedError(f"When providing selectedSubMeasure as a dict you have to provide the ratio key with the selected sub-measures in a list to be used for ratio calculation or provide selectedSubMeasure as a key (which allows to give more parameter). Present keys are: {list(selectedSubMeasure.keys())}")
         if not selectedCellLabelsPerGenReplicateCombi is None:
             genotypeReplicateIdCombination = (entryIdentifier[0], entryIdentifier[1])
             if genotypeReplicateIdCombination in selectedCellLabelsPerGenReplicateCombi:
