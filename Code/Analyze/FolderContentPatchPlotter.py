@@ -408,7 +408,9 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
         # ["WT", "20200220 WT S1", "120h", "Images/full cotyledons/full cotyledons.pkl"],
     ]
     selectedCellIds = {("WT inflorescence meristem", "P2"): [398, 381, 379, 417, 431],
-                       ("WT", "20200220 WT S1"): [841860, 841670, 841855, 841669, 841666]}
+                       # ("WT_4dag", "20210712_XVE_5_0_A_merged_Region1"): [111008 , 110249 , 111012 , 111005],
+                       ("WT_4dag", "20210712_XVE_5_0_A_merged_Region1"): [109781, 111549, 108828, 108728, 109367],
+                      ("WT", "20200220 WT S1"): [841860, 841670, 841855, 841669, 841666]}
     parameter = dict(surfaceContourPerCellFilenameKey=surfaceContourPerCellFilenameKey,
                      overlaidContourEdgePerCellFilenameKey=overlaidContourEdgePerCellFilenameKey,
                      measureDataFilenameKey=measureDataFilenameKey,
@@ -426,6 +428,7 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
                             "WT_20200220 WT S1_120h": {'xlim': [319.47, 370.72], 'ylim': [502.51, 554.61], 'zlim': [1.07, 3.93], 'azim': -90, 'elev': 90},
                             }
         allScaleBarOffsets = {("WT inflorescence meristem", "P2"): np.array([32, 58, 17.7]),
+                              ("WT_4dag", "20210712_XVE_5_0_A_merged_Region1"): np.array([410, 360, 0]),
                               ("WT", "20200220 WT S1"): np.array([380, 495, 0])}
         offsetOfOverlaidContours = {}
         offsetOfContoursOfTissues = {("WT inflorescence meristem", "P2"): [2.0914, 0.7689999999999984, 1.2651999999999965],
