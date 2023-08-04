@@ -56,7 +56,7 @@ class PatchCreator (object):
                                        showColorBar=True, alphaAsFloat=0.5, colorMapValueRange=None, scaleBarSize=None, scaleBarOffset=None, markCells=None, tissueName=None,
                                        axesParameter=None, showPlot=False, title=None, colorBarLabel="polygonal area [µm²]", getCellIdByKeyStroke=True,
                                        backgroundFilename=None, is3DBackground=False, backgroundImageOffset: np.ndarray = None,
-                                       outlineLineWidth=1.5, polygonOutlineLineWidth=1, **kwargs):
+                                       outlineLineWidth=1.5, polygonOutlineLineWidth=1, ignoreAxis=True, **kwargs):
         if not isThreeDimensional is None:
             self.isThreeDimensional = isThreeDimensional
         if not tissueName is None:
@@ -139,7 +139,7 @@ class PatchCreator (object):
                 backgroundImage = FolderContent({}).loadFile(backgroundFilename)
                 backgroundImage = backgroundImage.T
                 self.ax.imshow(backgroundImage, cmap="gray")
-        if True:
+        if ignoreAxis:
             self.ax.axis("off")
         else:
             self.ax.set_xlabel('x')
@@ -180,7 +180,7 @@ class PatchCreator (object):
         colorMapper = createColorMapper(valueRange=colorMapValueRange, colorMap=myColorMap)
         return colorMapper
 
-    def onPress(self, event, decimal=2):
+    def onPress(self, event, decimal=2, printOutAxesParameterEveryChange: bool = False):
         xlim = self.ax.get_xlim()
         ylim = self.ax.get_ylim()
         zlim = self.ax.get_zlim()
@@ -188,7 +188,8 @@ class PatchCreator (object):
         elev = self.ax.elev
         axesParameter = {"xlim":np.round(xlim, decimal).tolist(), "ylim":np.round(ylim, decimal).tolist(), "zlim":np.round(zlim, decimal).tolist(), "azim":np.round(azim, decimal), "elev":np.round(elev, decimal)}
 
-        print(f'"{self.tissueName}": {axesParameter},')
+        if printOutAxesParameterEveryChange:
+            print(f'"{self.tissueName}": {axesParameter},')
         if self.getCellIdByKeyStroke:
             mousePosition = self.pick_handler(event, self.ax)
             if self.cellPositions.shape[1] == 2:

@@ -128,6 +128,12 @@ class FolderContentPatchPlotter (PatchCreator):
             polygonalOutlineDict = folderContent.LoadKeyUsingFilenameDict(overlaidContourEdgePerCellFilenameKey)
             if not overlaidContourOffset is None:
                 for cellLabel in polygonalOutlineDict.keys():
+                    nrOfMissingColumns = len(overlaidContourOffset) - len(polygonalOutlineDict[cellLabel][0])
+                    if nrOfMissingColumns > 0:
+                        nrOfCoordinates = len(polygonalOutlineDict[cellLabel])
+                        polygonalOutlineDict[cellLabel] = np.concatenate([polygonalOutlineDict[cellLabel], np.full(nrOfCoordinates, 0).reshape(nrOfCoordinates, 1)], axis=1)
+                    elif nrOfMissingColumns < 0:
+                        raise NotImplementedError(f"Having less coordinates given for the overlaidContourOffset than for the cell label {cellLabel}, is not yet implemented, {len(overlaidContourOffset)} < {len(polygonalOutlineDict[cellLabel][0])}\nAdd more coordinates to the {overlaidContourOffset=}")
                     polygonalOutlineDict[cellLabel] += overlaidContourOffset
         if not offsetOfContours is None:
             for cellLabel in contours.keys():
@@ -192,6 +198,10 @@ class FolderContentPatchPlotter (PatchCreator):
             title = f"{scenarioName} at {timePointName}"
         else:
             title = None
+        if setAxesParameterInSinglePlots:
+            ignoreAxis = False
+        else:
+            ignoreAxis = True
         if ax is None:
             if figAxesParameterDict:
                 if isThreeDimensional:
@@ -230,11 +240,11 @@ class FolderContentPatchPlotter (PatchCreator):
             backgroundFilename = folderContent.GetFilenameDictKeyValue(loadBackgroundFromKey)
 
         return self.Plot3DPatchesFromOutlineDictOn(contours, ax=ax, measureData=measureData, plotOutlines=plotOutlines, polygonalOutlineDict=polygonalOutlineDict, isThreeDimensional=isThreeDimensional,
-                                            axesParameter=axesParameter, showPlot=showPlot, markCells=significantCells, tissueName=tissueName,
-                                            title=title, colorBarLabel=colorBarLabel, colorMapValueRange=colorMapValueRange, faceColorDict=faceColorDict,
-                                            backgroundFilename=backgroundFilename, is3DBackground=is3DBackground, backgroundImageOffset=backgroundImageOffset,
-                                            colorMapper=colorMapper, colorMap=colorMap, showColorBar=showColorBar, scaleBarSize=scaleBarSize, scaleBarOffset=scaleBarOffset, getCellIdByKeyStroke=getCellIdByKeyStroke,
-                                            **patchKwargs)
+                                                   axesParameter=axesParameter, showPlot=showPlot, markCells=significantCells, tissueName=tissueName,
+                                                   title=title, colorBarLabel=colorBarLabel, colorMapValueRange=colorMapValueRange, faceColorDict=faceColorDict,
+                                                   backgroundFilename=backgroundFilename, is3DBackground=is3DBackground, backgroundImageOffset=backgroundImageOffset,
+                                                   colorMapper=colorMapper, colorMap=colorMap, showColorBar=showColorBar, scaleBarSize=scaleBarSize, scaleBarOffset=scaleBarOffset, getCellIdByKeyStroke=getCellIdByKeyStroke,
+                                                   ignoreAxis=ignoreAxis, **patchKwargs)
 
     def calculateRatioMeasureData(self, measureData, selectedSubMeasure, entryIdentifier=None):
         nominatorSubMeasureKey = selectedSubMeasure["ratio"][0]
@@ -387,11 +397,14 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
         surfaceContourPerCellFilenameKey = "orderedJunctionsPerCellFilename"
         overlaidContourEdgePerCellFilenameKey = None
     else:
-        surfaceContourPerCellFilenameKey = "cellContours"
+        surfaceContourPerCellFilenameKey = "cellContours_withAllCells"
         overlaidContourEdgePerCellFilenameKey = "orderedJunctionsPerCellFilename"
     allEntryIdentifiersPlusFolderContents = [
+        ["WT_4dag", "20210712_XVE_5_0_A_merged_Region1", "96h", "Images/Smit2023Cotyledons/Smit2023Cotyledons.pkl"],
         ["WT inflorescence meristem", "P2", "T0", "Images/Matz2022SAM/Matz2022SAM.pkl"],
-        ["WT", "20200220 WT S1", "120h", "Images/full cotyledons/full cotyledons.pkl"],
+        # ["WT_4dag", "20210712_XVE_5_0_A_merged_Region2", "96h", "Images/Smit2023Cotyledons/Smit2023Cotyledons.pkl"],
+        # ["WT_4dag", "20210712_XVE_5_0_A_merged_Region3", "96h", "Images/Smit2023Cotyledons/Smit2023Cotyledons.pkl"],
+        # ["WT", "20200220 WT S1", "120h", "Images/full cotyledons/full cotyledons.pkl"],
     ]
     selectedCellIds = {("WT inflorescence meristem", "P2"): [398, 381, 379, 417, 431],
                        ("WT", "20200220 WT S1"): [841860, 841670, 841855, 841669, 841666]}
@@ -402,10 +415,13 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
                      setAxesParameterInSinglePlots=False,#not save, # to redo scaling of tissue set to True and allAxesParameter to {}
                      showTitle=False,
                      )
+    patchKwargsForEntries = {("WT_4dag", "20210712_XVE_5_0_A_merged_Region1"): {"outlineLineWidth": 0.7}}
     scaleBarSize = 10
     if zoomedIn:
-        allAxesParameter = {"WT inflorescence meristem_P2_T0": {'xlim': [34.59, 44.78], 'ylim': [48.72, 60.58], 'zlim': [17.46, 20.58], 'azim': 120, 'elev': 50}, #{'xlim': [35.32, 44.48], 'ylim': [48.78, 59.45], 'zlim': [17.75, 20.55], 'azim': 120, 'elev': 50},
-                            "WT_20200220 WT S1_120h": {'xlim': [319.47, 370.72], 'ylim': [502.51, 554.61], 'zlim': [1.07, 3.93], 'azim': -90, 'elev': 90},}
+        allAxesParameter = {"WT inflorescence meristem_P2_T0": {'xlim': [34.59, 44.78], 'ylim': [48.72, 60.58], 'zlim': [17.46, 20.58], 'azim': 120, 'elev': 50},
+                            "WT_20200220 WT S1_120h": {'xlim': [124.22, 423.17], 'ylim': [174.65, 576.6], 'zlim': [1.05, 3.95], 'azim': -90, 'elev': 90},
+                            "WT_20200220 WT S1_120h": {'xlim': [319.47, 370.72], 'ylim': [502.51, 554.61], 'zlim': [1.07, 3.93], 'azim': -90, 'elev': 90},
+                            }
         allScaleBarOffsets = {("WT inflorescence meristem", "P2"): np.array([32, 58, 17.7]),
                               ("WT", "20200220 WT S1"): np.array([380, 495, 0])}
         offsetOfOverlaidContours = {}
@@ -413,12 +429,17 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
                                      ("WT", "20200220 WT S1"): [7.08, 6.2]}
     else:
         allAxesParameter = {"WT inflorescence meristem_P2_T0": {'xlim': [19.55, 76.43], 'ylim': [21.73, 73.37], 'zlim': [5.88, 18.46], 'azim': 130.0, 'elev': 86.8},
-                            "WT_20200220 WT S1_120h": {'xlim': [124.22, 423.17], 'ylim': [174.65, 576.6], 'zlim': [1.05, 3.95], 'azim': -90, 'elev': 90}, }
+                            "WT_20200220 WT S1_120h": {'xlim': [124.22, 423.17], 'ylim': [174.65, 576.6], 'zlim': [1.05, 3.95], 'azim': -90, 'elev': 90},
+                            "WT_4dag_20210712_XVE_5_0_A_merged_Region1_96h": {'xlim': [229.09, 1029.13], 'ylim': [230.1, 1033.33], 'zlim': [0.97, 4.03], 'azim': -236.0, 'elev': 89.6},
+                            }
         allScaleBarOffsets = {("WT inflorescence meristem", "P2"): np.array([5, 68, 0]),
+                              ("WT_4dag", "20210712_XVE_5_0_A_merged_Region1"): [0, 870, 2.4],
                               ("WT", "20200220 WT S1"): np.array([450, 50, 0])}
         offsetOfOverlaidContours = {("WT inflorescence meristem", "P2"): [2.0914, 0.7689999999999984, 1.2651999999999965],
-                                     ("WT", "20200220 WT S1"): [7.08, 6.2]}
+                                    ("WT_4dag", "20210712_XVE_5_0_A_merged_Region1"): [4.096, 1.105, 0.001],
+                                    ("WT", "20200220 WT S1"): [7.08, 6.2]}
         offsetOfContoursOfTissues = {}
+
     if not measureDataFilenameKey is None:
         if colorMapValueRange is None:
             colorMapValueRange = calcColorMapValueRange(allEntryIdentifiersPlusFolderContents, parameter, selectedCellIds)
@@ -443,32 +464,22 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
         else:
             scaleBarOffset = None
         if scenarioReplicateId == ("WT inflorescence meristem", "P2"):
-            backgroundFilename = "Images/Matz2022SAM/WT inflorescence meristem/P2/T0/20190416 myr-yfp T0 P2 mesh3_full outlines other.ply"
-            loadBackgroundFromKey = None
-            is3DBackground = True
-            backgroundImageOffset = np.array([0, 0, -0.25])
-            offsetToAlignPointsToOutline = calcOffsetToAlignPlyFileWithContours(backgroundFilename, entryIdentifier)
-            backgroundImageOffset += offsetToAlignPointsToOutline
+            parameter["surfaceContourPerCellFilenameKey"] = "cellContours"
         else:
-            backgroundFilename = "Images/Matz2022SAM/WT/20200220 WT S1/20200220 WT S1_reduced_test(3)_reexported with signal.ply"
-            backgroundFilename = "Images/Matz2022SAM/WT/20200220 WT S1/20200220 WT S1_reduced_test(2)_reexport with signal.ply"
-            loadBackgroundFromKey = None # "originalImageFilename"
-            is3DBackground = True
-            backgroundImageOffset = np.array([471.5/2, 315/2, -0.25])
-        backgroundFilename = None
+            parameter["surfaceContourPerCellFilenameKey"] = surfaceContourPerCellFilenameKey
+        patchKwargs = patchKwargsForEntries[scenarioReplicateId] if scenarioReplicateId in patchKwargsForEntries else {}
         ax = FolderContentPatchPlotter().plotPatchesOf(entryIdentifier, allAxesParameter=allAxesParameter, overlaidContourOffset=overlaidContourOffset, offsetOfContours=offsetOfContours,
-                      genotypeToScenarioName=genotypeToScenarioName, timePointToName=timePointToName, plotOutlines=True,
-                      # overlaidContourDistancesColorMapper=overlaidContourDistancesColorMapper,
-                      selectedCellLabels=currentSelectedCellIds, convertFromIdToLabel=False, scaleBarSize=scaleBarSize, scaleBarOffset=scaleBarOffset,
-                      backgroundFilename=backgroundFilename, loadBackgroundFromKey=loadBackgroundFromKey, is3DBackground=is3DBackground, backgroundImageOffset=backgroundImageOffset,
-                      **parameter)
-        if save:
+                                                       genotypeToScenarioName=genotypeToScenarioName, timePointToName=timePointToName, selectedCellLabels=currentSelectedCellIds,
+                                                       # overlaidContourDistancesColorMapper=overlaidContourDistancesColorMapper,
+                                                       convertFromIdToLabel=False, scaleBarSize=scaleBarSize, scaleBarOffset=scaleBarOffset,
+                                                       is3DBackground=True, patchKwargs=patchKwargs, **parameter)
+        if save and not parameter["setAxesParameterInSinglePlots"]:
             scenarioName = Path(entryIdentifier[-1]).stem
             saveAsFilename = baseFilename.format(scenarioName, scenarioReplicateId[0])
             Path(saveAsFilename).parent.mkdir(parents=True, exist_ok=True)
-            print(saveAsFilename)
             plt.savefig(saveAsFilename, bbox_inches="tight", dpi=300)
             plt.close()
+            print("saved tissue visualization:", saveAsFilename)
         else:
             plt.show()
 
@@ -904,9 +915,12 @@ def mainSupFig1A(save=False, resultsFolder="Results/Tissue Visualization/", zoom
             print(f'{axesParameter}')
 
 if __name__ == '__main__':
+    mainFig2AB(save=True, zoomedIn=False, resultsFolder="Results/Tissue Visualization/")
+    # lengthIrregularityValueRangeOverTissues = mainFig2AB(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="lengthGiniCoeff", resultsFolder="Results/Tissue Visualization/")
+    # angleIrregularityValueRangeOverTissues = mainFig2AB(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="angleGiniCoeff", resultsFolder="Results/Tissue Visualization/")
 
-    irregularityOfEng2021CotyledonsFolder = "Results/Tissue Visualization/Eng2021Cotyledons/Fig3/"
-    mainFig3A(save=True, resultsFolder=irregularityOfEng2021CotyledonsFolder)
+    # irregularityOfEng2021CotyledonsFolder = "Results/Tissue Visualization/Eng2021Cotyledons/Fig3/"
+    # mainFig3A(save=True, resultsFolder=irregularityOfEng2021CotyledonsFolder)
     # mainFig2AB(save=True, zoomedIn=True)
     # mainFig2AB(save=True, zoomedIn=False)
     # mainFig2AB(save=True, zoomedIn=False)
