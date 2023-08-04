@@ -75,7 +75,8 @@ class FolderContent (object):
         return ratioValuesDict
 
     def loadFile(self, filename, convertDictKeysToInt=True, convertDictValuesToNpArray=True,
-                 convertNestedDictKeysToInt=True, supressConversionWarning=False, **kwargs):
+                 convertNestedDictKeysToInt=True, supressConversionWarning=False,
+                 defaultDataTypesNotToConvertToArray: tuple = (dict), **kwargs):
         suffix = Path(filename).suffix
         if platform.system() == "Linux":
             filename = self.convertFilenameToLinux(filename)
@@ -110,7 +111,8 @@ class FolderContent (object):
                     file = tmpDict
             if convertDictValuesToNpArray:
                 for k, v in file.items():
-                    file[k] = np.array(v)
+                    if not isinstance(v, defaultDataTypesNotToConvertToArray):
+                        file[k] = np.array(v)
         return file
 
     def convertFilenameToLinux(self, filename: str or Path):
