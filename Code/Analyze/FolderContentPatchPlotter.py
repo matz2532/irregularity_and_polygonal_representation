@@ -538,7 +538,8 @@ def convertCellLabelsToId(folderContent: FolderContent, cellLabels: list, contou
     return labelIds
 
 def removeKeysExceptFrom(doNotRemoveFollowingKeys: list, dictToTrim: dict):
-    for cellLabel in dictToTrim.keys():
+    presentKeys = list(dictToTrim.keys())
+    for cellLabel in presentKeys:
         if cellLabel not in doNotRemoveFollowingKeys:
             dictToTrim.pop(cellLabel)
 
