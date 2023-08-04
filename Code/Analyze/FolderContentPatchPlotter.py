@@ -504,7 +504,12 @@ def convertCellLabelsToId(folderContent: FolderContent, cellLabels: list, contou
         print(labelIds)
     return labelIds
 
-def calcColorMapValueRange(allEntryIdentifiersPlusFolderContents, parameter, selectedCellIds=None):
+def removeKeysExceptFrom(doNotRemoveFollowingKeys: list, dictToTrim: dict):
+    for cellLabel in dictToTrim.keys():
+        if cellLabel not in doNotRemoveFollowingKeys:
+            dictToTrim.pop(cellLabel)
+
+def calcColorMapValueRange(allEntryIdentifiersPlusFolderContents, parameter, selectedCellLabelsPerGenReplicateCombi=None):
     values = []
     for entryIdentifier in allEntryIdentifiersPlusFolderContents:
         allFolderContentsFilename = entryIdentifier[-1]
@@ -519,12 +524,15 @@ def calcColorMapValueRange(allEntryIdentifiersPlusFolderContents, parameter, sel
             valuesOfCells = valuesOfCells[selectedSubMeasure]
         else:
             valuesOfCells = FolderContentPatchPlotter().calculateRatioMeasureData(valuesOfCells, selectedSubMeasure)
-        if not selectedCellIds is None:
-            selectedCellLabels = selectedCellIds[(entryIdentifier[0], entryIdentifier[1])]
-            for cellLabel in cellLabelsOfContours:
-                if not cellLabel in selectedCellLabels:
-                    valuesOfCells.pop(cellLabel)
-        values.extend(list(valuesOfCells.values()))
+        if not selectedCellLabelsPerGenReplicateCombi is None:
+            genotypeReplicateIdCombination = (entryIdentifier[0], entryIdentifier[1])
+            if genotypeReplicateIdCombination in selectedCellLabelsPerGenReplicateCombi:
+                selectedCellLabels = selectedCellLabelsPerGenReplicateCombi[genotypeReplicateIdCombination]
+                removeKeysExceptFrom(selectedCellLabels, valuesOfCells)
+        if isinstance(valuesOfCells, dict):
+            values.extend(list(valuesOfCells.values()))
+        else:
+            raise NotImplementedError(f"The values from valuesOfCells with the type {type(valuesOfCells)} is not implemented to be extended yet.")
     colorMapValueRange = [np.min(values), np.max(values)]
     return colorMapValueRange
 
