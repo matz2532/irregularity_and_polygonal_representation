@@ -889,9 +889,9 @@ def mainSupFig1A(save=False, resultsFolder="Results/Tissue Visualization/", zoom
         surfaceContourPerCellFilenameKey = "cellContours"
         overlaidContourEdgePerCellFilenameKey = "orderedJunctionsPerCellFilename"
     allEntryIdentifiersPlusFolderContents = [
-        # ["speechless", "20210712_R1M001A", "96h", "Images/full cotyledons/full cotyledons speechless.pkl"],
-        # ["speechless", "20210712_R2M001A", "96h", "Images/full cotyledons/full cotyledons speechless.pkl"],
-        ["speechless", "20210712_R5M001", "96h", "Images/full cotyledons/full cotyledons speechless.pkl"],
+        # ["speechless", "20210712_R1M001A", "96h", "Images/Smit2023Cotyledons/Smit2023Cotyledons.pkl"],
+        # ["speechless", "20210712_R2M001A", "96h", "Images/Smit2023Cotyledons/Smit2023Cotyledons.pkl"],
+        ["speechless", "20210712_R5M001", "96h", "Images/Smit2023Cotyledons/Smit2023Cotyledons.pkl"],
     ]
     selectedCellIds = {("speechless", "20210712_R5M001"): [543, 357, 1155, 945]}
     parameter = dict(surfaceContourPerCellFilenameKey=surfaceContourPerCellFilenameKey,
