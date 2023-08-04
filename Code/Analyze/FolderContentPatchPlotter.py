@@ -388,7 +388,8 @@ def calcOffsetToAlignPlyFileWithContours(plyFilename, entryIdentifier, surfaceCo
     return meanOffset
 
 def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomedIn=False,
-               measureDataFilenameKey=None, selectedSubMeasure=None, selectedSubMeasureName=None, colorMapValueRange=None):
+               measureDataFilenameKey=None, selectedSubMeasure=None, selectedSubMeasureName=None, colorMapValueRange=None,
+               manualVisualizationMode: bool = False):
     baseFilename = f"{resultsFolder}{'{}'}/figure2AB_{'{}'}_{'zoomedIn' if zoomedIn else 'overview'}_patches.png"
     if not measureDataFilenameKey is None:
         if selectedSubMeasureName is None:
@@ -412,7 +413,8 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
                      overlaidContourEdgePerCellFilenameKey=overlaidContourEdgePerCellFilenameKey,
                      measureDataFilenameKey=measureDataFilenameKey,
                      selectedSubMeasure=selectedSubMeasure,
-                     setAxesParameterInSinglePlots=False,#not save, # to redo scaling of tissue set to True and allAxesParameter to {}
+                     setAxesParameterInSinglePlots=manualVisualizationMode,
+                     getCellIdByKeyStroke=manualVisualizationMode,
                      showTitle=False,
                      )
     patchKwargsForEntries = {("WT_4dag", "20210712_XVE_5_0_A_merged_Region1"): {"outlineLineWidth": 0.7}}
@@ -512,7 +514,7 @@ def calcColorMapValueRange(allEntryIdentifiersPlusFolderContents, parameter, sel
         cellLabelsOfContours = list(contours.keys())
         measureDataFilenameKey = parameter["measureDataFilenameKey"]
         selectedSubMeasure = parameter["selectedSubMeasure"]
-        valuesOfCells = folderContent.LoadKeyUsingFilenameDict(measureDataFilenameKey)
+        valuesOfCells = folderContent.LoadKeyUsingFilenameDict(measureDataFilenameKey, supressConversionWarning=True)
         if type(selectedSubMeasure) != dict:
             valuesOfCells = valuesOfCells[selectedSubMeasure]
         else:
