@@ -150,7 +150,7 @@ class FolderContentPatchPlotter (PatchCreator):
             if measureDataFilenameKey is None:
                 measureData = None # allows to plot empty cells
             else:
-                measureData = folderContent.LoadKeyUsingFilenameDict(measureDataFilenameKey, skipfooter=4)
+                measureData = folderContent.LoadKeyUsingFilenameDict(measureDataFilenameKey, skipfooter=4, supressConversionWarning=True)
         if isinstance(measureData, dict):
             if overwritingMeasureDataKwargs is None:
                 if isinstance(measureData[list(measureData.keys())[0]], dict):
