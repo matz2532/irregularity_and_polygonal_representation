@@ -450,11 +450,11 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
     scaleBarSize = 10
     if zoomedIn:
         allAxesParameter = {"WT inflorescence meristem_P2_T0": {'xlim': [34.59, 44.78], 'ylim': [48.72, 60.58], 'zlim': [17.46, 20.58], 'azim': 120, 'elev': 50},
-                            "WT_20200220 WT S1_120h": {'xlim': [124.22, 423.17], 'ylim': [174.65, 576.6], 'zlim': [1.05, 3.95], 'azim': -90, 'elev': 90},
+                            "WT_4dag_20210712_XVE_5_0_A_merged_Region1_96h": {'xlim': [334.41, 401.85], 'ylim': [377.26, 448.91], 'zlim': [1.47, 3.53], 'azim': -236, 'elev': 90},
                             "WT_20200220 WT S1_120h": {'xlim': [319.47, 370.72], 'ylim': [502.51, 554.61], 'zlim': [1.07, 3.93], 'azim': -90, 'elev': 90},
                             }
         allScaleBarOffsets = {("WT inflorescence meristem", "P2"): np.array([32, 58, 17.7]),
-                              ("WT_4dag", "20210712_XVE_5_0_A_merged_Region1"): np.array([410, 360, 0]),
+                              ("WT_4dag", "20210712_XVE_5_0_A_merged_Region1"): np.array([308, 440, 0]),
                               ("WT", "20200220 WT S1"): np.array([380, 495, 0])}
         offsetOfOverlaidContours = {}
         offsetOfContoursOfTissues = {("WT inflorescence meristem", "P2"): [2.0914, 0.7689999999999984, 1.2651999999999965],
@@ -495,7 +495,7 @@ def mainFig2AB(save=False, resultsFolder="Results/Tissue Visualization/", zoomed
             scaleBarOffset = allScaleBarOffsets[scenarioReplicateId]
         else:
             scaleBarOffset = None
-        if scenarioReplicateId == ("WT inflorescence meristem", "P2"):
+        if scenarioReplicateId == ("WT inflorescence meristem", "P2") and not zoomedIn:
             parameter["surfaceContourPerCellFilenameKey"] = "cellContours"
         else:
             parameter["surfaceContourPerCellFilenameKey"] = surfaceContourPerCellFilenameKey
@@ -964,9 +964,11 @@ def mainSupFig1A(save=False, resultsFolder="Results/Tissue Visualization/", zoom
             print(f'{axesParameter}')
 
 if __name__ == '__main__':
-    mainFig2AB(save=True, zoomedIn=False, resultsFolder="Results/Tissue Visualization/")
-    # lengthIrregularityValueRangeOverTissues = mainFig2AB(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="lengthGiniCoeff", resultsFolder="Results/Tissue Visualization/")
-    # angleIrregularityValueRangeOverTissues = mainFig2AB(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="angleGiniCoeff", resultsFolder="Results/Tissue Visualization/")
+    # mainFig2AB(manualVisualizationMode=True, zoomedIn=False, resultsFolder="Results/Tissue Visualization/")
+    lengthIrregularityValueRangeOverTissues = mainFig2AB(manualVisualizationMode=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="lengthGiniCoeff", resultsFolder="Results/Tissue Visualization/")
+    # lengthIrregularityValueRangeOverTissues = mainFig2AB(manualVisualizationMode=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="angleGiniCoeff", resultsFolder="Results/Tissue Visualization/")
+    # lengthIrregularityValueRangeOverTissues = mainFig2AB(manualVisualizationMode=True, zoomedIn=True, measureDataFilenameKey="areaMeasuresPerCell", selectedSubMeasure={"ratio": ["originalPolygonArea", "labelledImageArea"]}, resultsFolder="Results/Tissue Visualization/")
+    # lengthIrregularityValueRangeOverTissues = mainFig2AB(manualVisualizationMode=True, zoomedIn=True, measureDataFilenameKey="areaMeasuresPerCell", selectedSubMeasure={"ratio": ["regularPolygonArea", "labelledImageArea"]}, resultsFolder="Results/Tissue Visualization/")
 
     # irregularityOfEng2021CotyledonsFolder = "Results/Tissue Visualization/Eng2021Cotyledons/Fig3/"
     # mainFig3A(save=True, resultsFolder=irregularityOfEng2021CotyledonsFolder)
