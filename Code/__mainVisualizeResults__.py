@@ -14,8 +14,8 @@ def createAllPythonRelatedSubfigures():
     visualizeArtificialPolygonsAlongTwoAxisMain()
     # Fig. 2 A, B
     mainFig2AB(save=True, zoomedIn=False, resultsFolder="Results/Tissue Visualization/")
-    mainFig2AB(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="lengthGiniCoeff", resultsFolder="Results/Tissue Visualization/")
-    mainFig2AB(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="angleGiniCoeff", resultsFolder="Results/Tissue Visualization/")
+    lengthIrregularityValueRangeOverTissues = mainFig2AB(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="lengthGiniCoeff", resultsFolder="Results/Tissue Visualization/")
+    angleIrregularityValueRangeOverTissues = mainFig2AB(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="angleGiniCoeff", resultsFolder="Results/Tissue Visualization/")
     # Fig. 2 C
     plotPatchyCotyledonResults(plotRegularityMeasures=True, plotCombinedDataSet=True)
     # Fig. 3 A, B
@@ -26,9 +26,11 @@ def createAllPythonRelatedSubfigures():
     # Fig. 3 C, D
     plotPatchyCotyledonResults(plotRegularityMeasures=True, plotFullDataSet=True)
     # Fig. 4 B, C
-    mainFig2AB(save=True, zoomedIn=True, colorMapValueRange=[0.9276042480508213, 1.2338458881519452],measureDataFilenameKey="areaMeasuresPerCell",
+    # adapt to be used in general terms
+    combinedAreaRatioValueRangeOverTissues = determineValueRangeForMultipleSubMeasures("areaMeasuresPerCell", [{"ratio": ["originalPolygonArea", "labelledImageArea"]}, {"ratio": ["regularPolygonArea", "labelledImageArea"]}])
+    mainFig2AB(save=True, zoomedIn=True, colorMapValueRange=combinedAreaRatioValueRangeOverTissues,measureDataFilenameKey="areaMeasuresPerCell",
                selectedSubMeasure={"ratio": ["regularPolygonArea", "labelledImageArea"]}, selectedSubMeasureName="ratio_regularPolygonArea_labelledImageArea")
-    mainFig2AB(save=True, zoomedIn=True, colorMapValueRange=[0.9276042480508213, 1.2338458881519452], measureDataFilenameKey="areaMeasuresPerCell",
+    mainFig2AB(save=True, zoomedIn=True, colorMapValueRange=combinedAreaRatioValueRangeOverTissues, measureDataFilenameKey="areaMeasuresPerCell",
                selectedSubMeasure={"ratio": ["originalPolygonArea", "labelledImageArea"]}, selectedSubMeasureName="ratio_originalPolygonArea_labelledImageArea")
     # Fig. 4 D
     plotPatchyCotyledonResults(plotAreaMeasures=True, plotCombinedDataSet=True)
@@ -47,8 +49,8 @@ def createAllPythonRelatedSubfigures():
     plotPatchyCotyledonResults(plotAreaMeasures=True, plotFullDataSet=True)
     # Sup Fig 1 A
     mainSupFig1A(save=True, zoomedIn=False)
-    mainSupFig1A(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="lengthGiniCoeff", colorMapValueRange=[0.011224633401410082, 0.1875771799706416])
-    mainSupFig1A(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="angleGiniCoeff", colorMapValueRange=[0.00931882037513563, 0.08732278219992405])
+    mainSupFig1A(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="lengthGiniCoeff", colorMapValueRange=lengthIrregularityValueRangeOverTissues)
+    mainSupFig1A(save=True, zoomedIn=True, measureDataFilenameKey="regularityMeasuresFilename", selectedSubMeasure="angleGiniCoeff", colorMapValueRange=angleIrregularityValueRangeOverTissues)
     # Sup Fig 1 C
     mainCreateBoxPlotOf(measureName="Gini coefficient of ", plotSelectedColumnsAdjacent=["lengthGiniCoeff_ignoringGuardCells", "angleGiniCoeff_ignoringGuardCells"], resultsFolderExtensions="regularityResults/",
                         resultsNameExtension="_WtTissueComparison_with_ignoringGuardCells", tissueScenarioNames=["Smit2023Cotyledons"], tissueGeneNameOrdering={"cotyledon": ["WT", "speechless"]},
