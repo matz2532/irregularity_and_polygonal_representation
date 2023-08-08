@@ -92,27 +92,27 @@ def visualizeCellsAlongAxisMain():
     resultsTableFilename = resultsFolder + tableBaseName
     allRegularityMeasures = ["lengthGiniCoeff", "angleGiniCoeff"]
     for regularityMeasure in allRegularityMeasures:
-        filenameToSave = f"{resultsFolder}regularityResults/Scales/{regularityMeasure}_MinMeanMaxScale.png"
+        filenameToSave = f"{resultsFolder}regularityResults/Scales/MinMeanMaxScale_{regularityMeasure}.png"
         polygonalCellRegularityScalePlotter = CellIrregualrityBasedSelector(resultsTableFilename, allFolderContentsFilename)
         polygonalCellRegularityScalePlotter.SetDefaultOrderedJunctionsEdgeColor(defaultOrderedJunctionsEdgeColor)
         polygonalCellRegularityScalePlotter.PlotOutlinesAndPolygonOf(regularityMeasure, useLinearScale=True, edgeLineWidth=6, vertexSize=200,
                                                                      saveToFilename=filenameToSave, useMapper=False)
 
-def visualizeArtificialPolygonsAlongAxisMain():
-    filename = "Images/ArtificialPolygons/complexPolygons.json"
-    resultsFolder = "Results/"
-    allRegularityMeasures = ["lengthGiniCoeff", "angleGiniCoeff"]
+def visualizeArtificialPolygonsAlongAxisMain(showPlot: bool = False, resultsFolder: str = "Results/", filename: str = "Images/ArtificialPolygons/complexPolygons.json",
+                                             allRegularityMeasures: list = ["lengthGiniCoeff", "angleGiniCoeff"]):
     for regularityMeasure in allRegularityMeasures:
         filenameToSave = f"{resultsFolder}regularityResults/Scales/{regularityMeasure}_ArtificialPolygonsScale.png"
         myPolygonRegularityPlotterAlongAxis = PolygonRegularityPlotterAlongAxis(filename)
+        if showPlot:
+            filenameToSave = None
         myPolygonRegularityPlotterAlongAxis.PlotOutlinesAndPolygonOf(regularityMeasure, usePropertiesValues=True, ignoreOutline=True,
                                                                      useLinearScale=True, edgeLineWidth=5, vertexSize=40,
                                                                      fontSize=38, setXTicks=[0, 0.05, 0.1, 0.15, 0.2], setXLabel=False,
                                                                      saveToFilename=filenameToSave)
         
-def visualizeArtificialPolygonsAlongTwoAxisMain():
-    filename = "Images/ArtificialPolygons/complexPolygons.json"
-    resultsFolder = "Results/"
+def visualizeArtificialPolygonsAlongTwoAxisMain(showPlot: bool = False, resultsFolder: str = "Results/",
+                                                filename = "Images/ArtificialPolygons/complexPolygons.json"):
+
     allRegularityMeasures = [["lengthGiniCoeff", "angleGiniCoeff"],
                              ["lengthGiniCoeff", "lobyness"],
                              ["lengthGiniCoeff", "relativeCompleteness"],
@@ -122,7 +122,6 @@ def visualizeArtificialPolygonsAlongTwoAxisMain():
     defaultOrderedJunctionsEdgeColor = "#0072b2ff"
     labelNameConverterDict = {"lengthGiniCoeff": "Gini coefficient of length", "angleGiniCoeff": "Gini coefficient of angle",
                               "lobyness": "Lobyness", "relativeCompleteness": "Relative completeness"}
-    showPlot = False
     myPolygonRegularityPlotterAlongAxis = PolygonRegularityPlotterAlongAxis(filename)
     myPolygonRegularityPlotterAlongAxis.SetDefaultOrderedJunctionsEdgeColor(defaultOrderedJunctionsEdgeColor)
     myPolygonRegularityPlotterAlongAxis.SetLabelNameConverterDict(labelNameConverterDict)
@@ -135,9 +134,9 @@ def visualizeArtificialPolygonsAlongTwoAxisMain():
         myPolygonRegularityPlotterAlongAxis.addMeasuresToPolygon(cellProperty, lobynessAndRelCompletenessOfPolygons[i])
     for xMeasureName, yMeasureName in allRegularityMeasures:
         if showPlot:
-            filenameToSave = f"{resultsFolder}regularityResults/Scales/ArtificialPolygons {yMeasureName} vs {xMeasureName}.png"
-        else:
             filenameToSave = None
+        else:
+            filenameToSave = f"{resultsFolder}regularityResults/Scales/ArtificialPolygons {yMeasureName} vs {xMeasureName}.png"
         myPolygonRegularityPlotterAlongAxis.PlotCellOutlinesAlongTwoAxis(xMeasureName, yMeasureName, fontSize=18, filenameToSave=filenameToSave)
 
 if __name__ == '__main__':

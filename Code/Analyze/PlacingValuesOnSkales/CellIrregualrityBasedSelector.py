@@ -25,6 +25,7 @@ class CellIrregualrityBasedSelector (BasePlotter):
     defaultOrderedJunctionsEdgeColor="#0072b2a0"
     resultsTable=None
     xLim=None
+    verbosity=1
 
     def __init__(self, resultsTableFilename, allFolderContentsFilename, labelNameConverterDict=None):
         self.resultsTable = pd.read_csv(resultsTableFilename)
@@ -122,6 +123,8 @@ class CellIrregualrityBasedSelector (BasePlotter):
             Path(saveToFilename).parent.mkdir(parents=True, exist_ok=True)
             plt.savefig(saveToFilename, bbox_inches="tight", dpi=300)
             plt.close()
+            if self.verbosity > 0:
+                print(f"saved figure to {saveToFilename}")
         else:
             if showPlot:
                 plt.show()
