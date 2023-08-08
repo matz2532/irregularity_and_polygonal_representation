@@ -101,7 +101,7 @@ def visualizeCellsAlongAxisMain():
 def visualizeArtificialPolygonsAlongAxisMain(showPlot: bool = False, resultsFolder: str = "Results/", filename: str = "Images/ArtificialPolygons/complexPolygons.json",
                                              allRegularityMeasures: list = ["lengthGiniCoeff", "angleGiniCoeff"]):
     for regularityMeasure in allRegularityMeasures:
-        filenameToSave = f"{resultsFolder}regularityResults/Scales/{regularityMeasure}_ArtificialPolygonsScale.png"
+        filenameToSave = f"{resultsFolder}regularityResults/Scales/ArtificialPolygons Scale of {regularityMeasure}.png"
         myPolygonRegularityPlotterAlongAxis = PolygonRegularityPlotterAlongAxis(filename)
         if showPlot:
             filenameToSave = None

@@ -5,11 +5,11 @@ sys.path.insert(0, "./Code/Analyze/PlacingValuesOnSkales/")
 
 from ExtendedPlotter import plotPatchyCotyledonResults, mainCreateBoxPlotOf
 from FolderContentPatchPlotter import mainFig2AB, mainFig3AOrB, determineValueRangeForMultipleSubMeasures, mainSupFig1A
-from PolygonRegularityPlotterAlongAxis import visualizeCellsAlongAxisMain, visualizeArtificialPolygonsAlongTwoAxisMain
+from PolygonRegularityPlotterAlongAxis import visualizeArtificialPolygonsAlongAxisMain, visualizeArtificialPolygonsAlongTwoAxisMain
 
 def createAllPythonRelatedSubfigures():
     # Fig. 1 A
-    visualizeCellsAlongAxisMain()
+    visualizeArtificialPolygonsAlongAxisMain()
     # Fig. 1 B-D
     visualizeArtificialPolygonsAlongTwoAxisMain()
     # Fig. 2 A, B
