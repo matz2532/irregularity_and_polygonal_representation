@@ -298,7 +298,10 @@ class PatchCreator (object):
                 if not measureData is None:
                     try:
                         if isinstance(measureData, dict):
-                            value = measureData[cellLabel]
+                            if cellLabel in measureData:
+                                value = measureData[cellLabel]
+                            else:
+                                value = None
                         else:
                             cellsRow = measureData.loc[measureData.iloc[:, 0] == cellLabel]
                             value = cellsRow.iloc[:, 1].to_list()[0]
@@ -308,10 +311,11 @@ class PatchCreator (object):
                         else:
                             presentCellLabels = list(np.sort(cellsRow.iloc[:, 0]))
                         print(f"Plotting the {self.tissueName=} the following key was missing {cellLabel=} a value and was therefore skipped, {presentCellLabels=}")
-                if colorMapperForFaceColor:
-                    faceColor = colorMapper.to_rgba(value)
-                if colorMapperForEdgeColor:
-                    edgeColor = colorMapper.to_rgba(value)
+                if value is not None:
+                    if colorMapperForFaceColor:
+                        faceColor = colorMapper.to_rgba(value)
+                    if colorMapperForEdgeColor:
+                        edgeColor = colorMapper.to_rgba(value)
             if self.isThreeDimensional:
                 pc = Poly3DCollection([currentContour], facecolors=[faceColor], edgecolors=[edgeColor], linewidths=[defaultLineWidth])
             else:
