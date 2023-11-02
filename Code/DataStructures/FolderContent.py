@@ -74,8 +74,8 @@ class FolderContent (object):
                 print(f"The {numberOfCellsWithNumerator=} != {numberOfCellsWithDenominator=} != {numberOfCellsWithRatios=}, with the present labels being\nnumeratorCellLabels={list(numeratorValuesOfCells.keys())}\ndenominatorCellLabels={list(denominatorValuesOfCells.keys())}\nratiosCellLabels={list(numberOfCellsWithRatios.keys())}")
         return ratioValuesDict
 
-    def loadFile(self, filename, convertDictKeysToInt=True, convertDictValuesToNpArray=True,
-                 convertNestedDictKeysToInt=True, supressConversionWarning=False,
+    def loadFile(self, filename: str or Path, convertDictKeysToInt: bool = True, convertDictValuesToNpArray: bool = True,
+                 convertNestedDictKeysToInt: bool = True, supressConversionWarning: bool = False,
                  defaultDataTypesNotToConvertToArray: tuple = (dict), **kwargs):
         suffix = Path(filename).suffix
         if platform.system() == "Linux":
@@ -95,24 +95,12 @@ class FolderContent (object):
             with open(filename, "r") as fh:
                 file = json.load(fh)
         else:
-            raise NotImplementedError(f"The extension of the {suffix=} is not yet implemented. Aborting while loading {filename=}")
+            raise NotImplementedError(f"The extension {suffix=} is not yet implemented. Aborting while loading {filename=}")
         if isinstance(file, dict):
-            if convertDictKeysToInt:
-                file = self.convertKeysToType(file, typeToConvert=int, filename=filename, supressConversionWarning=supressConversionWarning)
-            if convertNestedDictKeysToInt:
-                if np.any([isinstance(v, dict) for v in file.values()]):
-                    tmpDict = {}
-                    for kOuter, innerDict in file.items():
-                        if isinstance(innerDict, dict):
-                            tmpDict[kOuter] = self.convertKeysToType(innerDict, typeToConvert=int, filename=filename,
-                                                                     supressConversionWarning=supressConversionWarning)
-                        else:
-                            tmpDict[kOuter] = innerDict
-                    file = tmpDict
-            if convertDictValuesToNpArray:
-                for k, v in file.items():
-                    if not isinstance(v, defaultDataTypesNotToConvertToArray):
-                        file[k] = np.array(v)
+            file = self.convertDictKeysAndValues(file, filename=filename, supressConversionWarning=supressConversionWarning,
+                                                 defaultDataTypesNotToConvertToArray=defaultDataTypesNotToConvertToArray,
+                                                 convertDictKeysToInt=convertDictKeysToInt, convertNestedDictKeysToInt=convertNestedDictKeysToInt,
+                                                 convertDictValuesToNpArray=convertDictValuesToNpArray)
         return file
 
     def convertFilenameToLinux(self, filename: str or Path):
@@ -122,6 +110,30 @@ class FolderContent (object):
         else:
             filename = filename.as_posix()
         return filename
+
+    def convertDictKeysAndValues(self, file: dict, filename: str or Path = "",
+                                 supressConversionWarning: bool = False,
+                                 defaultDataTypesNotToConvertToArray: tuple = (dict),
+                                 convertDictKeysToInt: bool = False, convertNestedDictKeysToInt: bool = False,
+                                 convertDictValuesToNpArray: bool = False
+                                 ):
+        if convertDictKeysToInt:
+            file = self.convertKeysToType(file, typeToConvert=int, filename=filename, supressConversionWarning=supressConversionWarning)
+        if convertNestedDictKeysToInt:
+            if np.any([isinstance(v, dict) for v in file.values()]):
+                tmpDict = {}
+                for kOuter, innerDict in file.items():
+                    if isinstance(innerDict, dict):
+                        tmpDict[kOuter] = self.convertKeysToType(innerDict, typeToConvert=int, filename=filename,
+                                                                 supressConversionWarning=supressConversionWarning)
+                    else:
+                        tmpDict[kOuter] = innerDict
+                file = tmpDict
+        if convertDictValuesToNpArray:
+            for k, v in file.items():
+                if not isinstance(v, defaultDataTypesNotToConvertToArray):
+                    file[k] = np.array(v)
+        return file
 
     def convertKeysToType(self, selectedDict: dict, typeToConvert = int, filename: str = None, supressConversionWarning: bool = False):
         tmpDict = {}
