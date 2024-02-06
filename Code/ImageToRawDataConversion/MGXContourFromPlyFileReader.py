@@ -25,6 +25,7 @@ class MGXContourFromPlyFileReader (object):
     # default indices of indices
     coordinateIndicesOfContours2D=[0, 1]
     coordinateIndicesOfContours3D=[0, 1, 2]
+    cellIdsToIgnore: list = [-1]
     minValues=None
 
     def __init__(self, junctionPlyFilename=None, extract3DContours=False):
@@ -122,6 +123,9 @@ class MGXContourFromPlyFileReader (object):
         self.dictOfCellsContourIndices, self.pointCloudPositions = self.extractCellsContourIndicesAndPoints(junctionPlyFilename, sep=sep)
         self.makeContourPositionsPositive(self.pointCloudPositions)
         self.dictOfCellsContourPositions = self.extractContourPositionsOfCells(self.pointCloudPositions, self.dictOfCellsContourIndices)
+        for cellIdToRemove in self.cellIdsToIgnore:
+            if cellIdToRemove in self.dictOfCellsContourPositions:
+                self.dictOfCellsContourPositions.pop(cellIdToRemove)
 
     def extractCellsContourIndicesAndPoints(self, junctionPlyFilename, sep=None):
         if sep is None:
