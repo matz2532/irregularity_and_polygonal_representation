@@ -129,6 +129,24 @@ class MultiFolderContent:
         sumOfMatchingInfos = np.sum(presentTissueIdentifiers == selectedTissueInfo, axis=1)
         return np.any(sumOfMatchingInfos == 3)
 
+    def GetTissueWithData(self, targetFolderContentData: dict, allowMultipleToReturn: bool = False, warnAboutMultiple: bool = True):
+        indexSelectedOfFolderContent = []
+        for i, folderContent in enumerate(list(self)):
+            isSelectedTissue = folderContent.IsPresentFolderContentDataTheSame(targetFolderContentData)
+            if isSelectedTissue:
+                indexSelectedOfFolderContent.append(i)
+        if len(indexSelectedOfFolderContent) == 0:
+            return None
+        elif len(indexSelectedOfFolderContent) == 1:
+            return list(self)[indexSelectedOfFolderContent[0]]
+        else:
+            if allowMultipleToReturn:
+                return self.allFolderContents[indexSelectedOfFolderContent]
+            else:
+                if warnAboutMultiple:
+                    print(f"Multiple entries where found while checking the folder content data for {targetFolderContentData}\nwhile searching the MultiFolderContent {self.allFolderContentsFilename}")
+                return list(self)[indexSelectedOfFolderContent[0]]
+
     def ExchangeFolderContent(self, folderContent):
         currentContentIdentifier = folderContent.GetTissueInfos()
         isContent = self.isFolderContentIdentifier(currentContentIdentifier)

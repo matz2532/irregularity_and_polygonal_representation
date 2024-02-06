@@ -44,6 +44,17 @@ class FolderContent (object):
                     print(f"The value {data} of data type {type(data)} from the {key=} could not be converted to a string, which could lead to errors when transferring the folder content between operating systems.")
         self.folderContent["filenameDict"][key] = data
 
+    def IsPresentFolderContentDataTheSame(self, folderContentToCheck: dict, warnAboutMissingKeys: bool = False):
+        # Could run into problems with nested dictionaries to test with or against
+        for keyToCheck, valueToCheck in folderContentToCheck.items():
+            if keyToCheck in self.folderContent:
+                if self.folderContent[keyToCheck] != valueToCheck:
+                    return False
+            else:
+                if warnAboutMissingKeys:
+                    print(f"The key {keyToCheck} is not present in the folder content data check of the tissue named {self.GetTissueName()}")
+        return True
+
     def IsKeyInExtractedFilesDict(self, key):
         return key in self.folderContent["extractedFilesDict"]
 
