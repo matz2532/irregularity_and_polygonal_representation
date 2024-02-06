@@ -1,8 +1,10 @@
+import numpy as np
 import sys
 
 sys.path.insert(0, "./Code/DataStructures/")
 sys.path.insert(0, "./Code/ImageToRawDataConversion/")
 
+from __mainCreateMeasures__ import createRegularityMeasurements, createResultMeasureTable
 from FolderContent import FolderContent
 from MGXContourFromPlyFileReader import MGXContourFromPlyFileReader
 from MultiFolderContent import MultiFolderContent
@@ -39,17 +41,20 @@ def extractJsonFormattedContourFrom(plyFilenamesAsPaths: list, baseResultsFolder
         contourReader.SaveCellsContoursPositions(filenameToSave=filenameToSave)
 
 def bundleProjectInformation(filenames, baseResultsFolder: str = "", keyToUseForFilename: str = "key", filenameExtensionToIgnore: str = "", multiFolderContentExtension: str = ".pkl"):
+    allMultiFolderContentFilenames = []
     for filename in filenames:
-        pathInformation = extractPathInformations(filename, filenameExtensionToIgnore)
+        pathInformation = extractPathInformations(filename, filenameExtensionToIgnore, startIndexOffset=-1)
         projectName = pathInformation["projectName"]
         currentMultiFolderContentFilename = Path(baseResultsFolder).joinpath(projectName, projectName+multiFolderContentExtension)
         currentMultiFolderContent = MultiFolderContent(currentMultiFolderContentFilename)
+        allMultiFolderContentFilenames.append(currentMultiFolderContentFilename)
         currentTissueContent = currentMultiFolderContent.GetTissueWithData(pathInformation)
         if currentTissueContent is None:
             currentTissueContent = FolderContent(pathInformation)
             currentMultiFolderContent.AppendFolderContent(currentTissueContent)
         currentTissueContent.AddDataToFilenameDict(filename, keyToUseForFilename)
         currentMultiFolderContent.UpdateFolderContents()
+    return np.unique(allMultiFolderContentFilenames)
 
 def mainInitializeMGXData(dataBaseFolder: str = "Images/YangData/", baseResultsFolder: str = "Results/Yang Data/", overwrite: bool = True,
                           projectFolderDepth: int = 3):
@@ -59,8 +64,15 @@ def mainInitializeMGXData(dataBaseFolder: str = "Images/YangData/", baseResultsF
     extractJsonFormattedContourFrom(junctionFilenames, baseResultsFolder=baseResultsFolder, filenameExtensionToIgnore=plyJunctionNameExtension, resultNameExtension=orderedJunctionsNameExtension)
     if levelOfFeedback > 0:
         print(f"Saved {len(outlineFilenames)} outlines and {len(junctionFilenames)} junction filenames as .json-files to {baseResultsFolder}")
-    bundleProjectInformation(outlineFilenames, baseResultsFolder=baseResultsFolder, keyToUseForFilename=contoursFilenameKey, filenameExtensionToIgnore=plyContourNameExtension)
-    bundleProjectInformation(junctionFilenames, baseResultsFolder=baseResultsFolder, keyToUseForFilename=orderedJunctionsPerCellFilenameKey, filenameExtensionToIgnore=plyJunctionNameExtension)
+    extractedOutlineFilenames = list(Path(baseResultsFolder).glob("**/*"+contourNameExtension))
+    extractedJunctionFilenames = list(Path(baseResultsFolder).glob("**/*"+orderedJunctionsNameExtension))
+    outlineMultiFolderContentsFilenames = bundleProjectInformation(extractedOutlineFilenames, baseResultsFolder=baseResultsFolder, keyToUseForFilename=contoursFilenameKey)
+    junctionMultiFolderContentsFilenames = bundleProjectInformation(extractedJunctionFilenames, baseResultsFolder=baseResultsFolder, keyToUseForFilename=orderedJunctionsPerCellFilenameKey)
+    uniqueProjectFolderContentsFilenames = np.unique(np.concatenate([outlineMultiFolderContentsFilenames, junctionMultiFolderContentsFilenames]))
+    for projectsFolderContentsFilename in uniqueProjectFolderContentsFilenames:
+        createRegularityMeasurements(projectsFolderContentsFilename, dataBaseFolder,
+                                     checkCellsPresentInLabelledImage=False)
+        createResultMeasureTable(projectsFolderContentsFilename, baseResultsFolder, loadMeasuresFromFilenameUsingKeys=["regularityMeasuresFilename"], includeCellId=False)
 
 if __name__ == '__main__':
     mainInitializeMGXData()
