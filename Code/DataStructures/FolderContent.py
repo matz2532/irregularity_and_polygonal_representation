@@ -22,9 +22,13 @@ class FolderContent (object):
             self.folderContent["extractedFilesDict"] = {}
 
     def combineNames(self, seperator="", addSeperatorAtEnd=False):
-        namesToConcat = [self.folderContent["genotype"],
-                         self.folderContent["replicateId"],
-                         self.folderContent["timePoint"]]
+        namesToConcat = []
+        if "genotype" in self.folderContent:
+            namesToConcat.append(self.folderContent["genotype"])
+        if "replicateId" in self.folderContent:
+            namesToConcat.append(self.folderContent["replicateId"])
+        if "timePoint" in self.folderContent:
+            namesToConcat.append(self.folderContent["timePoint"])
         combinedName = seperator.join([str(i) for i in namesToConcat])
         if addSeperatorAtEnd:
             combinedName += seperator
