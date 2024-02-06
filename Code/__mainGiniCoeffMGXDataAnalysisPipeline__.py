@@ -21,18 +21,18 @@ orderedJunctionsPerCellFilenameKey = "orderedJunctionsPerCellFilename"
 
 levelOfFeedback: int = 1
 
-def extractPathInformations(path: Path, filenameExtensionToIgnoreInPath: str = ""):
-    tissueName = path.parts[-1].replace(filenameExtensionToIgnoreInPath, "")
-    geneName = path.parts[-2]
-    projectName = path.parts[-3]
-    return {"projectName": projectName, "geneName": geneName, "tissueName":tissueName}
+def extractPathInformations(path: Path, filenameExtensionToIgnoreInPath: str = "", startIndexOffset: int = 0):
+    tissueName = path.parts[-1+startIndexOffset].replace(filenameExtensionToIgnoreInPath, "")
+    geneName = path.parts[-2+startIndexOffset]
+    projectName = path.parts[-3+startIndexOffset]
+    return {"projectName": projectName, "genotype": geneName, "replicateId": tissueName, "timePoint": 0}
 
 def extractJsonFormattedContourFrom(plyFilenamesAsPaths: list, baseResultsFolder: str = "",
                                     filenameExtensionToIgnore: str = "", resultNameExtension: str = "_contour.json"):
     for filename in plyFilenamesAsPaths:
         pathInformation = extractPathInformations(filename, filenameExtensionToIgnore)
-        tissueName = pathInformation["tissueName"]
-        pathsToJoin = [pathInformation["projectName"], pathInformation["geneName"], tissueName, tissueName + resultNameExtension]
+        tissueName = pathInformation["replicateId"]
+        pathsToJoin = [pathInformation["projectName"], pathInformation["genotype"], tissueName, tissueName + resultNameExtension]
         filenameToSave = Path(baseResultsFolder).joinpath(*pathsToJoin)
         filenameToSave.parent.mkdir(parents=True, exist_ok=True)
         contourReader = MGXContourFromPlyFileReader(filename, extract3DContours=True)
