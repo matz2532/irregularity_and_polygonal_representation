@@ -1,15 +1,22 @@
+import networkx as nx
 import numpy as np
 import pandas as pd
 import sys
+import time
+import warnings
 
 sys.path.insert(0, "./Code/DataStructures/")
 sys.path.insert(0, "./Code/ImageToRawDataConversion/")
+sys.path.insert(0, "./Code/MeasureCreator/")
+sys.path.insert(0, "../../OfficialGitHubs/GraVisGUI-1.2/SourceCode/")
 
 from __mainCreateMeasures__ import createRegularityMeasurements, createResultMeasureTable
 from FolderContent import FolderContent
 from MGXContourFromPlyFileReader import MGXContourFromPlyFileReader
 from MultiFolderContent import MultiFolderContent
+from OtherMeasuresCreator import OtherMeasuresCreator
 from pathlib import Path
+from ShapeGUI import VisGraph
 from skspatial.objects import Plane, Points
 
 geometricTableBaseName="_geometricData.csv"
@@ -156,6 +163,54 @@ def analysePointDistances(baseResultsFolder: str = "Results/Yang Data/"):
     for i, subTable in pointDistanceSummary.groupby(["projectName", "replicateName"], sort=False):
         print(i, subTable["meanPointDistance"].mean(), subTable["meanPointDistance"].std(), subTable["stdPointDistance"].mean())
 
+def runVisibilityAnalysisWithContours(projectFolderContentsFilename: str or Path, baseResultsFolder: str = "Results/Yang Data/", reductionFactor: int = 8, printVisGraphCalculationTime: bool = False,
+                                          tryToLoad: bool = True, visibilityGraphMatrices: str = "visibilityGraphMatrices", relCompletenessOfCellsKey: str = "relCompletenessOfCells"):
+    from shapely import Polygon
+    measureCreator = OtherMeasuresCreator()
+    projectName = Path(projectFolderContentsFilename).stem
+    projectFolderContents = MultiFolderContent(projectFolderContentsFilename)
+    for tissueContents in projectFolderContents:
+        replicateName = tissueContents.GetReplicateId()
+        genotype = tissueContents.GetGenotype()
+        if tryToLoad and tissueContents.IsKeyInFilenameDict(visibilityGraphMatrices):
+            visibilityGraphMatrixOfCells = tissueContents.LoadKeyUsingFilenameDict(visibilityGraphMatrices)
+            visibilityGraphsOfCells = {cellId: nx.from_numpy_array(np.asarray(matrix)) for cellId, matrix in visibilityGraphMatrixOfCells.items()}
+        else:
+            rotatedProjectedPointsOfCells = tissueContents.LoadKeyUsingFilenameDict(rotatedAndProjectedContoursKey)
+            visibilityGraphsOfCells, visibilityGraphMatrixOfCells = {}, {}
+            for cellId, rotatedProjectedPoints in rotatedProjectedPointsOfCells.items():
+                numberOfEquallySpacedPoints = int(len(rotatedProjectedPoints) / reductionFactor)
+                positionsAsShapelyGeometry = measureCreator.equallySpacePointsBetween(rotatedProjectedPoints, numberOfEquallySpacedPoints=numberOfEquallySpacedPoints)
+                invalidPolygon = not Polygon(positionsAsShapelyGeometry).is_valid
+                invalidLinearRing = not positionsAsShapelyGeometry.is_valid
+                if invalidPolygon or invalidLinearRing:
+                    warnings.warn(f"{cellId} has crossing outline with {invalidPolygon=} {invalidLinearRing=} of {replicateName=} {genotype=} {projectFolderContentsFilename=}")
+                else:
+                    if printVisGraphCalculationTime:
+                        startTime = time.time()
+                        print(f"{cellId=} number of points {numberOfEquallySpacedPoints} stating time: {time.strftime('%H:%M', time.localtime(startTime))}")
+                    visibilityGraphs = measureCreator.calcVisbilityGraphFromGeometery(positionsAsShapelyGeometry)
+                    if printVisGraphCalculationTime:
+                        print(f"Finished in {np.round((time.time()-startTime)/60, 2)} min.")
+                    visibilityGraphsOfCells[cellId] = visibilityGraphs
+                    visibilityGraphMatrixOfCells[cellId] = nx.to_numpy_array(visibilityGraphs)
+            visibilityGraphMatricesFilename = Path(baseResultsFolder).joinpath(projectName, genotype, replicateName, replicateName + "_" + visibilityGraphMatrices + ".json")
+            tissueContents.SaveDataFilesTo(visibilityGraphMatrixOfCells, visibilityGraphMatricesFilename)
+            tissueContents.AddDataToFilenameDict(visibilityGraphMatricesFilename, visibilityGraphMatrices)
+        relCompletenessOfCells = calcRelativeCompletenessFor(visibilityGraphsOfCells)
+        relCompletenessOfCellsFilename = Path(baseResultsFolder).joinpath(projectName, genotype, replicateName, replicateName + "_" + relCompletenessOfCellsKey + ".json")
+        tissueContents.SaveDataFilesTo(relCompletenessOfCells, relCompletenessOfCellsFilename)
+        tissueContents.AddDataToFilenameDict(relCompletenessOfCellsFilename, relCompletenessOfCellsKey)
+        projectFolderContents.UpdateFolderContents()
+        print("finished", tissueContents.GetTissueName())
+
+def calcRelativeCompletenessFor(visibilityGraphsOfCells: dict):
+    relCompletenessOfCells = {}
+    for cellId, visibilityGraph in visibilityGraphsOfCells.items():
+        relativeCompleteness = VisGraph.compute_graph_complexity(None, visibilityGraph)
+        relCompletenessOfCells[cellId] = relativeCompleteness
+    return relCompletenessOfCells
+
 if __name__ == '__main__':
     # projectFolderContentsFilenames = mainInitializeMGXData()
     baseResultsFolder: str = "Results/Yang Data/"
@@ -163,4 +218,6 @@ if __name__ == '__main__':
                                       baseResultsFolder+"Ws and act2-1 act7-1 PI staining/Ws and act2-1 act7-1 PI staining.pkl",
                                       baseResultsFolder+"Ws and act2-1 act7-1 PM reporter/Ws and act2-1 act7-1 PM reporter.pkl",
                                       ]
-    create2DContourProjections(projectFolderContentsFilenames, baseResultsFolder)
+    # create2DContourProjections(projectFolderContentsFilename, baseResultsFolder)
+    for projectFolderContentsFilename in projectFolderContentsFilenames:
+        runVisibilityAnalysisWithContours(projectFolderContentsFilename, baseResultsFolder)
