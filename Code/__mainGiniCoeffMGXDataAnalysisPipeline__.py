@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import sys
 
 sys.path.insert(0, "./Code/DataStructures/")
@@ -21,6 +22,7 @@ orderedJunctionsNameExtension = "_orderedJunctionsPerCell.json"
 
 contoursFilenameKey = "cellContours"
 orderedJunctionsPerCellFilenameKey = "orderedJunctionsPerCellFilename"
+rotatedAndProjectedContoursKey = "rotatedAndProjectedContours"
 
 levelOfFeedback: int = 1
 
@@ -76,15 +78,39 @@ def mainInitializeMGXData(dataBaseFolder: str = "Images/YangData/", baseResultsF
         createResultMeasureTable(projectsFolderContentsFilename, baseResultsFolder, loadMeasuresFromFilenameUsingKeys=["regularityMeasuresFilename"], includeCellId=False)
     return uniqueProjectFolderContentsFilenames
 
-def mainRunVisibilityAnalysisWithContours(projectFolderContentsFilenames: list, baseResultsFolder: str = "Results/Yang Data/"):
+def create2DContourProjections(projectFolderContentsFilenames: list, baseResultsFolder: str = "Results/Yang Data/", summarisePointDistances: bool = True):
+    allProjectNames, allReplicateNames, allMeanPointDistances, allStdPointDistances, allCellIds = [], [], [], [], []
     for projectFolderContentsFilename in projectFolderContentsFilenames:
+        projectName = Path(projectFolderContentsFilename).stem
         projectFolderContents = MultiFolderContent(projectFolderContentsFilename)
         for tissueContents in projectFolderContents:
+            replicateName = tissueContents.GetReplicateId()
+            genotype = tissueContents.GetGenotype()
             contours = tissueContents.LoadKeyUsingFilenameDict(contoursFilenameKey)
-            for c in contours.values():
-                rotatedProjectedPoints = projectCellInto2DPlane(c)
+            rotatedAndProjectedContoursOfCells = {}
+            for cellId, cellContour in contours.items():
+                rotatedProjectedPoints = projectCellInto2DPlane(cellContour)
                 rotatedProjectedPoints = rotatedProjectedPoints[:, :2]
-                visualiseOriginalVsProjectedContour(c, rotatedProjectedPoints)
+                rotatedAndProjectedContoursOfCells[cellId] = rotatedProjectedPoints
+                if summarisePointDistances:
+                    shiftedPoints = np.concatenate([rotatedProjectedPoints[1:, :], [rotatedProjectedPoints[0, :]]], axis=0)
+                    distancesBetweenPoints = np.linalg.norm(rotatedProjectedPoints - shiftedPoints, axis=1)
+                    allMeanPointDistances.append(np.mean(distancesBetweenPoints))
+                    allStdPointDistances.append(np.std(distancesBetweenPoints))
+                    allCellIds.append(cellId)
+                    allReplicateNames.append(replicateName)
+                    allProjectNames.append(projectName)
+            rotatedAndProjectedContoursFilename = Path(baseResultsFolder).joinpath(projectName, genotype, replicateName, replicateName + "_" + rotatedAndProjectedContoursKey + ".json")
+            rotatedAndProjectedContoursFilename.parent.mkdir(parents=True, exist_ok=True)
+            tissueContents.SaveDataFilesTo(rotatedAndProjectedContoursOfCells, rotatedAndProjectedContoursFilename)
+            tissueContents.AddDataToFilenameDict(rotatedAndProjectedContoursFilename, rotatedAndProjectedContoursKey)
+        projectFolderContents.UpdateFolderContents()
+    if summarisePointDistances:
+        pointDistanceSummary = {"projectName": allProjectNames, "replicateName": allReplicateNames, "cellId": allCellIds,
+                                "meanPointDistance": allMeanPointDistances, "stdPointDistance": allStdPointDistances}
+        pointDistanceSummary = pd.DataFrame(pointDistanceSummary)
+        pointDistanceSummaryFilename = baseResultsFolder + "pointDistanceSummary.csv"
+        pointDistanceSummary.to_csv(pointDistanceSummaryFilename, index=False)
 
 def projectCellInto2DPlane(pointArry: np.ndarray):
     pointArry -= np.mean(pointArry, axis=0)
@@ -124,6 +150,12 @@ def visualiseOriginalVsProjectedContour(contour, rotatedAndProjectedContour):
     ax.set_zlim((5, -5))
     plt.show()
 
+def analysePointDistances(baseResultsFolder: str = "Results/Yang Data/"):
+    pointDistanceSummaryFilename = baseResultsFolder + "pointDistanceSummary.csv"
+    pointDistanceSummary = pd.read_csv(pointDistanceSummaryFilename)
+    for i, subTable in pointDistanceSummary.groupby(["projectName", "replicateName"], sort=False):
+        print(i, subTable["meanPointDistance"].mean(), subTable["meanPointDistance"].std(), subTable["stdPointDistance"].mean())
+
 if __name__ == '__main__':
     # projectFolderContentsFilenames = mainInitializeMGXData()
     baseResultsFolder: str = "Results/Yang Data/"
@@ -131,4 +163,4 @@ if __name__ == '__main__':
                                       baseResultsFolder+"Ws and act2-1 act7-1 PI staining/Ws and act2-1 act7-1 PI staining.pkl",
                                       baseResultsFolder+"Ws and act2-1 act7-1 PM reporter/Ws and act2-1 act7-1 PM reporter.pkl",
                                       ]
-    mainRunVisibilityAnalysisWithContours(projectFolderContentsFilenames, baseResultsFolder)
+    create2DContourProjections(projectFolderContentsFilenames, baseResultsFolder)
