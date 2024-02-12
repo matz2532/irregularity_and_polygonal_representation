@@ -103,6 +103,11 @@ class MultiFolderContent:
                 dataValues = data[dataKey]
                 f.AddDataToExtractedFilesDict(data=dataValues, key=dataKey)
 
+    def AddDataFromSimpleDictsUsingFilenameKey(self, filenameKeyToLoad, **kwargs):
+        for f in self.allFolderContents:
+            data = f.LoadKeyUsingFilenameDict(filenameKeyToLoad, **kwargs)
+            f.AddDataToExtractedFilesDict(data, filenameKeyToLoad)
+
     def AddMultipleDataValuesFromFilename(self, dataKeys, extractDataFromFilenameUsingKey="regularityMeasuresFilename"):
         for key in dataKeys:
             self.AddDataFromFilename(key, extractDataFromFilenameUsingKey)

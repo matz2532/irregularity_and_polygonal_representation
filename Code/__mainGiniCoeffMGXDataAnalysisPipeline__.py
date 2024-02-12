@@ -204,6 +204,16 @@ def runVisibilityAnalysisWithContours(projectFolderContentsFilename: str or Path
         projectFolderContents.UpdateFolderContents()
         print("finished", tissueContents.GetTissueName())
 
+def createResultsTableForShallowFiles(projectFolderContentsFilename: str or Path, filenameKeyToLoad: str,
+                                      baseResultsFolder: str = "", tableBaseName: str = "combinedMeasures_{}.csv"):
+    multiFolderContent = MultiFolderContent(projectFolderContentsFilename)
+    multiFolderContent.AddDataFromSimpleDictsUsingFilenameKey(filenameKeyToLoad)
+    measureResultsTidyDf = multiFolderContent.GetTidyDataFrameOf([filenameKeyToLoad], includeCellId=False)
+    scenarioName = Path(projectFolderContentsFilename).stem
+    measureTableName = baseResultsFolder + tableBaseName.format(scenarioName)
+    Path(measureTableName).parent.mkdir(parents=True, exist_ok=True)
+    measureResultsTidyDf.to_csv(measureTableName, index=False)
+
 def calcRelativeCompletenessFor(visibilityGraphsOfCells: dict):
     relCompletenessOfCells = {}
     for cellId, visibilityGraph in visibilityGraphsOfCells.items():
@@ -218,6 +228,8 @@ if __name__ == '__main__':
                                       baseResultsFolder+"Ws and act2-1 act7-1 PI staining/Ws and act2-1 act7-1 PI staining.pkl",
                                       baseResultsFolder+"Ws and act2-1 act7-1 PM reporter/Ws and act2-1 act7-1 PM reporter.pkl",
                                       ]
-    # create2DContourProjections(projectFolderContentsFilename, baseResultsFolder)
+    # create2DContourProjections(projectFolderContentsFilenames, baseResultsFolder)
     for projectFolderContentsFilename in projectFolderContentsFilenames:
-        runVisibilityAnalysisWithContours(projectFolderContentsFilename, baseResultsFolder)
+        # runVisibilityAnalysisWithContours(projectFolderContentsFilename, baseResultsFolder)
+        createResultsTableForShallowFiles(projectFolderContentsFilename, filenameKeyToLoad="relCompletenessOfCells",
+                                          baseResultsFolder=baseResultsFolder, tableBaseName="combinedMeasures_relCompleteness_{}.csv")
