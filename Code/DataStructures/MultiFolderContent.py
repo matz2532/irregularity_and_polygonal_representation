@@ -89,7 +89,7 @@ class MultiFolderContent:
         if returnIndividualKeysAdded:
             unorderedUniqueKeys, counts = np.unique(individualDataKeys, return_counts=True)
             isCountEqualToFirst = counts[0] == counts
-            assert np.all(isCountEqualToFirst), f"The key/s {unorderedUniqueKeys[np.invert(isCountEqualToFirst)]} don't appear as often as the first key {counts[isCountEqualToFirst]} != {counts[0]}, while extracting data from {extractDataFromFilenameUsingKey}"
+            assert np.all(isCountEqualToFirst), f"The key/s {unorderedUniqueKeys[np.invert(isCountEqualToFirst)]} don't appear as often as the first key {counts[np.invert(isCountEqualToFirst)]} != {counts[0]} of key {unorderedUniqueKeys[0]}, while extracting data from {extractDataFromFilenameUsingKey} of {self.allFolderContentsFilename}"
             return pd.unique(individualDataKeys).tolist()
 
     def AddDataFromFilename(self, dataKey, extractDataFromFilenameUsingKey="regularityMeasuresFilename"):
