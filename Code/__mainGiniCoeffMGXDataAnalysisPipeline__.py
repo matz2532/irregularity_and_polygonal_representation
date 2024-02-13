@@ -17,6 +17,7 @@ from MultiFolderContent import MultiFolderContent
 from OtherMeasuresCreator import OtherMeasuresCreator
 from pathlib import Path
 from ShapeGUI import VisGraph
+from shapely import Polygon
 from skspatial.objects import Plane, Points
 
 geometricTableBaseName="_geometricData.csv"
@@ -202,11 +203,9 @@ def regularityAnalysisOnFlattened(uniqueProjectFolderContentsFilenames, dataBase
 
 def runVisibilityAnalysisWithContours(projectFolderContentsFilename: str or Path, baseResultsFolder: str = "Results/Yang Data/", reductionFactor: int = 8, printVisGraphCalculationTime: bool = False,
                                           tryToLoad: bool = True, visibilityGraphMatrices: str = "visibilityGraphMatrices", relCompletenessOfCellsKey: str = "relCompletenessOfCells"):
-    from shapely import Polygon
     if reductionFactor != 8:
         visibilityGraphMatrices = visibilityGraphMatrices + "_" + str(reductionFactor)
         relCompletenessOfCellsKey = relCompletenessOfCellsKey + "_" + str(reductionFactor)
-    measureCreator = OtherMeasuresCreator()
     projectName = Path(projectFolderContentsFilename).stem
     projectFolderContents = MultiFolderContent(projectFolderContentsFilename)
     for tissueContents in projectFolderContents:
@@ -217,23 +216,7 @@ def runVisibilityAnalysisWithContours(projectFolderContentsFilename: str or Path
             visibilityGraphsOfCells = {cellId: nx.from_numpy_array(np.asarray(matrix)) for cellId, matrix in visibilityGraphMatrixOfCells.items()}
         else:
             rotatedProjectedPointsOfCells = tissueContents.LoadKeyUsingFilenameDict(rotatedAndProjectedContoursKey)
-            visibilityGraphsOfCells, visibilityGraphMatrixOfCells = {}, {}
-            for cellId, rotatedProjectedPoints in rotatedProjectedPointsOfCells.items():
-                numberOfEquallySpacedPoints = int(len(rotatedProjectedPoints) / reductionFactor)
-                positionsAsShapelyGeometry = measureCreator.equallySpacePointsBetween(rotatedProjectedPoints, numberOfEquallySpacedPoints=numberOfEquallySpacedPoints)
-                invalidPolygon = not Polygon(positionsAsShapelyGeometry).is_valid
-                invalidLinearRing = not positionsAsShapelyGeometry.is_valid
-                if invalidPolygon or invalidLinearRing:
-                    warnings.warn(f"{cellId} has crossing outline with {invalidPolygon=} {invalidLinearRing=} of {replicateName=} {genotype=} {projectFolderContentsFilename=}")
-                else:
-                    if printVisGraphCalculationTime:
-                        startTime = time.time()
-                        print(f"{cellId=} number of points {numberOfEquallySpacedPoints} stating time: {time.strftime('%H:%M', time.localtime(startTime))}")
-                    visibilityGraphs = measureCreator.calcVisbilityGraphFromGeometery(positionsAsShapelyGeometry)
-                    if printVisGraphCalculationTime:
-                        print(f"Finished in {np.round((time.time()-startTime)/60, 2)} min.")
-                    visibilityGraphsOfCells[cellId] = visibilityGraphs
-                    visibilityGraphMatrixOfCells[cellId] = nx.to_numpy_array(visibilityGraphs)
+            visibilityGraphsOfCells, visibilityGraphMatrixOfCells = createVisibilityGraphFromContoursOfCells(rotatedProjectedPointsOfCells, reductionFactor, replicateName, genotype, projectFolderContentsFilename, printVisGraphCalculationTime)
             visibilityGraphMatricesFilename = Path(baseResultsFolder).joinpath(projectName, genotype, replicateName, replicateName + "_" + visibilityGraphMatrices + ".json")
             tissueContents.SaveDataFilesTo(visibilityGraphMatrixOfCells, visibilityGraphMatricesFilename)
             tissueContents.AddDataToFilenameDict(visibilityGraphMatricesFilename, visibilityGraphMatrices)
@@ -243,6 +226,27 @@ def runVisibilityAnalysisWithContours(projectFolderContentsFilename: str or Path
         tissueContents.AddDataToFilenameDict(relCompletenessOfCellsFilename, relCompletenessOfCellsKey)
         projectFolderContents.UpdateFolderContents()
         print("finished", tissueContents.GetTissueName())
+
+def createVisibilityGraphFromContoursOfCells(contourPointsOfCells: dict, reductionFactor: int = 8, replicateName: str = "", genotype: str = "", projectFolderContentsFilename: str = "", printVisGraphCalculationTime: bool = True):
+    measureCreator = OtherMeasuresCreator()
+    visibilityGraphsOfCells, visibilityGraphMatrixOfCells = {}, {}
+    for cellId, contourPoints in contourPointsOfCells.items():
+        numberOfEquallySpacedPoints = int(len(contourPoints) / reductionFactor)
+        positionsAsShapelyGeometry = measureCreator.equallySpacePointsBetween(contourPoints, numberOfEquallySpacedPoints=numberOfEquallySpacedPoints)
+        invalidPolygon = not Polygon(positionsAsShapelyGeometry).is_valid
+        invalidLinearRing = not positionsAsShapelyGeometry.is_valid
+        if invalidPolygon or invalidLinearRing:
+            warnings.warn(f"{cellId} has crossing outline with {invalidPolygon=} {invalidLinearRing=} of {replicateName=} {genotype=} {projectFolderContentsFilename=}")
+        else:
+            if printVisGraphCalculationTime:
+                startTime = time.time()
+                print(f"{cellId=} number of points {numberOfEquallySpacedPoints} stating time: {time.strftime('%H:%M', time.localtime(startTime))}")
+            visibilityGraphs = measureCreator.calcVisbilityGraphFromGeometery(positionsAsShapelyGeometry)
+            if printVisGraphCalculationTime:
+                print(f"Finished in {np.round((time.time() - startTime) / 60, 2)} min.")
+            visibilityGraphsOfCells[cellId] = visibilityGraphs
+            visibilityGraphMatrixOfCells[cellId] = nx.to_numpy_array(visibilityGraphs)
+    return visibilityGraphsOfCells, visibilityGraphMatrixOfCells
 
 def createResultsTableForShallowFiles(projectFolderContentsFilename: str or Path, filenameKeyToLoad: str,
                                       baseResultsFolder: str = "", tableBaseName: str = "combinedMeasures_{}.csv"):
