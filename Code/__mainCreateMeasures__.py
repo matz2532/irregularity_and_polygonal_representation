@@ -151,7 +151,8 @@ def createGuardCellAdjacency(dataBaseFolder, allFolderContentsFilename, isSegmen
 
 def createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder, ignoreGuardCells=False,
                       regularityMeasuresBaseName="regularityMeasures.json", regularityMeasuresFilenameKey="regularityMeasuresFilename",
-                      ignoreGuardCellExtension="_ignoringGuardCells", genotypeResolutionDict=None, checkCellsPresentInLabelledImage=True):
+                      ignoreGuardCellExtension="_ignoringGuardCells", genotypeResolutionDict=None, checkCellsPresentInLabelledImage=True,
+                                 orderedJunctionsPerCellFilename="orderedJunctionsPerCellFilename"):
     if globalVerbosity >= 2:
         print(f"Run regularity analysis.")
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
@@ -165,7 +166,7 @@ def createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder, igno
         if checkCellsPresentInLabelledImage:
             labelledImage = folderContent.LoadKeyUsingFilenameDict("labelledImageFilename")
         allContours = folderContent.LoadKeyUsingFilenameDict("cellContours", convertDictKeysToInt=True, convertDictValuesToNpArray=True)
-        orderedJunctionsPerCell = folderContent.LoadKeyUsingFilenameDict("orderedJunctionsPerCellFilename", convertDictKeysToInt=True, convertDictValuesToNpArray=True)
+        orderedJunctionsPerCell = folderContent.LoadKeyUsingFilenameDict(orderedJunctionsPerCellFilename, convertDictKeysToInt=True, convertDictValuesToNpArray=True)
         genotypeName = folderContent.GetGenotype()
         resolution = 1
         if not genotypeResolutionDict is None:
