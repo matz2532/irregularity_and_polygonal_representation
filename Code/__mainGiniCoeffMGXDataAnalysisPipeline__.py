@@ -202,7 +202,7 @@ def regularityAnalysisOnFlattened(uniqueProjectFolderContentsFilenames, dataBase
         createResultMeasureTable(projectsFolderContentsFilename, baseResultsFolder, loadMeasuresFromFilenameUsingKeys=[regularityMeasuresFilenameKey],
                                  tableBaseName=tableBaseName, includeCellId=False)
 
-def runVisibilityAnalysisWithContours(projectFolderContentsFilename: str or Path, baseResultsFolder: str = "Results/Yang Data/", reductionFactor: int = 8, additionalNotSavedReductionFactor: float = 0, printVisGraphCalculationTime: bool = False,
+def runVisibilityAnalysisWithContours(projectFolderContentsFilename: str or Path, baseResultsFolder: str = "Results/Yang Data/", reductionFactor: int = 8, additionalNotSavedReductionFactor: int = 0, printVisGraphCalculationTime: bool = False,
                                           tryToLoad: bool = True, visibilityGraphMatrices: str = "visibilityGraphMatrices", relCompletenessOfCellsKey: str = "relCompletenessOfCells"):
     visibilityGraphMatrices = createKeyWithExtension(visibilityGraphMatrices, reductionFactor)
     relCompletenessOfCellsKey = createKeyWithExtension(relCompletenessOfCellsKey, reductionFactor, additionalNotSavedReductionFactor)
@@ -220,6 +220,8 @@ def runVisibilityAnalysisWithContours(projectFolderContentsFilename: str or Path
             visibilityGraphMatricesFilename = Path(baseResultsFolder).joinpath(projectName, genotype, replicateName, replicateName + "_" + visibilityGraphMatrices + ".json")
             tissueContents.SaveDataFilesTo(visibilityGraphMatrixOfCells, visibilityGraphMatricesFilename)
             tissueContents.AddDataToFilenameDict(visibilityGraphMatricesFilename, visibilityGraphMatrices)
+        if additionalNotSavedReductionFactor != 0 and additionalNotSavedReductionFactor != 1:
+            visibilityGraphsOfCells = reduceNumberOfNodesByFactor(visibilityGraphsOfCells, additionalNotSavedReductionFactor)
         relCompletenessOfCells = calcRelativeCompletenessFor(visibilityGraphsOfCells)
         relCompletenessOfCellsFilename = Path(baseResultsFolder).joinpath(projectName, genotype, replicateName, replicateName + "_" + relCompletenessOfCellsKey + ".json")
         tissueContents.SaveDataFilesTo(relCompletenessOfCells, relCompletenessOfCellsFilename)
@@ -227,12 +229,11 @@ def runVisibilityAnalysisWithContours(projectFolderContentsFilename: str or Path
         projectFolderContents.UpdateFolderContents()
         print("finished", tissueContents.GetTissueName())
 
-def createKeyWithExtension(keyToPotentiallyExtend: str, reductionFactor: int = 8, additionalNotSavedReductionFactor: float = 0):
+def createKeyWithExtension(keyToPotentiallyExtend: str, reductionFactor: int = 8, additionalNotSavedReductionFactor: int = 0):
     if reductionFactor != 8:
-        if additionalNotSavedReductionFactor != 0:
-            keyToPotentiallyExtend = keyToPotentiallyExtend + "_" + str(np.round(reductionFactor * additionalNotSavedReductionFactor, 2))
-        else:
-            keyToPotentiallyExtend = keyToPotentiallyExtend + "_" + str(reductionFactor)
+        keyToPotentiallyExtend += "_" + str(reductionFactor)
+    if additionalNotSavedReductionFactor != 0 and additionalNotSavedReductionFactor != 1:
+        keyToPotentiallyExtend += "_finalReduction" + str(np.round(reductionFactor * additionalNotSavedReductionFactor, 2))
     return keyToPotentiallyExtend
 
 def createVisibilityGraphFromContoursOfCells(contourPointsOfCells: dict, reductionFactor: int = 8, replicateName: str = "", genotype: str = "", projectFolderContentsFilename: str = "", printVisGraphCalculationTime: bool = True):
@@ -256,6 +257,14 @@ def createVisibilityGraphFromContoursOfCells(contourPointsOfCells: dict, reducti
             visibilityGraphMatrixOfCells[cellId] = nx.to_numpy_array(visibilityGraphs)
     return visibilityGraphsOfCells, visibilityGraphMatrixOfCells
 
+def reduceNumberOfNodesByFactor(visibilityGraphsOfCells: dict, reductionFactor: int):
+    for cellId, visibilityGraph in visibilityGraphsOfCells.items():
+        nodes = np.asarray(list(visibilityGraph))
+        nodesToKeep = nodes[::reductionFactor]
+        nodesToRemove = nodes[np.isin(nodes, nodesToKeep, invert=True)]
+        visibilityGraph.remove_nodes_from(nodesToRemove)
+    return visibilityGraphsOfCells
+
 def createResultsTableForShallowFiles(projectFolderContentsFilename: str or Path, filenameKeyToLoad: str,
                                       baseResultsFolder: str = "", tableBaseName: str = "combinedMeasures_{}.csv"):
     multiFolderContent = MultiFolderContent(projectFolderContentsFilename)
@@ -272,6 +281,17 @@ def calcRelativeCompletenessFor(visibilityGraphsOfCells: dict):
         relativeCompleteness = VisGraph.compute_graph_complexity(None, visibilityGraph)
         relCompletenessOfCells[cellId] = relativeCompleteness
     return relCompletenessOfCells
+
+def createVisibilityGraphAndRelativeCompletenessWith(projectFolderContentsFilenames: list, baseResultsFolder: str = "",
+                                                     reductionFactor: int = 8, additionalNotSavedReductionFactor: int = 1):
+    for projectFolderContentsFilename in projectFolderContentsFilenames:
+        runVisibilityAnalysisWithContours(projectFolderContentsFilename, baseResultsFolder, reductionFactor=reductionFactor,
+                                          relCompletenessOfCellsKey=relCompletenessOfCellsKey, additionalNotSavedReductionFactor=additionalNotSavedReductionFactor)
+        filenameKeyToLoad = createKeyWithExtension(relCompletenessOfCellsKey, reductionFactor, additionalNotSavedReductionFactor=additionalNotSavedReductionFactor)
+        tableBaseName = createKeyWithExtension("combinedMeasures_relCompleteness", reductionFactor, additionalNotSavedReductionFactor=additionalNotSavedReductionFactor)
+        tableBaseName += "_{}.csv"
+        createResultsTableForShallowFiles(projectFolderContentsFilename, filenameKeyToLoad=filenameKeyToLoad,
+                                          baseResultsFolder=baseResultsFolder, tableBaseName=tableBaseName)
 
 if __name__ == '__main__':
     baseResultsFolder: str = "Results/Yang Data/"
@@ -290,12 +310,7 @@ if __name__ == '__main__':
     # regularityAnalysisOnFlattened(projectFolderContentsFilenames, baseResultsFolder)
     # create relative completeness on flattened (2D not 2.5D) contours
     reductionFactor = 8
-    additionalNotSavedReductionFactor = 0
-    for projectFolderContentsFilename in projectFolderContentsFilenames:
-        runVisibilityAnalysisWithContours(projectFolderContentsFilename, baseResultsFolder, reductionFactor=reductionFactor, relCompletenessOfCellsKey=relCompletenessOfCellsKey)
-        filenameKeyToLoad = createKeyWithExtension(relCompletenessOfCellsKey, reductionFactor, additionalNotSavedReductionFactor=additionalNotSavedReductionFactor)
-        tableBaseName = createKeyWithExtension("combinedMeasures_relCompleteness", reductionFactor, additionalNotSavedReductionFactor=additionalNotSavedReductionFactor)
-        tableBaseName += "_{}.csv"
-        createResultsTableForShallowFiles(projectFolderContentsFilename, filenameKeyToLoad=filenameKeyToLoad,
-                                          baseResultsFolder=baseResultsFolder, tableBaseName=tableBaseName)
+    additionalNotSavedReductionFactor = 2
+    for additionalNotSavedReductionFactor in range(1, 8):
+        createVisibilityGraphAndRelativeCompletenessWith(projectFolderContentsFilenames, baseResultsFolder, reductionFactor, additionalNotSavedReductionFactor)
 
