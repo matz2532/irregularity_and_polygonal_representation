@@ -32,6 +32,7 @@ contoursFilenameKey = "cellContours"
 orderedJunctionsPerCellFilenameKey = "orderedJunctionsPerCellFilename"
 rotatedAndProjectedContoursKey = "rotatedAndProjectedContours"
 rotatedAndProjectedOrderedJunctionsKey = "rotatedAndProjectedOrderedJunctions"
+relCompletenessOfCellsKey: str = "relCompletenessOfCells"
 
 levelOfFeedback: int = 1
 
@@ -201,11 +202,10 @@ def regularityAnalysisOnFlattened(uniqueProjectFolderContentsFilenames, dataBase
         createResultMeasureTable(projectsFolderContentsFilename, baseResultsFolder, loadMeasuresFromFilenameUsingKeys=[regularityMeasuresFilenameKey],
                                  tableBaseName=tableBaseName, includeCellId=False)
 
-def runVisibilityAnalysisWithContours(projectFolderContentsFilename: str or Path, baseResultsFolder: str = "Results/Yang Data/", reductionFactor: int = 8, printVisGraphCalculationTime: bool = False,
+def runVisibilityAnalysisWithContours(projectFolderContentsFilename: str or Path, baseResultsFolder: str = "Results/Yang Data/", reductionFactor: int = 8, additionalNotSavedReductionFactor: float = 0, printVisGraphCalculationTime: bool = False,
                                           tryToLoad: bool = True, visibilityGraphMatrices: str = "visibilityGraphMatrices", relCompletenessOfCellsKey: str = "relCompletenessOfCells"):
-    if reductionFactor != 8:
-        visibilityGraphMatrices = visibilityGraphMatrices + "_" + str(reductionFactor)
-        relCompletenessOfCellsKey = relCompletenessOfCellsKey + "_" + str(reductionFactor)
+    visibilityGraphMatrices = createKeyWithExtension(visibilityGraphMatrices, reductionFactor)
+    relCompletenessOfCellsKey = createKeyWithExtension(relCompletenessOfCellsKey, reductionFactor, additionalNotSavedReductionFactor)
     projectName = Path(projectFolderContentsFilename).stem
     projectFolderContents = MultiFolderContent(projectFolderContentsFilename)
     for tissueContents in projectFolderContents:
@@ -226,6 +226,14 @@ def runVisibilityAnalysisWithContours(projectFolderContentsFilename: str or Path
         tissueContents.AddDataToFilenameDict(relCompletenessOfCellsFilename, relCompletenessOfCellsKey)
         projectFolderContents.UpdateFolderContents()
         print("finished", tissueContents.GetTissueName())
+
+def createKeyWithExtension(keyToPotentiallyExtend: str, reductionFactor: int = 8, additionalNotSavedReductionFactor: float = 0):
+    if reductionFactor != 8:
+        if additionalNotSavedReductionFactor != 0:
+            keyToPotentiallyExtend = keyToPotentiallyExtend + "_" + str(np.round(reductionFactor * additionalNotSavedReductionFactor, 2))
+        else:
+            keyToPotentiallyExtend = keyToPotentiallyExtend + "_" + str(reductionFactor)
+    return keyToPotentiallyExtend
 
 def createVisibilityGraphFromContoursOfCells(contourPointsOfCells: dict, reductionFactor: int = 8, replicateName: str = "", genotype: str = "", projectFolderContentsFilename: str = "", printVisGraphCalculationTime: bool = True):
     measureCreator = OtherMeasuresCreator()
@@ -282,13 +290,12 @@ if __name__ == '__main__':
     # regularityAnalysisOnFlattened(projectFolderContentsFilenames, baseResultsFolder)
     # create relative completeness on flattened (2D not 2.5D) contours
     reductionFactor = 8
+    additionalNotSavedReductionFactor = 0
     for projectFolderContentsFilename in projectFolderContentsFilenames:
-        runVisibilityAnalysisWithContours(projectFolderContentsFilename, baseResultsFolder, reductionFactor=reductionFactor)
-        if reductionFactor != 8:
-            filenameKeyToLoad = "relCompletenessOfCells" + "_" + str(reductionFactor)
-            tableBaseName = "combinedMeasures_relCompleteness"+str(reductionFactor)+"_{}.csv"
-        else:
-            filenameKeyToLoad = "relCompletenessOfCells"
-            tableBaseName = "combinedMeasures_relCompleteness_{}.csv"
+        runVisibilityAnalysisWithContours(projectFolderContentsFilename, baseResultsFolder, reductionFactor=reductionFactor, relCompletenessOfCellsKey=relCompletenessOfCellsKey)
+        filenameKeyToLoad = createKeyWithExtension(relCompletenessOfCellsKey, reductionFactor, additionalNotSavedReductionFactor=additionalNotSavedReductionFactor)
+        tableBaseName = createKeyWithExtension("combinedMeasures_relCompleteness", reductionFactor, additionalNotSavedReductionFactor=additionalNotSavedReductionFactor)
+        tableBaseName += "_{}.csv"
         createResultsTableForShallowFiles(projectFolderContentsFilename, filenameKeyToLoad=filenameKeyToLoad,
                                           baseResultsFolder=baseResultsFolder, tableBaseName=tableBaseName)
+
