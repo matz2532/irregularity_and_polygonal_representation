@@ -203,6 +203,9 @@ def regularityAnalysisOnFlattened(uniqueProjectFolderContentsFilenames, dataBase
 def runVisibilityAnalysisWithContours(projectFolderContentsFilename: str or Path, baseResultsFolder: str = "Results/Yang Data/", reductionFactor: int = 8, printVisGraphCalculationTime: bool = False,
                                           tryToLoad: bool = True, visibilityGraphMatrices: str = "visibilityGraphMatrices", relCompletenessOfCellsKey: str = "relCompletenessOfCells"):
     from shapely import Polygon
+    if reductionFactor != 8:
+        visibilityGraphMatrices = visibilityGraphMatrices + "_" + str(reductionFactor)
+        relCompletenessOfCellsKey = relCompletenessOfCellsKey + "_" + str(reductionFactor)
     measureCreator = OtherMeasuresCreator()
     projectName = Path(projectFolderContentsFilename).stem
     projectFolderContents = MultiFolderContent(projectFolderContentsFilename)
@@ -266,15 +269,22 @@ if __name__ == '__main__':
                                       ]
     # convert MGX .ply-files into human-readable contour and ordered junction .json-files and
     # calculated regularity analysis of tri-way junction spanning polygons
-    projectFolderContentsFilenames = mainInitializeMGXData()
-    # create and calculated regularity analysis of flattened (2D not 2.5D) tri-way junction spanning polygons
-    create2DContourProjections(projectFolderContentsFilenames, baseResultsFolder, contoursFilenameKey=contoursFilenameKey,
-                               rotatedAndProjectedContoursKey=rotatedAndProjectedContoursKey,
-                               orderedJunctionsPerCellFilenameKey=orderedJunctionsPerCellFilenameKey,
-                               rotatedAndProjectedOrderedJunctionsKey=rotatedAndProjectedOrderedJunctionsKey)
-    regularityAnalysisOnFlattened(projectFolderContentsFilenames, baseResultsFolder)
+    # projectFolderContentsFilenames = mainInitializeMGXData()
+    # # create and calculated regularity analysis of flattened (2D not 2.5D) tri-way junction spanning polygons
+    # create2DContourProjections(projectFolderContentsFilenames, baseResultsFolder, contoursFilenameKey=contoursFilenameKey,
+    #                            rotatedAndProjectedContoursKey=rotatedAndProjectedContoursKey,
+    #                            orderedJunctionsPerCellFilenameKey=orderedJunctionsPerCellFilenameKey,
+    #                            rotatedAndProjectedOrderedJunctionsKey=rotatedAndProjectedOrderedJunctionsKey)
+    # regularityAnalysisOnFlattened(projectFolderContentsFilenames, baseResultsFolder)
     # create relative completeness on flattened (2D not 2.5D) contours
+    reductionFactor = 8
     for projectFolderContentsFilename in projectFolderContentsFilenames:
-        # runVisibilityAnalysisWithContours(projectFolderContentsFilename, baseResultsFolder)
-        createResultsTableForShallowFiles(projectFolderContentsFilename, filenameKeyToLoad="relCompletenessOfCells",
-                                          baseResultsFolder=baseResultsFolder, tableBaseName="combinedMeasures_relCompleteness_{}.csv")
+        runVisibilityAnalysisWithContours(projectFolderContentsFilename, baseResultsFolder, reductionFactor=reductionFactor)
+        if reductionFactor != 8:
+            filenameKeyToLoad = "relCompletenessOfCells" + "_" + str(reductionFactor)
+            tableBaseName = "combinedMeasures_relCompleteness"+str(reductionFactor)+"_{}.csv"
+        else:
+            filenameKeyToLoad = "relCompletenessOfCells"
+            tableBaseName = "combinedMeasures_relCompleteness_{}.csv"
+        createResultsTableForShallowFiles(projectFolderContentsFilename, filenameKeyToLoad=filenameKeyToLoad,
+                                          baseResultsFolder=baseResultsFolder, tableBaseName=tableBaseName)
