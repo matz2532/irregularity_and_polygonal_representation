@@ -1,7 +1,7 @@
 import numpy as np
 import warnings
 
-from itertools import combinations
+from itertools import permutations
 from scipy.stats import variation
 from shapely import geometry
 from shapely.geometry import LineString
@@ -107,7 +107,7 @@ class PolygonalRegularityCalculator (object):
     def calcGiniCoefficient(self, x):
         # thanks to Martin Thoma, from stackoverflow
         n = len(x)
-        diff = np.sum(np.abs(i - j) for i, j in combinations(x, r=2))
+        diff = np.sum(np.abs(i - j) for i, j in permutations(x, r=2))
         return diff / (2 * n**2 * np.mean(x))
 
     def calcAllInternalPolygonAngles(self, vertexList, checkOrientationOfVertices=True, errorTolerance=0.0001):
