@@ -39,7 +39,8 @@ class FolderContent (object):
 
     def AddDataToFilenameDict(self, data, key, supressDataConversionToString: bool = False):
         if key in self.folderContent["filenameDict"] and self.verbose >= 1:
-            print("Overwriting {} of key {} in filenameDict to {}".format(self.folderContent["filenameDict"][key], key, data))
+            if str(self.folderContent["filenameDict"][key]) != str(data):
+                print("Overwriting {} of key {} in filenameDict to {}".format(self.folderContent["filenameDict"][key], key, data))
         if not supressDataConversionToString:
             try:
                 data = str(data)
