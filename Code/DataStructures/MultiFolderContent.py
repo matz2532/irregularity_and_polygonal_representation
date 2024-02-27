@@ -56,7 +56,7 @@ class MultiFolderContent:
              text += str(folderContent)
         return text
 
-    def AddDataFromFilenameContainingMultipleDicts(self, extractDataFromFilenameUsingKey, returnIndividualKeysAdded=False):
+    def AddDataFromFilenameContainingMultipleDicts(self, extractDataFromFilenameUsingKey, returnIndividualKeysAdded=False, nonNestedKeys: list = []):
         individualDataKeys = []
         for f in self.allFolderContents:
             filenameDict = f.GetFilenameDict()
@@ -70,20 +70,19 @@ class MultiFolderContent:
                 else:
                     with open(dataFilename, "rb") as fh:
                         data = pickle.load(fh)
-                for dataKey, dataValues in data.items():
-                    if suffix == ".json" and type(dataValues) == dict:
-                        # this needs to be done as dictionary keys get converted to strings even if they are cell labels, which should be integer values
-                        try:
-                            tmpDict = {}
-                            for k, v in dataValues.items():
-                                convertedKey = int(float(k))
-                                tmpDict[convertedKey] = dataValues[k]
-                            dataValues = tmpDict
-                        except:
-                            print("Should not happen")
-                    f.AddDataToExtractedFilesDict(data=dataValues, key=dataKey)
-                if returnIndividualKeysAdded:
-                    individualDataKeys.extend(list(data.keys()))
+                if extractDataFromFilenameUsingKey in nonNestedKeys:
+                    data = self.tryToConvertKeysToInts(data)
+                    f.AddDataToExtractedFilesDict(data=data, key=extractDataFromFilenameUsingKey)
+                    if returnIndividualKeysAdded:
+                        individualDataKeys.append(extractDataFromFilenameUsingKey)
+                else:
+                    for dataKey, dataValues in data.items():
+                        if suffix == ".json" and type(dataValues) == dict:
+                            # this needs to be done as dictionary keys get converted to strings even if they are cell labels, which should be integer values
+                            dataValues = self.tryToConvertKeysToInts(dataValues)
+                        f.AddDataToExtractedFilesDict(data=dataValues, key=dataKey)
+                    if returnIndividualKeysAdded:
+                        individualDataKeys.extend(list(data.keys()))
             else:
                 print(f"The filename key {extractDataFromFilenameUsingKey} was not found for {f.GetTissueName()}, only the following filename keys are present: {list(filenameDict.keys())}")
         if returnIndividualKeysAdded:
@@ -91,6 +90,19 @@ class MultiFolderContent:
             isCountEqualToFirst = counts[0] == counts
             assert np.all(isCountEqualToFirst), f"The key/s {unorderedUniqueKeys[np.invert(isCountEqualToFirst)]} don't appear as often as the first key {counts[np.invert(isCountEqualToFirst)]} != {counts[0]} of key {unorderedUniqueKeys[0]}, while extracting data from {extractDataFromFilenameUsingKey} of {self.allFolderContentsFilename}"
             return pd.unique(individualDataKeys).tolist()
+
+    def tryToConvertKeysToInts(self, data, additionalInfoWithConversionError: str = ""):
+        try:
+            tmpDict = {}
+            for k, v in data.items():
+                convertedKey = int(float(k))
+                tmpDict[convertedKey] = data[k]
+            return tmpDict
+        except ValueError as e:
+            print("ValueError caught during key to int conversion:", e)
+            if additionalInfoWithConversionError:
+                print(f"{additionalInfoWithConversionError=}")
+            return data
 
     def AddDataFromFilename(self, dataKey, extractDataFromFilenameUsingKey="regularityMeasuresFilename"):
         for f in self.allFolderContents:
