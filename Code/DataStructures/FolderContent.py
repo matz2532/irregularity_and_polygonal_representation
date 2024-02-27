@@ -157,7 +157,7 @@ class FolderContent (object):
                 k = typeToConvert(k)
             except ValueError as e:
                 if not supressConversionWarning:
-                    warnings.warn(f"The key {k} could not be converted into an integer, file loaded from {filename=}. Supress warning to convert to {typeToConvert} by setting supressConversionWarning to True")
+                    warnings.warn(f"The key {k} could not be converted into an integer, file loaded from {filename=}. Supress warning to convert to {typeToConvert} by setting supressConversionWarning to True or set the parameter convertDictKeysToInt to False to not try to convert the first level key in convertDictKeysAndValues().")
             tmpDict[k] = v
         return tmpDict
 
