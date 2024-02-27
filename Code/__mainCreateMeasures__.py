@@ -233,13 +233,14 @@ def createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder,
 def createResultMeasureTable(allFolderContentsFilename, resultsFolder,
                              loadMeasuresFromFilenameUsingKeys=["regularityMeasuresFilename", "areaMeasuresPerCell"],
                              tableBaseName="combinedMeasures_{}.csv", includeCellId=True,
-                             ensureMeasuresPresenceOverAllTissues=False, scenarioName=None):
+                             ensureMeasuresPresenceOverAllTissues=False, scenarioName=None,
+                             nonNestedKeys: list = ["relativeCompleteness", "lobyness"]):
     if globalVerbosity >= 2:
         print(f"Combine measures into single table.")
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
     allMeasureNames = []
     for filenameMeasuresKey in loadMeasuresFromFilenameUsingKeys:
-        individualDataKeys = multiFolderContent.AddDataFromFilenameContainingMultipleDicts(filenameMeasuresKey, returnIndividualKeysAdded=True)
+        individualDataKeys = multiFolderContent.AddDataFromFilenameContainingMultipleDicts(filenameMeasuresKey, returnIndividualKeysAdded=True, nonNestedKeys=nonNestedKeys)
         if type(individualDataKeys[0]) == str:
             allDataKeys = individualDataKeys
         else:
@@ -306,34 +307,32 @@ def calculateLobynessOfFolderContent(folderContent: FolderContent, resolutionInM
     folderContent.AddDataToFilenameDict(lobynessResultsFilename, lobynessFilenameKey)
 
 def calculateAndAddLobynessOf(dataBaseFolder="Images/", folderContentsName="Eng2021Cotyledons.pkl",
-                              allFolderContentsFilename=None, reCalculate=True,
-                              genotypeResolutionDict=None, lobynessFilenameKey: str = "lobyness"):
+                              allFolderContentsFilename=None, genotypeResolutionDict=None, lobynessFilenameKey: str = "lobyness"):
     if allFolderContentsFilename is None:
         allFolderContentsFilename = dataBaseFolder + folderContentsName
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
-    if reCalculate:
-        for folderContent in multiFolderContent:
-            if not genotypeResolutionDict is None:
-                genotype = folderContent.GetGenotype()
-                assert genotype in genotypeResolutionDict, f"The {genotype=} is not present in the {genotypeResolutionDict=}"
-                resolutionInMicroMPerPixel = genotypeResolutionDict[genotype]
-            else:
-                resolutionInMicroMPerPixel = 1
-            calculateLobynessOfFolderContent(folderContent, resolutionInMicroMPerPixel=resolutionInMicroMPerPixel,
-                                             lobynessFilenameKey=lobynessFilenameKey)
-        multiFolderContent.UpdateFolderContents()
+    for folderContent in multiFolderContent:
+        if not genotypeResolutionDict is None:
+            genotype = folderContent.GetGenotype()
+            assert genotype in genotypeResolutionDict, f"The {genotype=} is not present in the {genotypeResolutionDict=}"
+            resolutionInMicroMPerPixel = genotypeResolutionDict[genotype]
+        else:
+            resolutionInMicroMPerPixel = 1
+        calculateLobynessOfFolderContent(folderContent, resolutionInMicroMPerPixel=resolutionInMicroMPerPixel,
+                                         lobynessFilenameKey=lobynessFilenameKey)
+    multiFolderContent.UpdateFolderContents()
 
 def calculateRelativeCompleteness(folderContent: FolderContent,
                                  resolutionInMicroMPerPixel: float = 1,
                                  outlineFilenameKey: str = "cellContours", relativeCompletenessFilenameKey: str = "relativeCompleteness",
                                  additionalBoarder: np.ndarray = np.array([10,10])):
     cellOutlines = folderContent.LoadKeyUsingFilenameDict(outlineFilenameKey)
-    relativeCompletenessPerCell = {}
-    for cellLabel, outline in cellOutlines.items():
-        relativeCompleteness = OtherMeasuresCreator().calcRelativeCompletenessForOutlines(list(outline),
-                                                                                          resolutionInDistancePerPixel = resolutionInMicroMPerPixel,
-                                                                                          additionalBoarder = additionalBoarder)
-        relativeCompletenessPerCell[cellLabel] = relativeCompleteness
+    if globalVerbosity >= 3:
+        print("Running relative completeness calculation for", folderContent.GetTissueName())
+    relativeCompletenessPerCell = OtherMeasuresCreator(additionalCellInfo=folderContent.GetTissueName()
+                                                       ).calcRelativeCompletenessForOutlines(cellOutlines,
+                                                                                             resolutionInDistancePerPixel = resolutionInMicroMPerPixel,
+                                                                                             additionalBoarder = additionalBoarder)
     cellOutlinesFilename = folderContent.GetFilenameDictKeyValue(outlineFilenameKey)
     splitName = Path(cellOutlinesFilename).name.split(outlineFilenameKey)
     if len(splitName) > 1:
@@ -346,25 +345,21 @@ def calculateRelativeCompleteness(folderContent: FolderContent,
     folderContent.AddDataToFilenameDict(relativeCompletenessResultsFilename, relativeCompletenessFilenameKey)
 
 
-def calculateAndAddRelativeCompletenessOf(dataBaseFolder="Images/", tableResultsFolder="Results/",
-                              folderContentsName = "Eng2021Cotyledons.pkl", tableBaseName="combinedMeasures_{}.csv",
-                              allFolderContentsFilename=None, resultsTableFilename=None, reCalculate=True,
-                              genotypeResolutionDict=None, relativeCompletenessFilenameKey: str = "relativeCompleteness"):
+def calculateAndAddRelativeCompletenessOf(dataBaseFolder: str = "Images/", folderContentsName: str = "Eng2021Cotyledons.pkl",
+                                          allFolderContentsFilename: str or None = None, genotypeResolutionDict: str or None = None,
+                                          relativeCompletenessFilenameKey: str = "relativeCompleteness"):
     if allFolderContentsFilename is None:
         allFolderContentsFilename = dataBaseFolder + folderContentsName
-    if resultsTableFilename is None:
-        resultsTableFilename = tableResultsFolder + tableBaseName.format(Path(allFolderContentsFilename.stem))
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
-    if reCalculate:
-        for folderContent in multiFolderContent:
-            if not genotypeResolutionDict is None:
-                genotype = folderContent.GetGenotype()
-                assert genotype in genotypeResolutionDict, f"The {genotype=} is not present in the {genotypeResolutionDict=}"
-                resolutionInMicroMPerPixel = genotypeResolutionDict[genotype]
-            else:
-                resolutionInMicroMPerPixel = 1
-            calculateRelativeCompleteness(folderContent, resolutionInMicroMPerPixel=resolutionInMicroMPerPixel,
-                                         relativeCompletenessFilenameKey=relativeCompletenessFilenameKey)
+    for folderContent in multiFolderContent:
+        if not genotypeResolutionDict is None:
+            genotype = folderContent.GetGenotype()
+            assert genotype in genotypeResolutionDict, f"The {genotype=} is not present in the {genotypeResolutionDict=}"
+            resolutionInMicroMPerPixel = genotypeResolutionDict[genotype]
+        else:
+            resolutionInMicroMPerPixel = 1
+        calculateRelativeCompleteness(folderContent, resolutionInMicroMPerPixel=resolutionInMicroMPerPixel,
+                                      relativeCompletenessFilenameKey=relativeCompletenessFilenameKey)
         multiFolderContent.UpdateFolderContents()
 
 def mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculateMeasures=True, redoTriWayJunctionPositioning=False,
@@ -376,6 +371,7 @@ def mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculat
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     inputData = GetInputData()
     genotypeResolutionDict = GetResolutions()
+    calculateAndAddRelativeCompletenessOf(dataBaseFolder=dataBaseFolder, folderContentsName=folderContentsName, genotypeResolutionDict=genotypeResolutionDict)
     if reCalculateMeasures:
         createFolderContentsOfAllTissues(allFolderContentsFilename, inputData, genotypeResolutionDict, dataBaseFolder)
         createAllEasyReadableContoursAndSimpleTriWayJunctions(dataBaseFolder, allFolderContentsFilename)
@@ -387,12 +383,18 @@ def mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculat
             createGuardCellAdjacency(dataBaseFolder, allFolderContentsFilename)
             createRegularityMeasurements(allFolderContentsFilename, dataBaseFolder, genotypeResolutionDict=genotypeResolutionDict, ignoreGuardCells=True)
         createAreaAndDistanceMeasures(allFolderContentsFilename, dataBaseFolder, useGeometricData=False)
+        calculateAndAddRelativeCompletenessOf(dataBaseFolder=dataBaseFolder, folderContentsName=folderContentsName, genotypeResolutionDict=genotypeResolutionDict)
+        calculateAndAddLobynessOf(dataBaseFolder=dataBaseFolder, folderContentsName=folderContentsName, genotypeResolutionDict=genotypeResolutionDict)
+    loadMeasuresFromFilenameUsingKeys = ["regularityMeasuresFilename", "areaMeasuresPerCell", "relativeCompleteness", "lobyness"]
     if checkWithoutGuardCellAdjacency:
-        loadMeasuresFromFilenameUsingKeys = ["regularityMeasuresFilename", "regularityMeasuresFilename_ignoringGuardCells", "areaMeasuresPerCell"]
-    else:
-        loadMeasuresFromFilenameUsingKeys = ["regularityMeasuresFilename", "areaMeasuresPerCell"]
-    createResultMeasureTable(allFolderContentsFilename, resultsFolder, loadMeasuresFromFilenameUsingKeys=loadMeasuresFromFilenameUsingKeys)
+        loadMeasuresFromFilenameUsingKeys.insert(1, "regularityMeasuresFilename_ignoringGuardCells")
+    createResultMeasureTable(allFolderContentsFilename, resultsFolder, loadMeasuresFromFilenameUsingKeys=loadMeasuresFromFilenameUsingKeys, nonNestedKeys=["relativeCompleteness", "lobyness"])
     addRatioMeasuresToTable(resultsFolder, scenarioName)
+    # if checkWithoutGuardCellAdjacency:
+    #     addRatioMeasuresToTable(resultsFolder, scenarioName=scenarioName, doDifference=True,
+    #                             ratioBetween=[["angleGiniCoeff_ignoringGuardCells", "angleGiniCoeff"],
+    #                                           ["lengthGiniCoeff_ignoringGuardCells", "lengthGiniCoeff"]],
+    #                             ratioNamePrefix="diff_", ratioSeperatorName="_-_")
 
 def mainCalculateOnNewCotyledons(scenarioName: str = "full cotyledons", reCalculateMeasures: bool = True,
                                  tissueIdentifier: list = [["WT", '20200220 WT S1', '120h'], ["WT", '20200221 WT S2', '120h'], ["WT", '20200221 WT S3', '120h'], ["WT", '20200221 WT S5', '120h']],
@@ -432,6 +434,11 @@ def mainCalculateOnNewCotyledons(scenarioName: str = "full cotyledons", reCalcul
     createResultMeasureTable(allFolderContentsFilename, resultsFolder, includeCellId=False, scenarioName=specificContentsName,
                              loadMeasuresFromFilenameUsingKeys=loadMeasuresFromFilenameUsingKeys)
     addRatioMeasuresToTable(resultsFolder, scenarioName=specificContentsName)
+    # if checkWithoutGuardCellAdjacency:
+    #     addRatioMeasuresToTable(resultsFolder, scenarioName=specificContentsName, doDifference=True,
+    #                             ratioBetween=[["angleGiniCoeff_ignoringGuardCells", "angleGiniCoeff"],
+    #                                           ["lengthGiniCoeff_ignoringGuardCells", "lengthGiniCoeff"]],
+    #                             ratioNamePrefix="diff_", ratioSeperatorName="_-_")
 
 def mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True):
     dataBaseFolder = f"Images/{scenarioName}/"
@@ -446,21 +453,35 @@ def mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True):
     createResultMeasureTable(allFolderContentsFilename, resultsFolder, loadMeasuresFromFilenameUsingKeys=["regularityMeasuresFilename", "areaMeasuresPerCell"], includeCellId=False)
     addRatioMeasuresToTable(resultsFolder, scenarioName)
 
+def addDiffToMeanBetweenTables(applyToTable: str, getMeanFromTable: str, selectedColumns: list = ["angleGiniCoeff", "lengthGiniCoeff"],
+                               columnPrefix: str = "diff to Other mean_"):
+    table = pd.read_csv(applyToTable)
+    meanGivingTable = pd.read_csv(getMeanFromTable)
+    assert np.all(np.isin(selectedColumns, table.columns)), f"The columns {selectedColumns} are not present in the tables {applyToTable} columns: {table.columns}"
+    assert np.all(np.isin(selectedColumns, meanGivingTable.columns)), f"The columns {selectedColumns} are not present in the tables {getMeanFromTable} columns: {meanGivingTable.columns}"
+    means = meanGivingTable[selectedColumns].mean(axis=0)
+    newColumnNames = [columnPrefix + i for i in selectedColumns]
+    table[newColumnNames] = table[selectedColumns] - means
+    table.to_csv(applyToTable, index=False)
+
 if __name__== "__main__":
-    speechlessTissueIdentifier = [["WT_4dag", "20210712_XVE_5_0_A_merged_Region1", "96h"],
-                                  ["WT_4dag", "20210712_XVE_5_0_A_merged_Region2", "96h"],
-                                  ["WT_4dag", "20210712_XVE_5_0_A_merged_Region3", "96h"],
-                                  ["speechless", "20210712_R1M001A", "96h"],
-                                  ["speechless", "20210712_R2M001A", "96h"],
-                                  ["speechless", "20210712_R5M001", "96h"],
-                                 ]
-    kwargs = {"createContents": {"geometricTableBaseName": "_geometricData.csv",
-                                 "plyContourNameExtension": "_outlines.ply",
-                                 "removeSmallCellsPerGenotype": {"WT_4dag": True, "speechless": False}}}
-    mainCalculateOnNewCotyledons(scenarioName="Smit2023Cotyledons",
-                                 reCalculateMeasures=True, tissueIdentifier=speechlessTissueIdentifier,
-                                 checkWithoutGuardCellAdjacency=True, actuallyCreateGuardCellAdjacency={"WT_4dag": True, "speechless": False}, **kwargs)
-    mainCalculateOnNewCotyledons(scenarioName="full cotyledons", reCalculateMeasures=True, checkWithoutGuardCellAdjacency=True)
-    mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculateMeasures=True, checkWithoutGuardCellAdjacency=True)
-    mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True)
+    # speechlessTissueIdentifier = [["WT_4dag", "20210712_XVE_5_0_A_merged_Region1", "96h"],
+    #                               ["WT_4dag", "20210712_XVE_5_0_A_merged_Region2", "96h"],
+    #                               ["WT_4dag", "20210712_XVE_5_0_A_merged_Region3", "96h"],
+    #                               ["speechless", "20210712_R1M001A", "96h"],
+    #                               ["speechless", "20210712_R2M001A", "96h"],
+    #                               ["speechless", "20210712_R5M001", "96h"],
+    #                              ]
+    # kwargs = {"createContents": {"geometricTableBaseName": "_geometricData.csv",
+    #                              "plyContourNameExtension": "_outlines.ply",
+    #                              "removeSmallCellsPerGenotype": {"WT_4dag": True, "speechless": False},
+    #                              }
+    #           }
+    # mainCalculateOnNewCotyledons(scenarioName="Smit2023Cotyledons",
+    #                              reCalculateMeasures=True, tissueIdentifier=speechlessTissueIdentifier,
+    #                              checkWithoutGuardCellAdjacency=True, actuallyCreateGuardCellAdjacency={"WT_4dag": True, "speechless": False}, **kwargs)
+    # mainCalculateOnNewCotyledons(scenarioName="full cotyledons", reCalculateMeasures=True, checkWithoutGuardCellAdjacency=True)
+    mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculateMeasures=False, checkWithoutGuardCellAdjacency=True)
+    # mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True)
+    # mainOnSAMMatz2022(scenarioName="YangData", reCalculateMeasures=True)
 
