@@ -289,14 +289,21 @@ class FolderContent (object):
             dataToSave = self.ensureSavabilityAsJson(dataToSave, recursiveLayer + 1)
         return dataToSave
 
-    def prettyDumpJson(self, obj: dict, filename: str, indent: int = 2, omitWarning: bool = False):
-        if not isinstance(obj, dict):
+    def prettyDumpJson(self, obj: list or dict, filename: str, indent: int = 2, omitWarning: bool = False):
+        convertedList = False
+        if isinstance(obj, list):
+            data_structure = []
+            for i in obj:
+                data_structure.append(self.recursiveDictNotImplementationDecision(i, depth=0))
+            convertedList = True
+        if not isinstance(obj, dict) and not convertedList:
             if not omitWarning:
                 warnings.warn(f"Warning: Pretty dumping json file with {filename=} is of type {type(obj)} != dict and therefore not made more pretty.")
             with open(filename, "w") as f:
                 json.dump(obj, f)
         else:
-            data_structure = self.recursiveDictNotImplementationDecision(obj, depth=0)
+            if not convertedList:
+                data_structure = self.recursiveDictNotImplementationDecision(obj, depth=0)
             prettyJsonFormattedObject = json.dumps(data_structure, cls=MyEncoder, indent=indent)
             with open(filename, "w") as f:
                 f.write(prettyJsonFormattedObject)
