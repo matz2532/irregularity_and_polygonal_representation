@@ -16,9 +16,14 @@ from shapely.geometry import LineString, LinearRing, base
 class OtherMeasuresCreator (object):
 
     pointList=None
+    additionalCellInfo: str = ""
 
-    def __init__(self, pointList=None):
+    def __init__(self, pointList=None, additionalCellInfo: str = ""):
         self.pointList = pointList
+        self.additionalCellInfo = additionalCellInfo
+
+    def SetAdditionalCellInfo(self, additionalCellInfo):
+        self.additionalCellInfo = additionalCellInfo
 
     def calcLobyness(self, pointList: list):
         perimeterOfConvexHull = convex_hull(Polygon(pointList)).length
@@ -29,22 +34,24 @@ class OtherMeasuresCreator (object):
     def calcRelativeCompletenessForOutlines(self, outlinesOfCells: dict, resolutionInDistancePerPixel: float = 1, additionalBoarder: np.ndarray = np.array([10,10])):
         labelledImage, imageToOriginalCellIdConverter = self.createLabelledImage(outlinesOfCells, additionalBoarder)
         relativeCompletenessOfCells = {}
+        visibilityGraphCalculator = VisGraph(runOnInit=False)
         for labelledImageCellId, originalCellId in imageToOriginalCellIdConverter.items():
-            visibilityGraph, cellContour, = VisGraph.create_visibility_graph(None, labelledImage, labelledImageCellId, resolutionInDistancePerPixel)
-            relativeCompleteness = VisGraph.compute_graph_complexity(None, visibilityGraph)
+            visibilityGraph, cellContour, = visibilityGraphCalculator.create_visibility_graph(labelledImage, labelledImageCellId, resolutionInDistancePerPixel)
+            assert visibilityGraph.number_of_nodes() != 0, f"The cell {labelledImageCellId} has no nodes when creating a visibility graph{' with the info: '+self.additionalCellInfo if self.additionalCellInfo else ''} with {len(cellContour)=}. "
+            relativeCompleteness = visibilityGraphCalculator.compute_graph_complexity(visibilityGraph)
             relativeCompletenessOfCells[originalCellId] = relativeCompleteness
         return relativeCompletenessOfCells
 
-    def createLabelledImage(self, outlinesOfCells, additionalBoarder: np.ndarray = np.array([10,10])):
+    def createLabelledImage(self, outlinesOfCells, additionalBoarder: int = 10):
         max = np.concatenate([np.max(contour, axis=0) for contour in outlinesOfCells.values()])
-        shape = np.max(max.reshape(len(max) // 2, 2), axis=0) + additionalBoarder
+        shape = np.max(max.reshape(len(max) // 2, 2), axis=0) + 2*additionalBoarder
         labelledImage = np.zeros(shape, dtype=int)
         markerImage = np.zeros(shape, dtype=int)
         imageToOriginalCellIdConverter = {}
         for imageCellId, (originalCellId, outline) in enumerate(outlinesOfCells.items()):
             imageCellId += 3  # to avoid having the background
             for x, y in outline:
-                labelledImage[x, y] = imageCellId
+                labelledImage[x + additionalBoarder//2, y + additionalBoarder//2] = imageCellId
             imageToOriginalCellIdConverter[imageCellId] = originalCellId
             midPoint = np.mean(outline, axis=0).astype(int)
             markerImage[midPoint[0], midPoint[1]] = imageCellId
