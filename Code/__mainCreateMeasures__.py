@@ -465,23 +465,23 @@ def addDiffToMeanBetweenTables(applyToTable: str, getMeanFromTable: str, selecte
     table.to_csv(applyToTable, index=False)
 
 if __name__== "__main__":
-    # speechlessTissueIdentifier = [["WT_4dag", "20210712_XVE_5_0_A_merged_Region1", "96h"],
-    #                               ["WT_4dag", "20210712_XVE_5_0_A_merged_Region2", "96h"],
-    #                               ["WT_4dag", "20210712_XVE_5_0_A_merged_Region3", "96h"],
-    #                               ["speechless", "20210712_R1M001A", "96h"],
-    #                               ["speechless", "20210712_R2M001A", "96h"],
-    #                               ["speechless", "20210712_R5M001", "96h"],
-    #                              ]
-    # kwargs = {"createContents": {"geometricTableBaseName": "_geometricData.csv",
-    #                              "plyContourNameExtension": "_outlines.ply",
-    #                              "removeSmallCellsPerGenotype": {"WT_4dag": True, "speechless": False},
-    #                              }
-    #           }
-    # mainCalculateOnNewCotyledons(scenarioName="Smit2023Cotyledons",
-    #                              reCalculateMeasures=True, tissueIdentifier=speechlessTissueIdentifier,
-    #                              checkWithoutGuardCellAdjacency=True, actuallyCreateGuardCellAdjacency={"WT_4dag": True, "speechless": False}, **kwargs)
+    speechlessTissueIdentifier = [["WT_4dag", "20210712_XVE_5_0_A_merged_Region1", "96h"],
+                                  ["WT_4dag", "20210712_XVE_5_0_A_merged_Region2", "96h"],
+                                  ["WT_4dag", "20210712_XVE_5_0_A_merged_Region3", "96h"],
+                                  ["speechless", "20210712_R1M001A", "96h"],
+                                  ["speechless", "20210712_R2M001A", "96h"],
+                                  ["speechless", "20210712_R5M001", "96h"],
+                                 ]
+    kwargs = {"createContents": {"geometricTableBaseName": "_geometricData.csv",
+                                 "plyContourNameExtension": "_outlines.ply",
+                                 "removeSmallCellsPerGenotype": {"WT_4dag": True, "speechless": False},
+                                 }
+              }
+    mainCalculateOnNewCotyledons(scenarioName="Smit2023Cotyledons",
+                                 reCalculateMeasures=False, tissueIdentifier=speechlessTissueIdentifier,
+                                 checkWithoutGuardCellAdjacency=True, actuallyCreateGuardCellAdjacency={"WT_4dag": True, "speechless": False}, **kwargs)
     # mainCalculateOnNewCotyledons(scenarioName="full cotyledons", reCalculateMeasures=True, checkWithoutGuardCellAdjacency=True)
-    mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculateMeasures=False, checkWithoutGuardCellAdjacency=True)
-    # mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True)
+    # mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculateMeasures=False, checkWithoutGuardCellAdjacency=True)
+    mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=False)
     # mainOnSAMMatz2022(scenarioName="YangData", reCalculateMeasures=True)
 
