@@ -1,0 +1,452 @@
+[
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P1",
+    "timePoint": "T0",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T0\\P1_T0_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T0\\P1_T0_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T0\\P1_T0_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T0\\P1_T0_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T0\\P1_T0_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T0\\P1_T0_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P1/T0/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P1/T0/P1_T0_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P1/T0/P1_T0_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P1/T0/P1_T0_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P1",
+    "timePoint": "T1",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T1\\P1_T1_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T1\\P1_T1_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T1\\P1_T1_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T1\\P1_T1_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T1\\P1_T1_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T1\\P1_T1_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P1/T1/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P1/T1/P1_T1_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P1/T1/P1_T1_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P1/T1/P1_T1_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P1",
+    "timePoint": "T2",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T2\\P1_T2_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T2\\P1_T2_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T2\\P1_T2_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T2\\P1_T2_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T2\\P1_T2_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T2\\P1_T2_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P1/T2/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P1/T2/P1_T2_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P1/T2/P1_T2_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P1/T2/P1_T2_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P1",
+    "timePoint": "T3",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T3\\P1_T3_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T3\\P1_T3_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T3\\P1_T3_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T3\\P1_T3_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T3\\P1_T3_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T3\\P1_T3_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P1/T3/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P1/T3/P1_T3_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P1/T3/P1_T3_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P1/T3/P1_T3_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P1",
+    "timePoint": "T4",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T4\\P1_T4_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T4\\P1_T4_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T4\\P1_T4_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T4\\P1_T4_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T4\\P1_T4_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P1\\T4\\P1_T4_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P1/T4/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P1/T4/P1_T4_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P1/T4/P1_T4_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P1/T4/P1_T4_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P2",
+    "timePoint": "T0",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T0\\P2_T0_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T0\\P2_T0_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T0\\P2_T0_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T0\\P2_T0_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T0\\P2_T0_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T0\\P2_T0_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P2/T0/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P2/T0/P2_T0_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P2/T0/P2_T0_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P2/T0/P2_T0_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P2",
+    "timePoint": "T1",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T1\\P2_T1_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T1\\P2_T1_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T1\\P2_T1_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T1\\P2_T1_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T1\\P2_T1_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T1\\P2_T1_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P2/T1/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P2/T1/P2_T1_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P2/T1/P2_T1_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P2/T1/P2_T1_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P2",
+    "timePoint": "T2",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T2\\P2_T2_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T2\\P2_T2_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T2\\P2_T2_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T2\\P2_T2_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T2\\P2_T2_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T2\\P2_T2_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P2/T2/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P2/T2/P2_T2_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P2/T2/P2_T2_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P2/T2/P2_T2_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P2",
+    "timePoint": "T3",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T3\\P2_T3_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T3\\P2_T3_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T3\\P2_T3_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T3\\P2_T3_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T3\\P2_T3_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T3\\P2_T3_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P2/T3/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P2/T3/P2_T3_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P2/T3/P2_T3_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P2/T3/P2_T3_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P2",
+    "timePoint": "T4",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T4\\P2_T4_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T4\\P2_T4_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T4\\P2_T4_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T4\\P2_T4_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T4\\P2_T4_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P2\\T4\\P2_T4_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P2/T4/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P2/T4/P2_T4_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P2/T4/P2_T4_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P2/T4/P2_T4_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P5",
+    "timePoint": "T0",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T0\\P5_T0_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T0\\P5_T0_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T0\\P5_T0_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T0\\P5_T0_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T0\\P5_T0_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T0\\P5_T0_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P5/T0/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P5/T0/P5_T0_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P5/T0/P5_T0_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P5/T0/P5_T0_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P5",
+    "timePoint": "T1",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T1\\P5_T1_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T1\\P5_T1_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T1\\P5_T1_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T1\\P5_T1_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T1\\P5_T1_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T1\\P5_T1_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P5/T1/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P5/T1/P5_T1_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P5/T1/P5_T1_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P5/T1/P5_T1_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P5",
+    "timePoint": "T2",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T2\\P5_T2_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T2\\P5_T2_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T2\\P5_T2_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T2\\P5_T2_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T2\\P5_T2_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T2\\P5_T2_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P5/T2/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P5/T2/P5_T2_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P5/T2/P5_T2_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P5/T2/P5_T2_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P5",
+    "timePoint": "T3",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T3\\P5_T3_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T3\\P5_T3_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T3\\P5_T3_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T3\\P5_T3_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T3\\P5_T3_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T3\\P5_T3_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P5/T3/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P5/T3/P5_T3_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P5/T3/P5_T3_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P5/T3/P5_T3_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P5",
+    "timePoint": "T4",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T4\\P5_T4_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T4\\P5_T4_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T4\\P5_T4_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T4\\P5_T4_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T4\\P5_T4_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P5\\T4\\P5_T4_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P5/T4/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P5/T4/P5_T4_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P5/T4/P5_T4_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P5/T4/P5_T4_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P6",
+    "timePoint": "T0",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T0\\P6_T0_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T0\\P6_T0_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T0\\P6_T0_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T0\\P6_T0_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T0\\P6_T0_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T0\\P6_T0_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P6/T0/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P6/T0/P6_T0_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P6/T0/P6_T0_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P6/T0/P6_T0_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P6",
+    "timePoint": "T1",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T1\\P6_T1_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T1\\P6_T1_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T1\\P6_T1_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T1\\P6_T1_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T1\\P6_T1_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T1\\P6_T1_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P6/T1/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P6/T1/P6_T1_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P6/T1/P6_T1_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P6/T1/P6_T1_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P6",
+    "timePoint": "T2",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T2\\P6_T2_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T2\\P6_T2_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T2\\P6_T2_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T2\\P6_T2_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T2\\P6_T2_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T2\\P6_T2_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P6/T2/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P6/T2/P6_T2_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P6/T2/P6_T2_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P6/T2/P6_T2_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P6",
+    "timePoint": "T3",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T3\\P6_T3_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T3\\P6_T3_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T3\\P6_T3_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T3\\P6_T3_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T3\\P6_T3_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T3\\P6_T3_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P6/T3/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P6/T3/P6_T3_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P6/T3/P6_T3_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P6/T3/P6_T3_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P6",
+    "timePoint": "T4",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T4\\P6_T4_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T4\\P6_T4_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T4\\P6_T4_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T4\\P6_T4_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T4\\P6_T4_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P6\\T4\\P6_T4_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P6/T4/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P6/T4/P6_T4_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P6/T4/P6_T4_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P6/T4/P6_T4_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P8",
+    "timePoint": "T0",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T0\\P8_T0_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T0\\P8_T0_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T0\\P8_T0_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T0\\P8_T0_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T0\\P8_T0_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T0\\P8_T0_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P8/T0/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P8/T0/P8_T0_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P8/T0/P8_T0_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P8/T0/P8_T0_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P8",
+    "timePoint": "T1",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T1\\P8_T1_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T1\\P8_T1_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T1\\P8_T1_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T1\\P8_T1_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T1\\P8_T1_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T1\\P8_T1_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P8/T1/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P8/T1/P8_T1_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P8/T1/P8_T1_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P8/T1/P8_T1_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P8",
+    "timePoint": "T2",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T2\\P8_T2_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T2\\P8_T2_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T2\\P8_T2_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T2\\P8_T2_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T2\\P8_T2_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T2\\P8_T2_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P8/T2/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P8/T2/P8_T2_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P8/T2/P8_T2_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P8/T2/P8_T2_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P8",
+    "timePoint": "T3",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T3\\P8_T3_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T3\\P8_T3_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T3\\P8_T3_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T3\\P8_T3_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T3\\P8_T3_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T3\\P8_T3_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P8/T3/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P8/T3/P8_T3_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P8/T3/P8_T3_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P8/T3/P8_T3_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT inflorescence meristem",
+    "replicateId": "P8",
+    "timePoint": "T4",
+    "filenameDict": {
+      "geometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T4\\P8_T4_geometricData.csv",
+      "polygonalGeometricData": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T4\\P8_T4_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T4\\P8_T4_adjacencyList.json",
+      "cellType": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T4\\P8_T4_cellTypes.json",
+      "orderedJunctionsPerCellFilename": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T4\\P8_T4_orderedJunctionsPerCell.pkl",
+      "cellContours": "Images\\Matz2022SAM\\WT inflorescence meristem\\P8\\T4\\P8_T4_cellContour.pkl",
+      "regularityMeasuresFilename": "Images/Matz2022SAM/WT inflorescence meristem/P8/T4/regularityMeasures.json",
+      "areaMeasuresPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P8/T4/P8_T4_areaMeasuresPerCell.pkl",
+      "geometricCentersPerCell": "Images/Matz2022SAM/WT inflorescence meristem/P8/T4/P8_T4_geometricCentersPerCell.json",
+      "neighborDistance": "Images/Matz2022SAM/WT inflorescence meristem/P8/T4/P8_T4_neighborDistance.csv"
+    },
+    "extractedFilesDict": {}
+  }
+]

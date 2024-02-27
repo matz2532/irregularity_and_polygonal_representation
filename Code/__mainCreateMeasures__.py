@@ -367,7 +367,7 @@ def mainCalculateOnEng2021Cotyledon(scenarioName="Eng2021Cotyledons", reCalculat
     from InputData import GetInputData, GetResolutions
     dataBaseFolder = f"Images/{scenarioName}/"
     resultsFolder = "Results/"
-    folderContentsName = f"{scenarioName}.pkl"
+    folderContentsName = f"{scenarioName}.json"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     inputData = GetInputData()
     genotypeResolutionDict = GetResolutions()
@@ -403,7 +403,7 @@ def mainCalculateOnNewCotyledons(scenarioName: str = "full cotyledons", reCalcul
         specificContentsName = scenarioName
     dataBaseFolder = f"Images/{scenarioName}/"
     resultsFolder = "Results/"
-    allFolderContentsFilename = f"{dataBaseFolder}{specificContentsName}.pkl"
+    allFolderContentsFilename = f"{dataBaseFolder}{specificContentsName}.json"
     if "createContents" in kwargs:
         createContentsKwargs = kwargs["createContents"]
     else:
@@ -443,7 +443,7 @@ def mainCalculateOnNewCotyledons(scenarioName: str = "full cotyledons", reCalcul
 def mainOnSAMMatz2022(scenarioName="Matz2022SAM", reCalculateMeasures=True):
     dataBaseFolder = f"Images/{scenarioName}/"
     resultsFolder = "Results/"
-    allFolderContentsFilename = f"{dataBaseFolder}{scenarioName}.pkl"
+    allFolderContentsFilename = f"{dataBaseFolder}{scenarioName}.json"
     if reCalculateMeasures:
         mainInitalizeSAMDataAddingContoursAndJunctions(dataBaseFolder)
         addGeometricDataFilenameAndKey(allFolderContentsFilename, seperator="_", geometricTableBaseName="{}_geometricData.csv", polygonGeometricTableBaseName="{}_geometricData poly.csv")

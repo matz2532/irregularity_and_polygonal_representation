@@ -15,25 +15,15 @@ class MultiFolderContent:
     verbose=1
     allFolderContents=None
 
-    def __init__(self, allFolderContentsFilename=None, rawFolderContents=None, resetFolderContent=False):
+    def __init__(self, allFolderContentsFilename: str or Path = None, rawFolderContents: list = None, resetFolderContent: bool = False):
         self.allFolderContentsFilename = allFolderContentsFilename
         if resetFolderContent:
             self.ResetFolderContents()
         elif not rawFolderContents is None:
             self.rawFolderContents = rawFolderContents
-            typeOfRawFolderContent = [type(i) for i in self.rawFolderContents]
-            isAllwoedType = np.isin(typeOfRawFolderContent, [dict, FolderContent])
-            assert np.all(isAllwoedType), f"The raw folder contents need to be of type 'dict' or 'FolderContent', but are of type {typeOfRawFolderContent}"
-            self.allFolderContents = np.array([i if type(i) == FolderContent else FolderContent(i)  for i in self.rawFolderContents])
+            self.allFolderContents = self.ConvertRawToProcessedFolderContents(self.rawFolderContents)
         elif not self.allFolderContentsFilename is None:
-            if Path(self.allFolderContentsFilename).is_file():
-                with open(self.allFolderContentsFilename, 'rb') as fh:
-                    self.rawFolderContents = pickle.load(fh)
-                self.allFolderContents = np.asarray([FolderContent(i) for i in self.rawFolderContents])
-            else:
-                self.ResetFolderContents()
-                if self.verbose >= 1:
-                    print("There was no file under {}, so MultiFolderContent was initialised empty.".format(self.allFolderContentsFilename))
+            self.LoadFolderContentsFromFilename(self.allFolderContentsFilename)
         else:
             self.ResetFolderContents()
             if self.verbose >= 1:
@@ -55,6 +45,28 @@ class MultiFolderContent:
         for folderContent in self.allFolderContents:
              text += str(folderContent)
         return text
+
+    def ResetFolderContents(self):
+        self.rawFolderContents = []
+        self.allFolderContents = np.asarray([], dtype=FolderContent)
+
+    def ConvertRawToProcessedFolderContents(self, rawFolderContents: list or np.ndarray):
+        typeOfRawFolderContent = [type(i) for i in rawFolderContents]
+        isAllowedType = np.isin(typeOfRawFolderContent, [dict, FolderContent])
+        assert np.all(isAllowedType), f"The raw folder contents need to be of type 'dict' or 'FolderContent', but are of type {typeOfRawFolderContent}"
+        allFolderContents = np.array([i if type(i) == FolderContent else FolderContent(i) for i in rawFolderContents])
+        return allFolderContents
+
+    def LoadFolderContentsFromFilename(self, allFolderContentsFilename: str):
+        if Path(allFolderContentsFilename).is_file():
+            self.allFolderContentsFilename = allFolderContentsFilename
+            self.rawFolderContents = FolderContent().loadFile(allFolderContentsFilename, convertDictKeysToInt=False, convertDictValuesToNpArray=False, convertNestedDictKeysToInt=False)
+            self.allFolderContents = self.ConvertRawToProcessedFolderContents(self.rawFolderContents)
+        else:
+            print("There was no file under {}, so MultiFolderContent was initialised empty.".format(allFolderContentsFilename))
+            self.ResetFolderContents()
+            if self.verbose >= 1:
+                    pass
 
     def AddDataFromFilenameContainingMultipleDicts(self, extractDataFromFilenameUsingKey, returnIndividualKeysAdded=False, nonNestedKeys: list = []):
         individualDataKeys = []
@@ -202,9 +214,33 @@ class MultiFolderContent:
         self.rawFolderContents = []
         self.allFolderContents = np.asarray([], dtype=FolderContent)
 
-    def SaveFolderContents(self, filename):
-        with open(filename, 'wb') as fh:
-            pickle.dump(self.rawFolderContents, fh)
+    def SaveFolderContents(self, saveToFilename: str or Path):
+        if len(self.rawFolderContents) > 0:
+            implementedSuffixes = (".pkl", ".json")
+            suffix = Path(saveToFilename).suffix
+            assert suffix in implementedSuffixes, f"The {suffix=} is not present in the implemented suffixes {implementedSuffixes} for the filename {saveToFilename}"
+            if suffix == ".pkl":
+                with open(saveToFilename, "wb") as fh:
+                    pickle.dump(self.rawFolderContents, fh)
+            elif suffix == ".json":
+                self.SaveFolderContentsAsJson(saveToFilename)
+        else:
+            print(f"The multiFolderContent is empty and could not be saved under {saveToFilename}. It originating from {self.allFolderContentsFilename=}")
+
+    def SaveFolderContentsAsJson(self, saveToFilename: str or Path):
+        rawContentsToSave = []
+        dummyContent = FolderContent()
+        for i, rawContent in enumerate(self.rawFolderContents):
+            jsonCompatibleFolderContent = None
+            if isinstance(rawContent, dict):
+                jsonCompatibleFolderContent = dummyContent.ensureSavabilityAsJson(rawContent)
+            elif isinstance(rawContent, FolderContent):
+                jsonCompatibleFolderContent = dummyContent.ensureSavabilityAsJson(rawContent.GetFolderContent())
+            else:
+                print(f"Could not save {i}th folder content as it is not of type dict or FolderContent != {type(rawContent)}\nrawContent:\n{rawContent}")
+            if jsonCompatibleFolderContent is not None:
+                rawContentsToSave.append(jsonCompatibleFolderContent)
+        dummyContent.prettyDumpJson(rawContentsToSave, saveToFilename)
 
     def GetDataOfTimePointWithKey(self, timePoint, complexityKey, pooled=False):
         contentsOfTimePoint = self.GetFolderContentsOfTimePoint(timePoint)
@@ -470,6 +506,14 @@ def mainRemoveDuplicateMultiFolderContents(folderContensFilename="Images/full co
         multiFolderContent.RemoveFolderContentAt(idx)
     multiFolderContent.UpdateFolderContents()
 
+def convertPickleToHumanReadableJsonMultiFolderContent():
+    folderContentFilenamesToChange = ["Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl", "Images/Matz2022SAM/Matz2022SAM.pkl", "Images/Smit2023Cotyledons/Smit2023Cotyledons.pkl"]
+    for folderContentsFilename in folderContentFilenamesToChange:
+        multiFolderContent = MultiFolderContent(folderContentsFilename)
+        filenameToSave = folderContentsFilename.replace(".pkl", ".json")
+        multiFolderContent.SaveFolderContents(filenameToSave)
+
 if __name__ == '__main__':
-    main()
-    mainRemoveDuplicateMultiFolderContents()
+    # main()
+    # mainRemoveDuplicateMultiFolderContents()
+    convertPickleToHumanReadableJsonMultiFolderContent()

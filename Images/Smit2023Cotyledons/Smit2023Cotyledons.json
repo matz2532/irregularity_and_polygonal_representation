@@ -1,0 +1,125 @@
+[
+  {
+    "genotype": "WT_4dag",
+    "replicateId": "20210712_XVE_5_0_A_merged_Region1",
+    "timePoint": "96h",
+    "filenameDict": {
+      "geometricData": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region1\\20210712_XVE_5_0_A_merged_Region1_geometricData.csv",
+      "polygonalGeometricData": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region1\\20210712_XVE_5_0_A_merged_Region1_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region1\\20210712_XVE_5_0_A_merged_Region1_adjacencyList.json",
+      "cellType": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region1\\20210712_XVE_5_0_A_merged_Region1_cellTypes.json",
+      "orderedJunctionsPerCellFilename_withAllCells": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region1\\20210712_XVE_5_0_A_merged_Region1_orderedJunctionsPerCell_withAllCells.json",
+      "orderedJunctionsPerCellFilename": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region1\\20210712_XVE_5_0_A_merged_Region1_orderedJunctionsPerCell.json",
+      "cellContours_withAllCells": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region1\\20210712_XVE_5_0_A_merged_Region1_cellContour_withAllCells.json",
+      "cellContours": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region1\\20210712_XVE_5_0_A_merged_Region1_cellContour.json",
+      "guardCellJunctionPositions": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region1\\20210712_XVE_5_0_A_merged_Region1_guardCellJunctionPositions.json",
+      "regularityMeasuresFilename": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region1/96h/regularityMeasures.json",
+      "isSegmentNeighboringGuardCell": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region1/96h/isSegmentNeighboringGuardCell.json",
+      "isAngleAtGuardCellJunction": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region1/96h/isAngleAtGuardCellJunction.json",
+      "regularityMeasuresFilename_ignoringGuardCells": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region1/96h/regularityMeasures_ignoringGuardCells.json",
+      "areaMeasuresPerCell": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region1/96h/20210712_XVE_5_0_A_merged_Region1_96h_areaMeasuresPerCell.json"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT_4dag",
+    "replicateId": "20210712_XVE_5_0_A_merged_Region2",
+    "timePoint": "96h",
+    "filenameDict": {
+      "geometricData": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region2\\20210712_XVE_5_0_A_merged_Region2_geometricData.csv",
+      "polygonalGeometricData": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region2\\20210712_XVE_5_0_A_merged_Region2_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region2\\20210712_XVE_5_0_A_merged_Region2_adjacencyList.json",
+      "cellType": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region2\\20210712_XVE_5_0_A_merged_Region2_cellTypes.json",
+      "orderedJunctionsPerCellFilename_withAllCells": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region2\\20210712_XVE_5_0_A_merged_Region2_orderedJunctionsPerCell_withAllCells.json",
+      "orderedJunctionsPerCellFilename": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region2\\20210712_XVE_5_0_A_merged_Region2_orderedJunctionsPerCell.json",
+      "cellContours_withAllCells": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region2\\20210712_XVE_5_0_A_merged_Region2_cellContour_withAllCells.json",
+      "cellContours": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region2\\20210712_XVE_5_0_A_merged_Region2_cellContour.json",
+      "guardCellJunctionPositions": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region2\\20210712_XVE_5_0_A_merged_Region2_guardCellJunctionPositions.json",
+      "regularityMeasuresFilename": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region2/96h/regularityMeasures.json",
+      "isSegmentNeighboringGuardCell": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region2/96h/isSegmentNeighboringGuardCell.json",
+      "isAngleAtGuardCellJunction": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region2/96h/isAngleAtGuardCellJunction.json",
+      "regularityMeasuresFilename_ignoringGuardCells": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region2/96h/regularityMeasures_ignoringGuardCells.json",
+      "areaMeasuresPerCell": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region2/96h/20210712_XVE_5_0_A_merged_Region2_96h_areaMeasuresPerCell.json"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "WT_4dag",
+    "replicateId": "20210712_XVE_5_0_A_merged_Region3",
+    "timePoint": "96h",
+    "filenameDict": {
+      "geometricData": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region3\\20210712_XVE_5_0_A_merged_Region3_geometricData.csv",
+      "polygonalGeometricData": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region3\\20210712_XVE_5_0_A_merged_Region3_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region3\\20210712_XVE_5_0_A_merged_Region3_adjacencyList.json",
+      "cellType": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region3\\20210712_XVE_5_0_A_merged_Region3_cellTypes.json",
+      "orderedJunctionsPerCellFilename_withAllCells": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region3\\20210712_XVE_5_0_A_merged_Region3_orderedJunctionsPerCell_withAllCells.json",
+      "orderedJunctionsPerCellFilename": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region3\\20210712_XVE_5_0_A_merged_Region3_orderedJunctionsPerCell.json",
+      "cellContours_withAllCells": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region3\\20210712_XVE_5_0_A_merged_Region3_cellContour_withAllCells.json",
+      "cellContours": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region3\\20210712_XVE_5_0_A_merged_Region3_cellContour.json",
+      "guardCellJunctionPositions": "Images\\Smit2023Cotyledons\\WT_4dag\\20210712_XVE_5_0_A_merged_Region3\\20210712_XVE_5_0_A_merged_Region3_guardCellJunctionPositions.json",
+      "regularityMeasuresFilename": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region3/96h/regularityMeasures.json",
+      "isSegmentNeighboringGuardCell": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region3/96h/isSegmentNeighboringGuardCell.json",
+      "isAngleAtGuardCellJunction": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region3/96h/isAngleAtGuardCellJunction.json",
+      "regularityMeasuresFilename_ignoringGuardCells": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region3/96h/regularityMeasures_ignoringGuardCells.json",
+      "areaMeasuresPerCell": "Images/Smit2023Cotyledons/WT_4dag/20210712_XVE_5_0_A_merged_Region3/96h/20210712_XVE_5_0_A_merged_Region3_96h_areaMeasuresPerCell.json"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "speechless",
+    "replicateId": "20210712_R1M001A",
+    "timePoint": "96h",
+    "filenameDict": {
+      "geometricData": "Images\\Smit2023Cotyledons\\speechless\\20210712_R1M001A\\20210712_R1M001A_geometricData.csv",
+      "polygonalGeometricData": "Images\\Smit2023Cotyledons\\speechless\\20210712_R1M001A\\20210712_R1M001A_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Smit2023Cotyledons\\speechless\\20210712_R1M001A\\20210712_R1M001A_adjacencyList.json",
+      "cellType": "Images\\Smit2023Cotyledons\\speechless\\20210712_R1M001A\\20210712_R1M001A_cellTypes.json",
+      "orderedJunctionsPerCellFilename_withAllCells": "Images\\Smit2023Cotyledons\\speechless\\20210712_R1M001A\\20210712_R1M001A_orderedJunctionsPerCell_withAllCells.json",
+      "orderedJunctionsPerCellFilename": "Images\\Smit2023Cotyledons\\speechless\\20210712_R1M001A\\20210712_R1M001A_orderedJunctionsPerCell.json",
+      "cellContours_withAllCells": "Images\\Smit2023Cotyledons\\speechless\\20210712_R1M001A\\20210712_R1M001A_cellContour_withAllCells.json",
+      "cellContours": "Images\\Smit2023Cotyledons\\speechless\\20210712_R1M001A\\20210712_R1M001A_cellContour.json",
+      "regularityMeasuresFilename": "Images/Smit2023Cotyledons/speechless/20210712_R1M001A/96h/regularityMeasures.json",
+      "regularityMeasuresFilename_ignoringGuardCells": "Images/Smit2023Cotyledons/speechless/20210712_R1M001A/96h/regularityMeasures_ignoringGuardCells.json",
+      "areaMeasuresPerCell": "Images/Smit2023Cotyledons/speechless/20210712_R1M001A/96h/20210712_R1M001A_96h_areaMeasuresPerCell.json"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "speechless",
+    "replicateId": "20210712_R2M001A",
+    "timePoint": "96h",
+    "filenameDict": {
+      "geometricData": "Images\\Smit2023Cotyledons\\speechless\\20210712_R2M001A\\20210712_R2M001A_geometricData.csv",
+      "polygonalGeometricData": "Images\\Smit2023Cotyledons\\speechless\\20210712_R2M001A\\20210712_R2M001A_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Smit2023Cotyledons\\speechless\\20210712_R2M001A\\20210712_R2M001A_adjacencyList.json",
+      "cellType": "Images\\Smit2023Cotyledons\\speechless\\20210712_R2M001A\\20210712_R2M001A_cellTypes.json",
+      "orderedJunctionsPerCellFilename_withAllCells": "Images\\Smit2023Cotyledons\\speechless\\20210712_R2M001A\\20210712_R2M001A_orderedJunctionsPerCell_withAllCells.json",
+      "orderedJunctionsPerCellFilename": "Images\\Smit2023Cotyledons\\speechless\\20210712_R2M001A\\20210712_R2M001A_orderedJunctionsPerCell.json",
+      "cellContours_withAllCells": "Images\\Smit2023Cotyledons\\speechless\\20210712_R2M001A\\20210712_R2M001A_cellContour_withAllCells.json",
+      "cellContours": "Images\\Smit2023Cotyledons\\speechless\\20210712_R2M001A\\20210712_R2M001A_cellContour.json",
+      "regularityMeasuresFilename": "Images/Smit2023Cotyledons/speechless/20210712_R2M001A/96h/regularityMeasures.json",
+      "regularityMeasuresFilename_ignoringGuardCells": "Images/Smit2023Cotyledons/speechless/20210712_R2M001A/96h/regularityMeasures_ignoringGuardCells.json",
+      "areaMeasuresPerCell": "Images/Smit2023Cotyledons/speechless/20210712_R2M001A/96h/20210712_R2M001A_96h_areaMeasuresPerCell.json"
+    },
+    "extractedFilesDict": {}
+  },
+  {
+    "genotype": "speechless",
+    "replicateId": "20210712_R5M001",
+    "timePoint": "96h",
+    "filenameDict": {
+      "geometricData": "Images\\Smit2023Cotyledons\\speechless\\20210712_R5M001\\20210712_R5M001_geometricData.csv",
+      "polygonalGeometricData": "Images\\Smit2023Cotyledons\\speechless\\20210712_R5M001\\20210712_R5M001_geometricData poly.csv",
+      "labelledImageAdjacencyList": "Images\\Smit2023Cotyledons\\speechless\\20210712_R5M001\\20210712_R5M001_adjacencyList.json",
+      "cellType": "Images\\Smit2023Cotyledons\\speechless\\20210712_R5M001\\20210712_R5M001_cellTypes.json",
+      "orderedJunctionsPerCellFilename_withAllCells": "Images\\Smit2023Cotyledons\\speechless\\20210712_R5M001\\20210712_R5M001_orderedJunctionsPerCell_withAllCells.json",
+      "orderedJunctionsPerCellFilename": "Images\\Smit2023Cotyledons\\speechless\\20210712_R5M001\\20210712_R5M001_orderedJunctionsPerCell.json",
+      "cellContours_withAllCells": "Images\\Smit2023Cotyledons\\speechless\\20210712_R5M001\\20210712_R5M001_cellContour_withAllCells.json",
+      "cellContours": "Images\\Smit2023Cotyledons\\speechless\\20210712_R5M001\\20210712_R5M001_cellContour.json",
+      "regularityMeasuresFilename": "Images/Smit2023Cotyledons/speechless/20210712_R5M001/96h/regularityMeasures.json",
+      "regularityMeasuresFilename_ignoringGuardCells": "Images/Smit2023Cotyledons/speechless/20210712_R5M001/96h/regularityMeasures_ignoringGuardCells.json",
+      "areaMeasuresPerCell": "Images/Smit2023Cotyledons/speechless/20210712_R5M001/96h/20210712_R5M001_96h_areaMeasuresPerCell.json"
+    },
+    "extractedFilesDict": {}
+  }
+]
