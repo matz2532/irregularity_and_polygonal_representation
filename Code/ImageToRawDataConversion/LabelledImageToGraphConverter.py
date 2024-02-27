@@ -114,7 +114,7 @@ def main():
     import networkx as nx
     from MultiFolderContent import MultiFolderContent
     dataBaseFolder = "Images/"
-    folderContentsName = "Eng2021Cotyledons.pkl"
+    folderContentsName = "Eng2021Cotyledons.json"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
     contourDict = list(multiFolderContent)[0].LoadKeyUsingFilenameDict("cellContours", convertDictKeysToInt=True, convertDictValuesToNpArray=True)

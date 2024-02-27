@@ -457,7 +457,7 @@ def convertFilenameDictPathsToStrings(allFolderContentsFilename):
     myMultiFolderContent.UpdateFolderContents()
 
 def main():
-    allFolderContentsFilename = "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"
+    allFolderContentsFilename = "Images/Eng2021Cotyledons/Eng2021Cotyledons.json"
     myMultiFolderContent = MultiFolderContent(allFolderContentsFilename)
     print(myMultiFolderContent)
     selectedReplicateId = "20170501 WT S2"
@@ -472,7 +472,7 @@ def mainCreateAndAddAdjacencyList():
     adjacencyListNameExtension = "{}{}_adjacencyList.json"
     adjacencyListFilenameKey = "labelledImageAdjacencyList"
     graphBaseName = "cellularConnectivityNetwork{}{}.csv"
-    allFolderContentsFilename = "Images/Matz2022SAM.pkl"
+    allFolderContentsFilename = "Images/Matz2022SAM.json"
     baseFolder = "Images/Matz2022SAM/"
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
     for folderContent in multiFolderContent:
@@ -507,7 +507,7 @@ def mainRemoveDuplicateMultiFolderContents(folderContensFilename="Images/full co
     multiFolderContent.UpdateFolderContents()
 
 def convertPickleToHumanReadableJsonMultiFolderContent():
-    folderContentFilenamesToChange = ["Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl", "Images/Matz2022SAM/Matz2022SAM.pkl", "Images/Smit2023Cotyledons/Smit2023Cotyledons.pkl"]
+    folderContentFilenamesToChange = ["Images/Eng2021Cotyledons/Eng2021Cotyledons.json", "Images/Matz2022SAM/Matz2022SAM.json", "Images/Smit2023Cotyledons/Smit2023Cotyledons.json"]
     for folderContentsFilename in folderContentFilenamesToChange:
         multiFolderContent = MultiFolderContent(folderContentsFilename)
         filenameToSave = folderContentsFilename.replace(".pkl", ".json")

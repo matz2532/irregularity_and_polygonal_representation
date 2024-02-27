@@ -340,7 +340,7 @@ def plotScaleComparison(plotterClass, individualCellsTable, allRegularityMeasure
 def visualiseRealExampleScales():
     dataBaseFolder = "Images/Eng2021Cotyledons/"
     resultsFolder = "Results/"
-    folderContentsName = "Eng2021Cotyledons.pkl"
+    folderContentsName = "Eng2021Cotyledons.json"
     tableBaseName = "combinedMeasures_Eng2021Cotyledons.csv"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     resultsTableFilename = resultsFolder + tableBaseName
@@ -362,7 +362,7 @@ def mainGoThroughOneByOne():
     import matplotlib.pyplot as plt
     dataBaseFolder = "Images/Eng2021Cotyledons/"
     resultsFolder = "Results/"
-    folderContentsName = "Eng2021Cotyledons.pkl"
+    folderContentsName = "Eng2021Cotyledons.json"
     tableBaseName = "combinedMeasures_Eng2021Cotyledons.csv"
     defaultOrderedJunctionsEdgeColor = "#0072b2ff"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
@@ -401,7 +401,7 @@ def mainGoThroughOneByOne():
 def main():
     dataBaseFolder = "Images/Eng2021Cotyledons/"
     resultsFolder = "Results/"
-    folderContentsName = "Eng2021Cotyledons.pkl"
+    folderContentsName = "Eng2021Cotyledons.json"
     tableBaseName = "combinedMeasures_Eng2021Cotyledons.csv"
     measure = "lengthRegularity"
     allFolderContentsFilename = dataBaseFolder + folderContentsName

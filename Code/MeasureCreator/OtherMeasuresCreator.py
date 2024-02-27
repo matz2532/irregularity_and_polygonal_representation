@@ -185,7 +185,7 @@ def main():
     sys.path.insert(0, "./Code/DataStructures/")
     from MultiFolderContent import MultiFolderContent
     outlineFilenameKey = "cellContours"
-    allFolderContentsFilename = "Images/Eng2021Cotyledons.pkl"
+    allFolderContentsFilename = "Images/Eng2021Cotyledons.json"
     folderContent = list(MultiFolderContent(allFolderContentsFilename))[0]
     cellOutlines = folderContent.LoadKeyUsingFilenameDict(outlineFilenameKey)
     OtherMeasuresCreator().calcRelativeCompletenessForOutlines(cellOutlines)

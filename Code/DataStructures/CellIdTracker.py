@@ -119,7 +119,7 @@ def checkIdAndLabelledImageProcess(folderContent, trackedCellId=None):
 
 def mainInspectCellOverTime():
     from MultiFolderContent import MultiFolderContent
-    folderContentsName = "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"
+    folderContentsName = "Images/Eng2021Cotyledons/Eng2021Cotyledons.json"
     tissueName = "20170327 WT S1"
     folderContents = MultiFolderContent(folderContentsName)
     tissueFolderContents = folderContents.GetFolderContentsOfReplicate(tissueName)
@@ -136,7 +136,7 @@ def main():
     contourFilename = "Images\\col-0\\20170327 WT S1\\0h\\Cell_Contours_33_Cells -- LTi6b-GFP mChTUA5 WT 0h S1_.txt"
     with open(contourFilename, "r") as fh:
         contourLines = fh.readlines()
-    folderContentsName = "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"
+    folderContentsName = "Images/Eng2021Cotyledons/Eng2021Cotyledons.json"
     folderContents = MultiFolderContent(folderContentsName)
     selectedFolderContent = folderContents.GetFolderContentOfReplicateAtTimePoint("20170327 WT S1", "0h")
     myCellIdTracker = CellIdTracker(contourFile=contourFilename)

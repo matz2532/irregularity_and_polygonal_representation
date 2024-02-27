@@ -259,7 +259,7 @@ def main():
     dataBaseFolder = "Images/"
     resultsFolder = None # "Results/"
     allMeasureNames = ["lengthGiniCoeff"]
-    folderContentsName = "Eng2021Cotyledons.pkl"
+    folderContentsName = "Eng2021Cotyledons.json"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     myBasePlotter = BasePlotter(allFolderContentsFilename)
     # myBasePlotter.CreateViolinPlot(allMeasureNames[3])

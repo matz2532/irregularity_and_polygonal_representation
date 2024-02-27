@@ -271,10 +271,10 @@ def testAreaMeasureExtractor(useGeometricData=False, dataBaseFolder=None,
     from MultiFolderContent import MultiFolderContent
     if useGeometricData:
         allowedLabelFilename = "orderedJunctionsPerCellFilename"
-        allFolderContentsFilename = f"Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"
+        allFolderContentsFilename = f"Images/Eng2021Cotyledons/Eng2021Cotyledons.json"
     else:
         allowedLabelFilename = "cellContours"
-        allFolderContentsFilename = f"Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"
+        allFolderContentsFilename = f"Images/Eng2021Cotyledons/Eng2021Cotyledons.json"
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
     areaExtractor = AreaMeasureExtractor(None)
     for folderContent in multiFolderContent:
@@ -305,7 +305,7 @@ def testAreaMeasureExtractor(useGeometricData=False, dataBaseFolder=None,
 
 def main():
     from MultiFolderContent import MultiFolderContent
-    allFolderContentsFilename = "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"
+    allFolderContentsFilename = "Images/Eng2021Cotyledons/Eng2021Cotyledons.json"
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
     for folderContent in multiFolderContent:
         filenameDict = folderContent.GetFilenameDict()
@@ -318,7 +318,7 @@ def main():
 def testIndividualTissue():
     redoForTissueInfo = ("ktn inflorescence meristem", "ktnP3", "T0")
     from MultiFolderContent import MultiFolderContent
-    allFolderContentsFilename = "Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl"
+    allFolderContentsFilename = "Images/Eng2021Cotyledons/Eng2021Cotyledons.json"
     dataBaseFolder = "Images/SAM/"
     areaMeasuresKey = "areaMeasuresPerCell"
     useGeometricData =True
@@ -337,7 +337,7 @@ def testIndividualTissue():
     print(len(list(cellContours.values())))
     print([len(v) for v in areaMeasuresPerCell.values()])
 
-def combineNeighborDistanceTables(multiFolderContentsOfTissues = {"SAM":"Images/Matz2022SAM.pkl", "cotyledon patches": "Images/Eng2021Cotyledons.pkl", "full cotyledons":"Images/full cotyledons/full cotyledons.pkl"},
+def combineNeighborDistanceTables(multiFolderContentsOfTissues = {"SAM":"Images/Matz2022SAM.json", "cotyledon patches": "Images/Eng2021Cotyledons.json", "full cotyledons":"Images/full cotyledons/full cotyledons.pkl"},
                                   folderExtensionExemption={"cotyledon patches":""}, baseResultsFolder="Results/", tableBaseNameOf="combinedMeasures_{}.csv",
                                   neighborDistanceFilenameKey="neighborDistance", tissueInfoColumnName=["genotype", "replicate id", "time point"]):
     from MultiFolderContent import MultiFolderContent

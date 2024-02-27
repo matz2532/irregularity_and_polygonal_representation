@@ -274,7 +274,7 @@ def main():
     sys.path.insert(0, "./Code/DataStructures/")
     from FolderContent import FolderContent
     from MultiFolderContent import MultiFolderContent
-    allFolderContentsFilename = "Images/Eng2021Cotyledons.pkl"
+    allFolderContentsFilename = "Images/Eng2021Cotyledons.json"
     selectedReplicateId = "20170501 WT S1"
     timePoint = "72h"
     myMultiFolderContent = MultiFolderContent(allFolderContentsFilename)

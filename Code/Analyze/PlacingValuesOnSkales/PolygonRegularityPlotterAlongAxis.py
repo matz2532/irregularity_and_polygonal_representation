@@ -85,7 +85,7 @@ class PolygonRegularityPlotterAlongAxis (CellIrregualrityBasedSelector):
 def visualizeCellsAlongAxisMain():
     dataBaseFolder = "Images/Eng2021Cotyledons/"
     resultsFolder = "Results/"
-    folderContentsName = "Eng2021Cotyledons.pkl"
+    folderContentsName = "Eng2021Cotyledons.json"
     tableBaseName = "combinedMeasures_Eng2021Cotyledons.csv"
     defaultOrderedJunctionsEdgeColor = "#0072b2ff"
     allFolderContentsFilename = dataBaseFolder + folderContentsName

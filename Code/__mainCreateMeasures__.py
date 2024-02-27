@@ -306,7 +306,7 @@ def calculateLobynessOfFolderContent(folderContent: FolderContent, resolutionInM
     folderContent.SaveDataFilesTo(lobynessPerCell, lobynessResultsFilename)
     folderContent.AddDataToFilenameDict(lobynessResultsFilename, lobynessFilenameKey)
 
-def calculateAndAddLobynessOf(dataBaseFolder="Images/", folderContentsName="Eng2021Cotyledons.pkl",
+def calculateAndAddLobynessOf(dataBaseFolder="Images/", folderContentsName="Eng2021Cotyledons.json",
                               allFolderContentsFilename=None, genotypeResolutionDict=None, lobynessFilenameKey: str = "lobyness"):
     if allFolderContentsFilename is None:
         allFolderContentsFilename = dataBaseFolder + folderContentsName
@@ -345,7 +345,7 @@ def calculateRelativeCompleteness(folderContent: FolderContent,
     folderContent.AddDataToFilenameDict(relativeCompletenessResultsFilename, relativeCompletenessFilenameKey)
 
 
-def calculateAndAddRelativeCompletenessOf(dataBaseFolder: str = "Images/", folderContentsName: str = "Eng2021Cotyledons.pkl",
+def calculateAndAddRelativeCompletenessOf(dataBaseFolder: str = "Images/", folderContentsName: str = "Eng2021Cotyledons.json",
                                           allFolderContentsFilename: str or None = None, genotypeResolutionDict: str or None = None,
                                           relativeCompletenessFilenameKey: str = "relativeCompleteness"):
     if allFolderContentsFilename is None:

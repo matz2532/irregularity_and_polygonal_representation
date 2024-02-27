@@ -112,7 +112,7 @@ def main():
     from FolderContent import FolderContent
     from MultiFolderContent import MultiFolderContent
     from PatchCreator import PatchCreator
-    allFolderContentsFilename = "Images/Eng2021Cotyledons.pkl"
+    allFolderContentsFilename = "Images/Eng2021Cotyledons.json"
     selectedReplicateId = "20180618 ktn1-2 S6"
     timePoint = "24h"
     myMultiFolderContent = MultiFolderContent(allFolderContentsFilename)

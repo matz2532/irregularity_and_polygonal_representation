@@ -169,7 +169,7 @@ def main():
     import sys
     sys.path.insert(0, "./Code/DataStructures/")
     from MultiFolderContent import MultiFolderContent
-    allFolderContentsFilename = "Images/Smit2023Cotyledons/Smit2023Cotyledons.pkl"
+    allFolderContentsFilename = "Images/Smit2023Cotyledons/Smit2023Cotyledons.json"
     excludeViaSize = False
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
     # folderContent = list(multiFolderContent)[0]

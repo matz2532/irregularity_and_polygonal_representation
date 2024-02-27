@@ -76,7 +76,7 @@ def checkFolderContentsJunctionPositioning(folderContent, dataBaseFolder,
             if globalVerbosity >= 3:
                 print("Added key {}, {}, and {} of tissue {} to filenameDict with value {}, {}, and {} and saved corresponding data.".format("finalJunctionFilename", "guardCellJunctionBaseName", "guardCellJunctionPositions", tissueName, finalJunctionFilename, guardCellJunctionFilename, correspondingCellsFilename))
 
-def visualiseJunctions(allFolderContentsFilename="Images/Eng2021Cotyledons.pkl",
+def visualiseJunctions(allFolderContentsFilename="Images/Eng2021Cotyledons.json",
                        selectedReplicateId="20170327 WT S1", timePoint="72h"):
     myMultiFolderContent = MultiFolderContent(allFolderContentsFilename)
     folderContent = myMultiFolderContent.GetFolderContentOfReplicateAtTimePoint(selectedReplicateId, timePoint)
@@ -92,7 +92,7 @@ def visualiseJunctions(allFolderContentsFilename="Images/Eng2021Cotyledons.pkl",
 
 def main():
     # visualiseJunctions()
-    allFolderContentsFilename = "Images/Eng2021Cotyledons.pkl"
+    allFolderContentsFilename = "Images/Eng2021Cotyledons.json"
     selectedReplicateId = "20170501 WT S1"
     timePoint = "96h"
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
