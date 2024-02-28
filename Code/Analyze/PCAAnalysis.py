@@ -8,10 +8,11 @@ import seaborn as sns
 
 from BasePlotter import BasePlotter
 from copy import deepcopy
+from ExtendedPlotter import ExtendedPlotter
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
-class PCAAnalysis(BasePlotter):
+class PCAAnalysis(BasePlotter, ExtendedPlotter):
 
     table: pd.DataFrame = None
     selectedTable: pd.DataFrame = None
@@ -61,6 +62,7 @@ class PCAAnalysis(BasePlotter):
     def PlotBiPlot(self, ax: matplotlib.axes.Axes = None, fontSize: int = 20, title: str = None,
                    loadColorPalette: list = sns.color_palette("colorblind"), showFeatureLoadText: bool = False,
                    showScatterLabels: bool = False, showXLabel: bool = True, showYLabel: bool = True,
+                   scatterColor: list or str = "black",
                    saveOrShowKwargs: dict = {"filenameToSave": None, "showPlot": True, "dpi": 300}):
         PC1 = self.pc.fit_transform(self.scaledTable)[:, 0]
         PC2 = self.pc.fit_transform(self.scaledTable)[:, 1]
@@ -70,6 +72,8 @@ class PCAAnalysis(BasePlotter):
         self.SetRcParams(fontSize=fontSize)
         if ax is None:
             fig, ax = plt.subplots(figsize=(14, 9))
+        else:
+            fig = None
 
         featureNames = self.selectedTable.columns
         for i, feature in enumerate(featureNames):
@@ -81,7 +85,7 @@ class PCAAnalysis(BasePlotter):
                         self.GetLabelOfMeasure(feature, requirePresenceInConverter=False),
                         color=loadColor, fontsize=fontSize-int(0.1 * fontSize))
 
-            ax.scatter(PC1 * scalePC1, PC2 * scalePC2, s=5, color="black")
+        ax.scatter(PC1 * scalePC1, PC2 * scalePC2, s=5, color=scatterColor)
 
         if showScatterLabels:
             for i, label in enumerate(self.pcScores.index):
@@ -95,6 +99,7 @@ class PCAAnalysis(BasePlotter):
         if title is not None:
             ax.set_title(title, fontsize="large")
         self.SaveOrShowFigure(**saveOrShowKwargs)
+        return fig, ax
 
     def checkColumnPresence(self, columnsToAnalyse: list or np.ndarray):
         presentColumns = self.table.columns
@@ -109,9 +114,9 @@ def addLegend(labels, colors, fig):
     plt.legend(handles=handles, bbox_to_anchor=(0.5, 0.0), loc="lower center",
                 bbox_transform=fig.transFigure, ncol=5)
 
-def analyseEngCotyledonsRegularityUsingPCA():
+def analyseEngCotyledonsRegularityIndividualPCA():
     tableFilename = "Results/combinedMeasures_Eng2021Cotyledons.csv"
-    filenameToSave = "Results/PCA/PCA_Eng2021Cotyledons.png"
+    filenameToSave = "Results/regularityResults/PCA/PCA_Eng2021Cotyledons.png"
     columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
     labelNameConverterDict = {"lengthGiniCoeff": "Gini coefficient of length", "angleGiniCoeff": "Gini coefficient of angle",
                               "relativeCompleteness": "relative completeness", "lobyness": "lobyness"}
@@ -151,5 +156,38 @@ def analyseEngCotyledonsRegularityUsingPCA():
     saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
     analyser.SaveOrShowFigure(**saveOrShowKwargs)
 
+def analyseEngCotyledonsRegularityPooledPCA():
+    tableFilename = "Results/combinedMeasures_Eng2021Cotyledons.csv"
+    filenameToSave = "Results/regularityResults/PCA/PCA_Eng2021Cotyledons_pooled.png"
+    columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
+    labelNameConverterDict = {"lengthGiniCoeff": "Gini coefficient of length", "angleGiniCoeff": "Gini coefficient of angle",
+                              "relativeCompleteness": "relative completeness", "lobyness": "lobyness"}
+    
+    loadColorPalette: list = list(sns.color_palette("colorblind"))
+    loadColorPalette = [loadColorPalette[1], loadColorPalette[3], loadColorPalette[0], loadColorPalette[2]]
+    colorPalette = sns.color_palette("colorblind")
+    genotypeColorConversion = {"col-0": colorPalette[7], "Oryzalin": colorPalette[8], "ktn1-2": colorPalette[0]}
+    timePointConversionFromStrToNumber = {"0h": 0, '12h': 12, "24h": 24, '36h': 36, "48h": 48, '60h': 60, "72h": 72, '84h': 84, "96h": 96, '108h': 108, "120h": 120, '132h': 132, '144h': 144, "0-96h": 0, "T0": 0, "T1": 24, "T2": 48, "T3": 72, "T4": 96}
+
+    analyser = PCAAnalysis(tableFilename)
+    analyser.pureGenotypeColName = "genotype"
+    analyser.addTimePointAsNumber(analyser.table, timePointConversionFromStrToNumber, timePointColName=analyser.timePointNameColName)
+    geneColorMapperDict = analyser.createTimePointDependentGeneMapper(analyser.table, genotypeColorConversion)
+    scatterColor = []
+    for i, row in analyser.table.iterrows():
+        geneName = row["genotype"]
+        timePointIdx = row[analyser.numericTimePointColName]
+        color = geneColorMapperDict[geneName].to_rgba(timePointIdx)
+        scatterColor.append(color)
+
+    analyser.AnalyseTable(columnsToAnalyse)
+    title = None
+    fig, ax = analyser.PlotBiPlot(loadColorPalette=loadColorPalette, title=title,
+                                  scatterColor=scatterColor, saveOrShowKwargs={"showPlot": False})
+    addLegend([labelNameConverterDict[label] for label in columnsToAnalyse], loadColorPalette, fig=fig)
+    saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
+    analyser.SaveOrShowFigure(**saveOrShowKwargs)
+
 if __name__ == '__main__':
-    analyseEngCotyledonsRegularityUsingPCA()
+    # analyseEngCotyledonsRegularityIndividualPCA()
+    analyseEngCotyledonsRegularityPooledPCA()
