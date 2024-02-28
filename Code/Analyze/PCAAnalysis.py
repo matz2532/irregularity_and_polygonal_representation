@@ -1,0 +1,154 @@
+import itertools
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.lines as lines
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+from BasePlotter import BasePlotter
+from copy import deepcopy
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+class PCAAnalysis(BasePlotter):
+
+    table: pd.DataFrame = None
+    selectedTable: pd.DataFrame = None
+    scaledTable: pd.DataFrame = None
+    loadings: pd.DataFrame = None
+    pcScores: pd.DataFrame = None
+    scaler: StandardScaler = None
+    pc: PCA = None
+
+    def __init__(self, table: pd.DataFrame or str, tableLoadKwargs: dict = {}):
+        self.SetTable(table, tableLoadKwargs=tableLoadKwargs)
+
+    def SetTable(self, table, tableLoadKwargs: dict = {}):
+        if not isinstance(table, pd.DataFrame):
+            self.table = pd.read_csv(table, **tableLoadKwargs)
+        else:
+            self.table = table
+
+    def FilterTable(self, columnsExpectedValuesToKeep: dict, table: pd.DataFrame = None):
+        if table is None:
+            table = self.table
+        isExpectedValue = np.ones(len(table), dtype=bool)
+        for column, expectedValue in columnsExpectedValuesToKeep.items():
+            isCurrentValueExpected = np.isin(table[column], expectedValue)
+            isExpectedValue = isExpectedValue & isCurrentValueExpected
+        shouldRowBeDropped = np.invert(isExpectedValue)
+        if np.any(shouldRowBeDropped):
+            rowsToDrop = np.where(shouldRowBeDropped)[0]
+            table.drop(rowsToDrop, axis=0, inplace=True)
+
+    def AnalyseTable(self, columnsToAnalyse: list or np.ndarray, numberOfComponents: int = 2, componentBaseName: str = "PC ",
+                     columnsExpectedValuesToKeep: dict = None):
+        self.scaler = StandardScaler()
+        self.checkColumnPresence(columnsToAnalyse)
+        self.selectedTable = deepcopy(self.table)
+        if columnsExpectedValuesToKeep is not None:
+            self.FilterTable(columnsExpectedValuesToKeep, self.selectedTable)
+        self.selectedTable = self.selectedTable[columnsToAnalyse]
+        self.scaler.fit(self.selectedTable)
+        self.scaledTable = self.scaler.transform(self.selectedTable)
+        self.pc = PCA(n_components=numberOfComponents)
+        pcaColumnNames = [componentBaseName + str(i+1) for i in range(numberOfComponents)]
+        self.pcScores = pd.DataFrame(self.pc.fit_transform(self.scaledTable), columns=pcaColumnNames)
+        featureNames = self.selectedTable.columns
+        self.loadings = pd.DataFrame(self.pc.components_.T, columns=pcaColumnNames, index=featureNames)
+
+    def PlotBiPlot(self, ax: matplotlib.axes.Axes = None, fontSize: int = 20, title: str = None,
+                   loadColorPalette: list = sns.color_palette("colorblind"), showFeatureLoadText: bool = False,
+                   showScatterLabels: bool = False, showXLabel: bool = True, showYLabel: bool = True,
+                   saveOrShowKwargs: dict = {"filenameToSave": None, "showPlot": True, "dpi": 300}):
+        PC1 = self.pc.fit_transform(self.scaledTable)[:, 0]
+        PC2 = self.pc.fit_transform(self.scaledTable)[:, 1]
+        componentLoadingValues = self.pc.components_
+        scalePC1 = 1.0 / (PC1.max() - PC1.min())
+        scalePC2 = 1.0 / (PC2.max() - PC2.min())
+        self.SetRcParams(fontSize=fontSize)
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(14, 9))
+
+        featureNames = self.selectedTable.columns
+        for i, feature in enumerate(featureNames):
+            loadColor = loadColorPalette[i]
+            ax.arrow(0, 0, componentLoadingValues[0, i], componentLoadingValues[1, i],
+                     head_width=0.03, head_length=0.03, color=loadColor)
+            if showFeatureLoadText:
+                ax.text(componentLoadingValues[0, i] * 1.15, componentLoadingValues[1, i] * 1.15,
+                        self.GetLabelOfMeasure(feature, requirePresenceInConverter=False),
+                        color=loadColor, fontsize=fontSize-int(0.1 * fontSize))
+
+            ax.scatter(PC1 * scalePC1, PC2 * scalePC2, s=5, color="black")
+
+        if showScatterLabels:
+            for i, label in enumerate(self.pcScores.index):
+                ax.text(PC1[i] * scalePC1,
+                        PC2[i] * scalePC2, str(label),
+                        fontsize=fontSize//2)
+        if showXLabel:
+            ax.set_xlabel("PC 1")
+        if showYLabel:
+            ax.set_ylabel("PC 2")
+        if title is not None:
+            ax.set_title(title, fontsize="large")
+        self.SaveOrShowFigure(**saveOrShowKwargs)
+
+    def checkColumnPresence(self, columnsToAnalyse: list or np.ndarray):
+        presentColumns = self.table.columns
+        isColumnToAnalysePresent = np.isin(columnsToAnalyse, presentColumns)
+        assert np.all(isColumnToAnalysePresent), f"The columns {np.array(columnsToAnalyse)[np.invert(isColumnToAnalysePresent)]} are not present in the table with the present columns {presentColumns.tolist()}"
+
+def addLegend(labels, colors):
+    handles = []
+    for label, color in zip(labels, colors):
+        currentLegendHandle = lines.Line2D([0], [0], label=label, color=color)
+        handles.append(currentLegendHandle)
+    plt.legend(handles=handles, bbox_to_anchor=(0.5, 0.0), loc="lower center",
+                bbox_transform=fig.transFigure, ncol=5)
+
+if __name__ == '__main__':
+    tableFilename = "Results/combinedMeasures_Eng2021Cotyledons.csv"
+    filenameToSave = "Results/PCA/PCA_Eng2021Cotyledons.png"
+    columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
+    labelNameConverterDict = {"lengthGiniCoeff": "Gini coefficient of length", "angleGiniCoeff": "Gini coefficient of angle",
+                              "relativeCompleteness": "relative completeness", "lobyness": "lobyness"}
+    allTimePoints = ["0h", "24h", "48h", "72h", "96h"]
+    genotypes = ["col-0", "Oryzalin", "ktn1-2"]
+    genotypeNames = ["WT", "WT+Oryzalin", "$\it{ktn1}$-$\it{2}$"]
+    nrOfGenotypes = len(genotypes)
+    nrOfTimePoints = len(allTimePoints)
+    PCAAnalysis(tableFilename).SetRcParams(fontSize=20)
+    fig, ax = plt.subplots(nrOfGenotypes, nrOfTimePoints, figsize=[5*nrOfTimePoints, 5*nrOfGenotypes])
+    ax = ax.ravel()
+    numberOfPlots = len(ax)
+    loadColorPalette: list = list(sns.color_palette("colorblind"))
+    loadColorPalette = [loadColorPalette[1], loadColorPalette[3], loadColorPalette[0], loadColorPalette[2]]
+    for i, (g, t) in enumerate(itertools.product(genotypes, allTimePoints)):
+        columnsExpectedValuesToKeep = {"genotype": g, "time point": t}
+        analyser = PCAAnalysis(tableFilename)
+        analyser.AnalyseTable(columnsToAnalyse, columnsExpectedValuesToKeep=columnsExpectedValuesToKeep)
+        if i < nrOfTimePoints:
+            title = f"{t}"
+        else:
+            title = None
+        if i > numberOfPlots - nrOfTimePoints - 1:
+            showXLabel = True
+        else:
+            showXLabel = False
+        if i % nrOfTimePoints == 0:
+            showYLabel = True
+            # ax[i].text(0, 0, genotypes[i//nrOfTimePoints])
+        else:
+            showYLabel = False
+        analyser.PlotBiPlot(ax=ax[i], loadColorPalette=loadColorPalette, title=title,
+                            saveOrShowKwargs={"showPlot": False}, showXLabel=showXLabel, showYLabel=showYLabel)
+    addLegend([labelNameConverterDict[label] for label in columnsToAnalyse], loadColorPalette)
+    genotypeYPositions = [0.767, 0.5, 0.227]
+    for g, yPos in zip(genotypeNames, genotypeYPositions):
+        plt.gcf().text(0.07, yPos, g, fontsize="large", rotation="vertical", horizontalalignment="center", verticalalignment="center")
+    saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
+    # plt.text(0.5, 0.5, 'matplotlib', horizontalalignment='center', verticalalignment='center', transform=ax[0].transAxes)
+    analyser.SaveOrShowFigure(**saveOrShowKwargs)
