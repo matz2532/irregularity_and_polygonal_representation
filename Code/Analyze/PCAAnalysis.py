@@ -101,7 +101,7 @@ class PCAAnalysis(BasePlotter):
         isColumnToAnalysePresent = np.isin(columnsToAnalyse, presentColumns)
         assert np.all(isColumnToAnalysePresent), f"The columns {np.array(columnsToAnalyse)[np.invert(isColumnToAnalysePresent)]} are not present in the table with the present columns {presentColumns.tolist()}"
 
-def addLegend(labels, colors):
+def addLegend(labels, colors, fig):
     handles = []
     for label, color in zip(labels, colors):
         currentLegendHandle = lines.Line2D([0], [0], label=label, color=color)
@@ -109,7 +109,7 @@ def addLegend(labels, colors):
     plt.legend(handles=handles, bbox_to_anchor=(0.5, 0.0), loc="lower center",
                 bbox_transform=fig.transFigure, ncol=5)
 
-if __name__ == '__main__':
+def analyseEngCotyledonsRegularityUsingPCA():
     tableFilename = "Results/combinedMeasures_Eng2021Cotyledons.csv"
     filenameToSave = "Results/PCA/PCA_Eng2021Cotyledons.png"
     columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
@@ -140,15 +140,16 @@ if __name__ == '__main__':
             showXLabel = False
         if i % nrOfTimePoints == 0:
             showYLabel = True
-            # ax[i].text(0, 0, genotypes[i//nrOfTimePoints])
         else:
             showYLabel = False
         analyser.PlotBiPlot(ax=ax[i], loadColorPalette=loadColorPalette, title=title,
                             saveOrShowKwargs={"showPlot": False}, showXLabel=showXLabel, showYLabel=showYLabel)
-    addLegend([labelNameConverterDict[label] for label in columnsToAnalyse], loadColorPalette)
+    addLegend([labelNameConverterDict[label] for label in columnsToAnalyse], loadColorPalette, fig=fig)
     genotypeYPositions = [0.767, 0.5, 0.227]
     for g, yPos in zip(genotypeNames, genotypeYPositions):
         plt.gcf().text(0.07, yPos, g, fontsize="large", rotation="vertical", horizontalalignment="center", verticalalignment="center")
     saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
-    # plt.text(0.5, 0.5, 'matplotlib', horizontalalignment='center', verticalalignment='center', transform=ax[0].transAxes)
     analyser.SaveOrShowFigure(**saveOrShowKwargs)
+
+if __name__ == '__main__':
+    analyseEngCotyledonsRegularityUsingPCA()
