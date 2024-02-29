@@ -107,7 +107,7 @@ def visualizeArtificialPolygonsAlongAxisMain(showPlot: bool = False, resultsFold
             filenameToSave = None
         myPolygonRegularityPlotterAlongAxis.PlotOutlinesAndPolygonOf(regularityMeasure, usePropertiesValues=True, ignoreOutline=True,
                                                                      useLinearScale=True, edgeLineWidth=5, vertexSize=40,
-                                                                     fontSize=38, setXTicks=[0, 0.05, 0.1, 0.15, 0.2], setXLabel=False,
+                                                                     fontSize=38, setXTicks=[0, 0.1, 0.2, 0.3, 0.4], setXLabel=False,
                                                                      saveToFilename=filenameToSave)
         
 def visualizeArtificialPolygonsAlongTwoAxisMain(showPlot: bool = False, resultsFolder: str = "Results/",
