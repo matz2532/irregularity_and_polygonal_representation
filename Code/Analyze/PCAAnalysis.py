@@ -59,43 +59,51 @@ class PCAAnalysis(BasePlotter, ExtendedPlotter):
         featureNames = self.selectedTable.columns
         self.loadings = pd.DataFrame(self.pc.components_.T, columns=pcaColumnNames, index=featureNames)
 
-    def PlotBiPlot(self, ax: matplotlib.axes.Axes = None, fontSize: int = 20, title: str = None,
+    def PlotBiPlot(self, ax: matplotlib.axes.Axes = None, fontSize: int = 20, pcXIdx: int = 0, pcYIdx: int = 1, title: str = None,
                    loadColorPalette: list = sns.color_palette("colorblind"), showFeatureLoadText: bool = False,
                    showScatterLabels: bool = False, showXLabel: bool = True, showYLabel: bool = True,
-                   scatterColor: list or str = "black",
+                   showVarianceOnLabel: bool = True, scatterColor: list or str = "black",
                    saveOrShowKwargs: dict = {"filenameToSave": None, "showPlot": True, "dpi": 300}):
-        PC1 = self.pc.fit_transform(self.scaledTable)[:, 0]
-        PC2 = self.pc.fit_transform(self.scaledTable)[:, 1]
+        PC_X = self.pc.fit_transform(self.scaledTable)[:, pcXIdx]
+        PC_Y = self.pc.fit_transform(self.scaledTable)[:, pcYIdx]
         componentLoadingValues = self.pc.components_
-        scalePC1 = 1.0 / (PC1.max() - PC1.min())
-        scalePC2 = 1.0 / (PC2.max() - PC2.min())
+        scalePC_X = 1.0 / (PC_X.max() - PC_X.min())
+        scalePC_Y = 1.0 / (PC_Y.max() - PC_Y.min())
         self.SetRcParams(fontSize=fontSize)
         if ax is None:
-            fig, ax = plt.subplots(figsize=(14, 9))
+            fig, ax = plt.subplots(figsize=(14, 9), constrained_layout=True)
         else:
             fig = None
 
         featureNames = self.selectedTable.columns
         for i, feature in enumerate(featureNames):
             loadColor = loadColorPalette[i]
-            ax.arrow(0, 0, componentLoadingValues[0, i], componentLoadingValues[1, i],
+            ax.arrow(0, 0, componentLoadingValues[pcXIdx, i], componentLoadingValues[pcYIdx, i],
                      head_width=0.03, head_length=0.03, color=loadColor)
             if showFeatureLoadText:
-                ax.text(componentLoadingValues[0, i] * 1.15, componentLoadingValues[1, i] * 1.15,
+                ax.text(componentLoadingValues[pcXIdx, i] * 1.15, componentLoadingValues[pcYIdx, i] * 1.15,
                         self.GetLabelOfMeasure(feature, requirePresenceInConverter=False),
                         color=loadColor, fontsize=fontSize-int(0.1 * fontSize))
 
-        ax.scatter(PC1 * scalePC1, PC2 * scalePC2, s=5, color=scatterColor)
+        ax.scatter(PC_X * scalePC_X, PC_Y * scalePC_Y, s=5, color=scatterColor)
 
         if showScatterLabels:
             for i, label in enumerate(self.pcScores.index):
-                ax.text(PC1[i] * scalePC1,
-                        PC2[i] * scalePC2, str(label),
+                ax.text(PC_X[i] * scalePC_X,
+                        PC_Y[i] * scalePC_Y, str(label),
                         fontsize=fontSize//2)
+
+        explainedVariancePercentage = 100 * self.pc.explained_variance_ratio_
         if showXLabel:
-            ax.set_xlabel("PC 1")
+            xLabel = f"PC{pcXIdx+1}"
+            if showVarianceOnLabel:
+                xLabel += f" {explainedVariancePercentage[pcXIdx] : .2f}%"
+            ax.set_xlabel(xLabel, fontsize="small")
         if showYLabel:
-            ax.set_ylabel("PC 2")
+            yLabel = f"PC{pcYIdx+1}"
+            if showVarianceOnLabel:
+                yLabel += f" {explainedVariancePercentage[pcYIdx] : .2f}%"
+            ax.set_ylabel(yLabel, fontsize="small")
         if title is not None:
             ax.set_title(title, fontsize="large")
         self.SaveOrShowFigure(**saveOrShowKwargs)
@@ -106,17 +114,17 @@ class PCAAnalysis(BasePlotter, ExtendedPlotter):
         isColumnToAnalysePresent = np.isin(columnsToAnalyse, presentColumns)
         assert np.all(isColumnToAnalysePresent), f"The columns {np.array(columnsToAnalyse)[np.invert(isColumnToAnalysePresent)]} are not present in the table with the present columns {presentColumns.tolist()}"
 
-def addLegend(labels, colors, fig):
+def addLegend(labels, colors, legendKwargs: dict = {}):
     handles = []
     for label, color in zip(labels, colors):
         currentLegendHandle = lines.Line2D([0], [0], label=label, color=color)
         handles.append(currentLegendHandle)
-    plt.legend(handles=handles, bbox_to_anchor=(0.5, 0.0), loc="lower center",
-                bbox_transform=fig.transFigure, ncol=5)
+    plt.legend(handles=handles, **legendKwargs)
 
-def analyseEngCotyledonsRegularityIndividualPCA():
+def analyseEngCotyledonsRegularityIndividualPCA(pcXIdx: int = 0, pcYIdx: int = 1):
     tableFilename = "Results/combinedMeasures_Eng2021Cotyledons.csv"
-    filenameToSave = "Results/regularityResults/PCA/PCA_Eng2021Cotyledons.png"
+    filenameToSave = f"Results/regularityResults/PCA/PCA_Eng2021Cotyledons{'' if pcXIdx == 0 and pcYIdx == 1 else f'_{pcXIdx}VS{pcYIdx}'}.png"
+    print(filenameToSave)
     columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
     labelNameConverterDict = {"lengthGiniCoeff": "Gini coefficient of length", "angleGiniCoeff": "Gini coefficient of angle",
                               "relativeCompleteness": "relative completeness", "lobyness": "lobyness"}
@@ -126,7 +134,14 @@ def analyseEngCotyledonsRegularityIndividualPCA():
     nrOfGenotypes = len(genotypes)
     nrOfTimePoints = len(allTimePoints)
     PCAAnalysis(tableFilename).SetRcParams(fontSize=20)
-    fig, ax = plt.subplots(nrOfGenotypes, nrOfTimePoints, figsize=[5*nrOfTimePoints, 5*nrOfGenotypes])
+    figsize = [5 * nrOfTimePoints, 5 * nrOfGenotypes]
+    fig, ax = plt.subplots(nrOfGenotypes, nrOfTimePoints, figsize=figsize)
+    hideInnerAxisLabels = False
+    if not hideInnerAxisLabels:
+        fig.tight_layout()
+        bottomSpacing = 0.1
+        leftSpacing = bottomSpacing * figsize[1] / figsize[0]
+        plt.subplots_adjust(left=leftSpacing, bottom=bottomSpacing, right=None, top=None, wspace=None, hspace=None)
     ax = ax.ravel()
     numberOfPlots = len(ax)
     loadColorPalette: list = list(sns.color_palette("colorblind"))
@@ -134,31 +149,40 @@ def analyseEngCotyledonsRegularityIndividualPCA():
     for i, (g, t) in enumerate(itertools.product(genotypes, allTimePoints)):
         columnsExpectedValuesToKeep = {"genotype": g, "time point": t}
         analyser = PCAAnalysis(tableFilename)
-        analyser.AnalyseTable(columnsToAnalyse, columnsExpectedValuesToKeep=columnsExpectedValuesToKeep)
+        analyser.AnalyseTable(columnsToAnalyse, numberOfComponents=4, columnsExpectedValuesToKeep=columnsExpectedValuesToKeep)
         if i < nrOfTimePoints:
             title = f"{t}"
         else:
             title = None
-        if i > numberOfPlots - nrOfTimePoints - 1:
-            showXLabel = True
+        if hideInnerAxisLabels:
+            if i > numberOfPlots - nrOfTimePoints - 1:
+                showXLabel = True
+            else:
+                showXLabel = False
+            if i % nrOfTimePoints == 0:
+                showYLabel = True
+            else:
+                showYLabel = False
         else:
-            showXLabel = False
-        if i % nrOfTimePoints == 0:
-            showYLabel = True
-        else:
-            showYLabel = False
-        analyser.PlotBiPlot(ax=ax[i], loadColorPalette=loadColorPalette, title=title,
+            showXLabel, showYLabel = True, True
+        analyser.PlotBiPlot(ax=ax[i], pcXIdx=pcXIdx, pcYIdx=pcYIdx, loadColorPalette=loadColorPalette, title=title,
                             saveOrShowKwargs={"showPlot": False}, showXLabel=showXLabel, showYLabel=showYLabel)
-    addLegend([labelNameConverterDict[label] for label in columnsToAnalyse], loadColorPalette, fig=fig)
-    genotypeYPositions = [0.767, 0.5, 0.227]
+    if not hideInnerAxisLabels:
+        xPos = 0
+        genotypeYPositions = np.asarray([0.85, 0.55, 0.225])
+    else:
+        xPos = 0.07
+        genotypeYPositions = [0.767, 0.5, 0.227]
+    legendKwargs = {"loc": "lower center", "bbox_to_anchor": (0.5, 0), "bbox_transform": fig.transFigure, "ncol": 5}
+    addLegend([labelNameConverterDict[label] for label in columnsToAnalyse], loadColorPalette, legendKwargs=legendKwargs)
     for g, yPos in zip(genotypeNames, genotypeYPositions):
-        plt.gcf().text(0.07, yPos, g, fontsize="large", rotation="vertical", horizontalalignment="center", verticalalignment="center")
+        plt.gcf().text(xPos, yPos, g, fontsize="large", rotation="vertical", horizontalalignment="center", verticalalignment="center")
     saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
     analyser.SaveOrShowFigure(**saveOrShowKwargs)
 
-def analyseEngCotyledonsRegularityPooledPCA():
+def analyseEngCotyledonsRegularityPooledPCA(pcXIdx: int = 0, pcYIdx: int = 1):
     tableFilename = "Results/combinedMeasures_Eng2021Cotyledons.csv"
-    filenameToSave = "Results/regularityResults/PCA/PCA_Eng2021Cotyledons_pooled.png"
+    filenameToSave = f"Results/regularityResults/PCA/PCA_Eng2021Cotyledons_pooled{'' if pcXIdx == 0 and pcYIdx == 1 else f'_{pcXIdx}VS{pcYIdx}'}.png"
     columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
     labelNameConverterDict = {"lengthGiniCoeff": "Gini coefficient of length", "angleGiniCoeff": "Gini coefficient of angle",
                               "relativeCompleteness": "relative completeness", "lobyness": "lobyness"}
@@ -180,14 +204,14 @@ def analyseEngCotyledonsRegularityPooledPCA():
         color = geneColorMapperDict[geneName].to_rgba(timePointIdx)
         scatterColor.append(color)
 
-    analyser.AnalyseTable(columnsToAnalyse)
+    analyser.AnalyseTable(columnsToAnalyse, numberOfComponents=4)
     title = None
-    fig, ax = analyser.PlotBiPlot(loadColorPalette=loadColorPalette, title=title,
-                                  scatterColor=scatterColor, saveOrShowKwargs={"showPlot": False})
-    addLegend([labelNameConverterDict[label] for label in columnsToAnalyse], loadColorPalette, fig=fig)
+    analyser.PlotBiPlot(pcXIdx=pcXIdx, pcYIdx=pcYIdx, loadColorPalette=loadColorPalette, title=title, scatterColor=scatterColor, saveOrShowKwargs={"showPlot": False})
+    addLegend([labelNameConverterDict[label] for label in columnsToAnalyse], loadColorPalette)
     saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
     analyser.SaveOrShowFigure(**saveOrShowKwargs)
 
 if __name__ == '__main__':
-    # analyseEngCotyledonsRegularityIndividualPCA()
-    analyseEngCotyledonsRegularityPooledPCA()
+    for pcXIdx, pcYIdx in itertools.combinations(range(4), r=2):
+        analyseEngCotyledonsRegularityIndividualPCA(pcXIdx=pcXIdx, pcYIdx=pcYIdx)
+        analyseEngCotyledonsRegularityPooledPCA(pcXIdx=pcXIdx, pcYIdx=pcYIdx)
