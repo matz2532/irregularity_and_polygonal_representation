@@ -123,8 +123,7 @@ def addLegend(labels, colors, legendKwargs: dict = {}):
 
 def analyseEngCotyledonsRegularityIndividualPCA(pcXIdx: int = 0, pcYIdx: int = 1):
     tableFilename = "Results/combinedMeasures_Eng2021Cotyledons.csv"
-    filenameToSave = f"Results/regularityResults/PCA/PCA_Eng2021Cotyledons{'' if pcXIdx == 0 and pcYIdx == 1 else f'_{pcXIdx}VS{pcYIdx}'}.png"
-    print(filenameToSave)
+    filenameToSave = f"Results/regularityResults/PCA/PCA_Eng2021Cotyledons{'' if pcXIdx == 0 and pcYIdx == 1 else f'_PC{pcXIdx+1}VS{pcYIdx+1}'}.png"
     columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
     labelNameConverterDict = {"lengthGiniCoeff": "Gini coefficient of length", "angleGiniCoeff": "Gini coefficient of angle",
                               "relativeCompleteness": "relative completeness", "lobyness": "lobyness"}
@@ -182,7 +181,7 @@ def analyseEngCotyledonsRegularityIndividualPCA(pcXIdx: int = 0, pcYIdx: int = 1
 
 def analyseEngCotyledonsRegularityPooledPCA(pcXIdx: int = 0, pcYIdx: int = 1):
     tableFilename = "Results/combinedMeasures_Eng2021Cotyledons.csv"
-    filenameToSave = f"Results/regularityResults/PCA/PCA_Eng2021Cotyledons_pooled{'' if pcXIdx == 0 and pcYIdx == 1 else f'_{pcXIdx}VS{pcYIdx}'}.png"
+    filenameToSave = f"Results/regularityResults/PCA/PCA_Eng2021Cotyledons_pooled{'' if pcXIdx == 0 and pcYIdx == 1 else f'_PC{pcXIdx+1}VS{pcYIdx+1}'}.png"
     columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
     labelNameConverterDict = {"lengthGiniCoeff": "Gini coefficient of length", "angleGiniCoeff": "Gini coefficient of angle",
                               "relativeCompleteness": "relative completeness", "lobyness": "lobyness"}
