@@ -506,8 +506,7 @@ def mainRemoveDuplicateMultiFolderContents(folderContensFilename="Images/full co
         multiFolderContent.RemoveFolderContentAt(idx)
     multiFolderContent.UpdateFolderContents()
 
-def convertPickleToHumanReadableJsonMultiFolderContent():
-    folderContentFilenamesToChange = ["Images/Eng2021Cotyledons/Eng2021Cotyledons.json", "Images/Matz2022SAM/Matz2022SAM.json", "Images/Smit2023Cotyledons/Smit2023Cotyledons.json"]
+def convertPickleToHumanReadableJsonMultiFolderContent(folderContentFilenamesToChange: list):
     for folderContentsFilename in folderContentFilenamesToChange:
         multiFolderContent = MultiFolderContent(folderContentsFilename)
         filenameToSave = folderContentsFilename.replace(".pkl", ".json")
@@ -516,4 +515,4 @@ def convertPickleToHumanReadableJsonMultiFolderContent():
 if __name__ == '__main__':
     # main()
     # mainRemoveDuplicateMultiFolderContents()
-    convertPickleToHumanReadableJsonMultiFolderContent()
+    convertPickleToHumanReadableJsonMultiFolderContent(folderContentFilenamesToChange=["Images/Eng2021Cotyledons/Eng2021Cotyledons.pkl", "Images/Matz2022SAM/Matz2022SAM.pkl", "Images/Smit2023Cotyledons/Smit2023Cotyledons.pkl"])
