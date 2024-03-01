@@ -307,6 +307,15 @@ class MultiFolderContent:
         isSelectedTimePoint = np.isin(timePointIds, timePoint)
         return self.allFolderContents[np.where(isSelectedTimePoint)[0]]
 
+    def GetFolderContentWithTissueName(self, selectedTissueName):
+        tissueNames = self.GetTissueNames()
+        isSelectedTissueName = np.isin(tissueNames, selectedTissueName)
+        if np.sum(isSelectedTissueName) > 1:
+            warnings.warn(f"The {selectedTissueName=} have been found multiple times ({np.sum(isSelectedTissueName)}) in the folder contents from {self.allFolderContentsFilename}")
+        if np.sum(isSelectedTissueName) > 0:
+            return self.allFolderContents[np.where(isSelectedTissueName)[0]][0]
+        return None
+
     def GetGenotypes(self):
         genotypeOfFolderContents = [i.GetGenotype() for i in self.allFolderContents]
         return genotypeOfFolderContents
