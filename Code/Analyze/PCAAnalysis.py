@@ -179,32 +179,38 @@ def analyseEngCotyledonsRegularityIndividualPCA(pcXIdx: int = 0, pcYIdx: int = 1
     saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
     analyser.SaveOrShowFigure(**saveOrShowKwargs)
 
+def addGenotypeTimePointDependentColor(pcaAnalyser, genotypeColorConversion: dict, colorColumnName: str = "color"):
+    timePointConversionFromStrToNumber = {"0h": 0, '12h': 12, "24h": 24, '36h': 36, "48h": 48, '60h': 60, "72h": 72, '84h': 84, "96h": 96, '108h': 108, "120h": 120, '132h': 132, '144h': 144, "0-96h": 0, "T0": 0, "T1": 24, "T2": 48, "T3": 72, "T4": 96}
+    pcaAnalyser.pureGenotypeColName = "genotype"
+    pcaAnalyser.addTimePointAsNumber(pcaAnalyser.table, timePointConversionFromStrToNumber, timePointColName=pcaAnalyser.timePointNameColName)
+    geneColorMapperDict = pcaAnalyser.createTimePointDependentGeneMapper(pcaAnalyser.table, genotypeColorConversion)
+    entriesColors = []
+    for i, row in pcaAnalyser.table.iterrows():
+        geneName = row["genotype"]
+        timePointIdx = row[pcaAnalyser.numericTimePointColName]
+        color = geneColorMapperDict[geneName].to_rgba(timePointIdx)
+        entriesColors.append(color)
+    pcaAnalyser.table[colorColumnName] = entriesColors
+
 def analyseEngCotyledonsRegularityPooledPCA(pcXIdx: int = 0, pcYIdx: int = 1):
     tableFilename = "Results/combinedMeasures_Eng2021Cotyledons.csv"
     filenameToSave = f"Results/regularityResults/PCA/PCA_Eng2021Cotyledons_pooled{'' if pcXIdx == 0 and pcYIdx == 1 else f'_PC{pcXIdx+1}VS{pcYIdx+1}'}.png"
-    columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
     labelNameConverterDict = {"lengthGiniCoeff": "Gini coefficient of length", "angleGiniCoeff": "Gini coefficient of angle",
                               "relativeCompleteness": "relative completeness", "lobyness": "lobyness"}
-    
+
     loadColorPalette: list = list(sns.color_palette("colorblind"))
+
     loadColorPalette = [loadColorPalette[1], loadColorPalette[3], loadColorPalette[0], loadColorPalette[2]]
     colorPalette = sns.color_palette("colorblind")
     genotypeColorConversion = {"col-0": colorPalette[7], "Oryzalin": colorPalette[8], "ktn1-2": colorPalette[0]}
-    timePointConversionFromStrToNumber = {"0h": 0, '12h': 12, "24h": 24, '36h': 36, "48h": 48, '60h': 60, "72h": 72, '84h': 84, "96h": 96, '108h': 108, "120h": 120, '132h': 132, '144h': 144, "0-96h": 0, "T0": 0, "T1": 24, "T2": 48, "T3": 72, "T4": 96}
 
     analyser = PCAAnalysis(tableFilename)
-    analyser.pureGenotypeColName = "genotype"
-    analyser.addTimePointAsNumber(analyser.table, timePointConversionFromStrToNumber, timePointColName=analyser.timePointNameColName)
-    geneColorMapperDict = analyser.createTimePointDependentGeneMapper(analyser.table, genotypeColorConversion)
-    scatterColor = []
-    for i, row in analyser.table.iterrows():
-        geneName = row["genotype"]
-        timePointIdx = row[analyser.numericTimePointColName]
-        color = geneColorMapperDict[geneName].to_rgba(timePointIdx)
-        scatterColor.append(color)
+    addGenotypeTimePointDependentColor(analyser, genotypeColorConversion)
 
+    columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
     analyser.AnalyseTable(columnsToAnalyse, numberOfComponents=4)
     title = None
+    scatterColor = analyser.table["color"]
     analyser.PlotBiPlot(pcXIdx=pcXIdx, pcYIdx=pcYIdx, loadColorPalette=loadColorPalette, title=title, scatterColor=scatterColor, saveOrShowKwargs={"showPlot": False})
     addLegend([labelNameConverterDict[label] for label in columnsToAnalyse], loadColorPalette)
     saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
