@@ -266,6 +266,27 @@ def analyseEngCotyledonsRegularityPooledPCA(pcXIdx: int = 0, pcYIdx: int = 1, ju
     saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
     analyser.SaveOrShowFigure(**saveOrShowKwargs)
 
+def plotCorrelationMatrix():
+    import seaborn as sns
+    tableFilename = "Results/combinedMeasures_Eng2021Cotyledons.csv"
+    baseFilenameToSave = f"Results/regularityResults/PCA/PCA_Eng2021Cotyledons_pooled"
+    labelNameConverterDict = {"lengthGiniCoeff": "Gini coefficient of length", "angleGiniCoeff": "Gini coefficient of angle",
+                              "relativeCompleteness": "relative completeness", "lobyness": "lobyness"}
+    columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
+
+    loadColorPalette = createLoadColorPalette()
+    colorPalette = sns.color_palette("colorblind")
+    genotypeColorConversion = {"col-0": colorPalette[7], "Oryzalin": colorPalette[8], "ktn1-2": colorPalette[0]}
+
+    analyser = PCAAnalysis(tableFilename)
+
+    df = analyser.table[columnsToAnalyse]
+    matrix = df.corr().round(2)
+    sns.heatmap(matrix, annot=True)
+    filenameToSave = "Results/regularityResults/PCA/CorrelationMatrix.png"
+    saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
+    analyser.SaveOrShowFigure(**saveOrShowKwargs)
+
 if __name__ == '__main__':
     for pcXIdx, pcYIdx in itertools.combinations(range(4), r=2):
         analyseEngCotyledonsRegularityIndividualPCA(pcXIdx=pcXIdx, pcYIdx=pcYIdx)
