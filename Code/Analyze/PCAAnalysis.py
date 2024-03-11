@@ -121,6 +121,68 @@ def addLegend(labels, colors, legendKwargs: dict = {}):
         handles.append(currentLegendHandle)
     plt.legend(handles=handles, **legendKwargs)
 
+def createLoadColorPalette():
+    loadColorPalette: list = list(sns.color_palette("colorblind"))
+    loadColorPalette = [loadColorPalette[1], loadColorPalette[3], loadColorPalette[0], loadColorPalette[2]]
+    return loadColorPalette
+
+def plotFilteredPCA(analyser, columnsToAnalyse, columnsExpectedValuesToKeep, i, ax, nrOfTimePoints, loadColorPalette, hideInnerAxisLabels, numberOfPlots, t,
+                    colorColumnName: str = "color"):
+    analyser.AnalyseTable(columnsToAnalyse, numberOfComponents=4, columnsExpectedValuesToKeep=columnsExpectedValuesToKeep)
+    if i < nrOfTimePoints:
+        title = f"{t}"
+    else:
+        title = None
+    if hideInnerAxisLabels:
+        if i > numberOfPlots - nrOfTimePoints - 1:
+            showXLabel = True
+        else:
+            showXLabel = False
+        if i % nrOfTimePoints == 0:
+            showYLabel = True
+        else:
+            showYLabel = False
+    else:
+        showXLabel, showYLabel = True, True
+    if colorColumnName is not None:
+        scatterColor = analyser.table.iloc[analyser.selectedTable.index][colorColumnName].values
+    else:
+        scatterColor = None
+    analyser.PlotBiPlot(ax=ax[i], pcXIdx=pcXIdx, pcYIdx=pcYIdx, loadColorPalette=loadColorPalette, title=title,
+                        scatterColor=scatterColor,
+                        saveOrShowKwargs={"showPlot": False}, showXLabel=showXLabel, showYLabel=showYLabel)
+def plotIndividualGenotypeTimePointPCAs(analyser: PCAAnalysis, columnsToAnalyse: list,
+                                        allTimePoints: list = ["0h", "24h", "48h", "72h", "96h"],
+                                        genotypes: list = ["col-0", "Oryzalin", "ktn1-2"],
+                                        hideInnerAxisLabels: bool = False):
+    nrOfGenotypes = len(genotypes) if len(genotypes) > 0 else 1
+    nrOfTimePoints = len(allTimePoints) if len(allTimePoints) > 0 else 1
+    figsize = [5 * nrOfTimePoints, 5 * nrOfGenotypes]
+    fig, ax = plt.subplots(nrOfGenotypes, nrOfTimePoints, figsize=figsize)
+
+    if not hideInnerAxisLabels:
+        fig.tight_layout()
+        bottomSpacing = 0.1
+        leftSpacing = bottomSpacing * figsize[1] / figsize[0]
+        plt.subplots_adjust(left=leftSpacing, bottom=bottomSpacing, right=None, top=None, wspace=None, hspace=None)
+    ax = ax.ravel()
+    numberOfPlots = len(ax)
+    loadColorPalette = createLoadColorPalette()
+    if nrOfGenotypes > 1 and nrOfTimePoints > 1:
+        for i, (g, t) in enumerate(itertools.product(genotypes, allTimePoints)):
+            columnsExpectedValuesToKeep = {"genotype": g, "time point": t}
+            plotFilteredPCA(analyser, columnsToAnalyse, columnsExpectedValuesToKeep, i, ax, nrOfTimePoints, loadColorPalette, hideInnerAxisLabels, numberOfPlots)
+    elif nrOfGenotypes > 1:
+        for i, g in enumerate(genotypes):
+            columnsExpectedValuesToKeep = {"genotype": g}
+            plotFilteredPCA(analyser, columnsToAnalyse, columnsExpectedValuesToKeep, i, ax, 0, loadColorPalette, hideInnerAxisLabels, numberOfPlots, t="None")
+    else:
+        for i, t in enumerate(allTimePoints):
+            columnsExpectedValuesToKeep = {"time point": t}
+            plotFilteredPCA(analyser, columnsToAnalyse, columnsExpectedValuesToKeep, i, ax, nrOfTimePoints, loadColorPalette, hideInnerAxisLabels, numberOfPlots, t=t)
+
+    return fig, ax
+
 def analyseEngCotyledonsRegularityIndividualPCA(pcXIdx: int = 0, pcYIdx: int = 1):
     tableFilename = "Results/combinedMeasures_Eng2021Cotyledons.csv"
     filenameToSave = f"Results/regularityResults/PCA/PCA_Eng2021Cotyledons{'' if pcXIdx == 0 and pcYIdx == 1 else f'_PC{pcXIdx+1}VS{pcYIdx+1}'}.png"
@@ -130,42 +192,10 @@ def analyseEngCotyledonsRegularityIndividualPCA(pcXIdx: int = 0, pcYIdx: int = 1
     allTimePoints = ["0h", "24h", "48h", "72h", "96h"]
     genotypes = ["col-0", "Oryzalin", "ktn1-2"]
     genotypeNames = ["WT", "WT+Oryzalin", "$\it{ktn1}$-$\it{2}$"]
-    nrOfGenotypes = len(genotypes)
-    nrOfTimePoints = len(allTimePoints)
-    PCAAnalysis(tableFilename).SetRcParams(fontSize=20)
-    figsize = [5 * nrOfTimePoints, 5 * nrOfGenotypes]
-    fig, ax = plt.subplots(nrOfGenotypes, nrOfTimePoints, figsize=figsize)
-    hideInnerAxisLabels = False
-    if not hideInnerAxisLabels:
-        fig.tight_layout()
-        bottomSpacing = 0.1
-        leftSpacing = bottomSpacing * figsize[1] / figsize[0]
-        plt.subplots_adjust(left=leftSpacing, bottom=bottomSpacing, right=None, top=None, wspace=None, hspace=None)
-    ax = ax.ravel()
-    numberOfPlots = len(ax)
-    loadColorPalette: list = list(sns.color_palette("colorblind"))
-    loadColorPalette = [loadColorPalette[1], loadColorPalette[3], loadColorPalette[0], loadColorPalette[2]]
-    for i, (g, t) in enumerate(itertools.product(genotypes, allTimePoints)):
-        columnsExpectedValuesToKeep = {"genotype": g, "time point": t}
-        analyser = PCAAnalysis(tableFilename)
-        analyser.AnalyseTable(columnsToAnalyse, numberOfComponents=4, columnsExpectedValuesToKeep=columnsExpectedValuesToKeep)
-        if i < nrOfTimePoints:
-            title = f"{t}"
-        else:
-            title = None
-        if hideInnerAxisLabels:
-            if i > numberOfPlots - nrOfTimePoints - 1:
-                showXLabel = True
-            else:
-                showXLabel = False
-            if i % nrOfTimePoints == 0:
-                showYLabel = True
-            else:
-                showYLabel = False
-        else:
-            showXLabel, showYLabel = True, True
-        analyser.PlotBiPlot(ax=ax[i], pcXIdx=pcXIdx, pcYIdx=pcYIdx, loadColorPalette=loadColorPalette, title=title,
-                            saveOrShowKwargs={"showPlot": False}, showXLabel=showXLabel, showYLabel=showYLabel)
+
+    analyser = PCAAnalysis(tableFilename)
+    hideInnerAxisLabels = True
+    fig, ax = plotIndividualGenotypeTimePointPCAs(analyser, columnsToAnalyse, allTimePoints=allTimePoints, genotypes=genotypes, hideInnerAxisLabels=hideInnerAxisLabels)
     if not hideInnerAxisLabels:
         xPos = 0
         genotypeYPositions = np.asarray([0.85, 0.55, 0.225])
@@ -173,10 +203,11 @@ def analyseEngCotyledonsRegularityIndividualPCA(pcXIdx: int = 0, pcYIdx: int = 1
         xPos = 0.07
         genotypeYPositions = [0.767, 0.5, 0.227]
     legendKwargs = {"loc": "lower center", "bbox_to_anchor": (0.5, 0), "bbox_transform": fig.transFigure, "ncol": 5}
+    loadColorPalette = createLoadColorPalette()
     addLegend([labelNameConverterDict[label] for label in columnsToAnalyse], loadColorPalette, legendKwargs=legendKwargs)
     for g, yPos in zip(genotypeNames, genotypeYPositions):
         plt.gcf().text(xPos, yPos, g, fontsize="large", rotation="vertical", horizontalalignment="center", verticalalignment="center")
-    saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
+    saveOrShowKwargs = {"filenameToSave": None, "showPlot": True, "dpi": 300}
     analyser.SaveOrShowFigure(**saveOrShowKwargs)
 
 def addGenotypeTimePointDependentColor(pcaAnalyser, genotypeColorConversion: dict, colorColumnName: str = "color"):
@@ -192,27 +223,46 @@ def addGenotypeTimePointDependentColor(pcaAnalyser, genotypeColorConversion: dic
         entriesColors.append(color)
     pcaAnalyser.table[colorColumnName] = entriesColors
 
-def analyseEngCotyledonsRegularityPooledPCA(pcXIdx: int = 0, pcYIdx: int = 1):
+def analyseEngCotyledonsRegularityPooledPCA(pcXIdx: int = 0, pcYIdx: int = 1, justPoolGenotypes: bool = False, justPoolTimePoints: bool = False):
     tableFilename = "Results/combinedMeasures_Eng2021Cotyledons.csv"
-    filenameToSave = f"Results/regularityResults/PCA/PCA_Eng2021Cotyledons_pooled{'' if pcXIdx == 0 and pcYIdx == 1 else f'_PC{pcXIdx+1}VS{pcYIdx+1}'}.png"
+    baseFilenameToSave = f"Results/regularityResults/PCA/PCA_Eng2021Cotyledons_pooled"
     labelNameConverterDict = {"lengthGiniCoeff": "Gini coefficient of length", "angleGiniCoeff": "Gini coefficient of angle",
                               "relativeCompleteness": "relative completeness", "lobyness": "lobyness"}
+    columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
 
-    loadColorPalette: list = list(sns.color_palette("colorblind"))
-
-    loadColorPalette = [loadColorPalette[1], loadColorPalette[3], loadColorPalette[0], loadColorPalette[2]]
+    loadColorPalette = createLoadColorPalette()
     colorPalette = sns.color_palette("colorblind")
     genotypeColorConversion = {"col-0": colorPalette[7], "Oryzalin": colorPalette[8], "ktn1-2": colorPalette[0]}
 
     analyser = PCAAnalysis(tableFilename)
     addGenotypeTimePointDependentColor(analyser, genotypeColorConversion)
-
-    columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
     analyser.AnalyseTable(columnsToAnalyse, numberOfComponents=4)
     title = None
-    scatterColor = analyser.table["color"]
-    analyser.PlotBiPlot(pcXIdx=pcXIdx, pcYIdx=pcYIdx, loadColorPalette=loadColorPalette, title=title, scatterColor=scatterColor, saveOrShowKwargs={"showPlot": False})
-    addLegend([labelNameConverterDict[label] for label in columnsToAnalyse], loadColorPalette)
+    if justPoolGenotypes:
+        allTimePoints = ["0h", "24h", "48h", "72h", "96h"]
+        genotypes = []
+        fig, ax = plotIndividualGenotypeTimePointPCAs(analyser, columnsToAnalyse, allTimePoints=allTimePoints, genotypes=genotypes, hideInnerAxisLabels=hideInnerAxisLabels)
+        baseFilenameToSave += "_justGenotype"
+    elif justPoolTimePoints:
+        hideInnerAxisLabels = False
+        allTimePoints = []
+        genotypes = ["col-0", "Oryzalin", "ktn1-2"]
+        genotypeNames = ["WT", "WT+Oryzalin", "$\it{ktn1}$-$\it{2}$"]
+        fig, ax = plotIndividualGenotypeTimePointPCAs(analyser, columnsToAnalyse, allTimePoints=allTimePoints, genotypes=genotypes, hideInnerAxisLabels=hideInnerAxisLabels)
+        if not hideInnerAxisLabels:
+            xPos = 0.07
+            genotypeYPositions = np.asarray([0.85, 0.55, 0.225])
+        else:
+            xPos = 0.07
+            genotypeYPositions = [0.767, 0.5, 0.227]
+        for g, yPos in zip(genotypeNames, genotypeYPositions):
+            plt.gcf().text(xPos, yPos, g, fontsize="large", rotation="vertical", horizontalalignment="center", verticalalignment="center")
+        baseFilenameToSave += "_justTime"
+    else:
+        scatterColor = analyser.table["color"]
+        analyser.PlotBiPlot(pcXIdx=pcXIdx, pcYIdx=pcYIdx, loadColorPalette=loadColorPalette, title=title, scatterColor=scatterColor, saveOrShowKwargs={"showPlot": False})
+        addLegend([labelNameConverterDict[label] for label in columnsToAnalyse], loadColorPalette)
+    filenameToSave = baseFilenameToSave + f"{'' if pcXIdx == 0 and pcYIdx == 1 else f'_PC{pcXIdx + 1}VS{pcYIdx + 1}'}.png"
     saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
     analyser.SaveOrShowFigure(**saveOrShowKwargs)
 
@@ -220,3 +270,5 @@ if __name__ == '__main__':
     for pcXIdx, pcYIdx in itertools.combinations(range(4), r=2):
         analyseEngCotyledonsRegularityIndividualPCA(pcXIdx=pcXIdx, pcYIdx=pcYIdx)
         analyseEngCotyledonsRegularityPooledPCA(pcXIdx=pcXIdx, pcYIdx=pcYIdx)
+        analyseEngCotyledonsRegularityPooledPCA(pcXIdx=pcXIdx, pcYIdx=pcYIdx, justPoolTimePoints=True)
+        analyseEngCotyledonsRegularityPooledPCA(pcXIdx=pcXIdx, pcYIdx=pcYIdx, justPoolGenotypes=True)
