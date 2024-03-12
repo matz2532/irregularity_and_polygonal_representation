@@ -21,6 +21,85 @@ class FolderContent (object):
         if not "extractedFilesDict" in self.folderContent:
             self.folderContent["extractedFilesDict"] = {}
 
+    def GetExtractedFilesDict(self):
+        return self.folderContent["extractedFilesDict"]
+
+    def GetExtractedFilesKeyValues(self, key):
+        assert key in self.folderContent["extractedFilesDict"], "The key {} is not in the extractedFilesDict of {}".format(key, str(self))
+        return self.folderContent["extractedFilesDict"][key]
+
+    def GetFilenameDict(self):
+        return self.folderContent["filenameDict"]
+
+    def GetFilenameDictKeyValue(self, key):
+        assert key in self.folderContent["filenameDict"], "The key {} is not in the filenameDict of {}".format(key, str(self))
+        filename = self.folderContent["filenameDict"][key]
+        if platform.system() == "Linux":
+            filename = self.convertFilenameToLinux(filename)
+        return filename
+
+    def GetFolder(self):
+        folderName = self.combineNames("/", addSeperatorAtEnd=True)
+        return folderName
+
+    def GetFolderContent(self):
+        return self.folderContent
+
+    def GetGenotype(self):
+        return self.folderContent["genotype"]
+
+    def GetReplicateId(self):
+        return self.folderContent["replicateId"]
+
+    def GetResolution(self):
+        if self.resolutionKey in self.folderContent:
+            return self.folderContent[self.resolutionKey]
+        else:
+            if self.verbose >= 1:
+                print("You wanted to get the resolution of tissue {}, but the resolutionKey {} is not present in {}.".format(self.GetTissueName(), self.resolutionKey, list(self.folderContent.keys())))
+            return None
+
+    def GetSegmentList(self, segmentKey="segments"):
+        extractedFilesDict = self.folderContent["extractedFilesDict"]
+        assert segmentKey in extractedFilesDict, "The segment key {} is not present in the tissue {}".format(segmentListKey, self.GetTissueName())
+        segmentList = extractedFilesDict[segmentKey]
+        return segmentList
+
+    def GetSegmentOfEndPointMode(self, endPointMode):
+        extractedFilesDict = self.GetExtractedFilesDict()
+        assert endPointMode in extractedFilesDict, "The endPointMode {} does not exist as a key in extractedFilesDict, only {} are allowed.".format(endPointMode, list(extractedFilesDict.keys()))
+        return extractedFilesDict[endPointMode]
+
+    def GetTimePoint(self):
+        return self.folderContent["timePoint"]
+
+    def GetTimePointIdxFrom(self, allTimePoints):
+        isTimePoint = np.isin(allTimePoints, self.folderContent["timePoint"])
+        whereIsTimePoint = np.where(isTimePoint)[0]
+        if len(whereIsTimePoint) > 0:
+            timePointIdx = whereIsTimePoint[0]
+        else:
+            timePointIdx = None
+            if self.verbose >= 1:
+                print("The time point of the tissue {} is not in the given time point list {} and is therefore given back as {}".format(self.GetTissueName(), additionallyReturnTimeIdxFromAllTimePointsList, timePointIdx))
+        return timePointIdx
+
+    def GetTissueInfos(self, additionallyReturnTimeIdxFromAllTimePointsList=None):
+        genotype = self.GetGenotype()
+        replicateId = self.GetReplicateId()
+        timePoint = self.GetTimePoint()
+        if not additionallyReturnTimeIdxFromAllTimePointsList is None:
+            timePointIdx = self.GetTimePointIdxFrom(additionallyReturnTimeIdxFromAllTimePointsList)
+            return genotype, replicateId, timePoint, timePointIdx
+        return genotype, replicateId, timePoint
+
+    def GetTissueName(self, sep="_"):
+        tissueName = self.combineNames(sep)
+        return tissueName
+
+    def SetFilenameDict(self, filenameDict):
+        self.folderContent["filenameDict"] = filenameDict
+
     def combineNames(self, seperator="", addSeperatorAtEnd=False):
         namesToConcat = []
         if "genotype" in self.folderContent:
@@ -162,82 +241,6 @@ class FolderContent (object):
             tmpDict[k] = v
         return tmpDict
 
-    def GetExtractedFilesDict(self):
-        return self.folderContent["extractedFilesDict"]
-
-    def GetExtractedFilesKeyValues(self, key):
-        assert key in self.folderContent["extractedFilesDict"], "The key {} is not in the extractedFilesDict of {}".format(key, str(self))
-        return self.folderContent["extractedFilesDict"][key]
-
-    def GetFilenameDict(self):
-        return self.folderContent["filenameDict"]
-
-    def GetFilenameDictKeyValue(self, key):
-        assert key in self.folderContent["filenameDict"], "The key {} is not in the filenameDict of {}".format(key, str(self))
-        filename = self.folderContent["filenameDict"][key]
-        if platform.system() == "Linux":
-            filename = self.convertFilenameToLinux(filename)
-        return filename
-
-    def GetFolder(self):
-        folderName = self.combineNames("/", addSeperatorAtEnd=True)
-        return folderName
-
-    def GetFolderContent(self):
-        return self.folderContent
-
-    def GetGenotype(self):
-        return self.folderContent["genotype"]
-
-    def GetReplicateId(self):
-        return self.folderContent["replicateId"]
-
-    def GetResolution(self):
-        if self.resolutionKey in self.folderContent:
-            return self.folderContent[self.resolutionKey]
-        else:
-            if self.verbose >= 1:
-                print("You wanted to get the resolution of tissue {}, but the resolutionKey {} is not present in {}.".format(self.GetTissueName(), self.resolutionKey, list(self.folderContent.keys())))
-            return None
-
-    def GetSegmentList(self, segmentKey="segments"):
-        extractedFilesDict = self.folderContent["extractedFilesDict"]
-        assert segmentKey in extractedFilesDict, "The segment key {} is not present in the tissue {}".format(segmentListKey, self.GetTissueName())
-        segmentList = extractedFilesDict[segmentKey]
-        return segmentList
-
-    def GetSegmentOfEndPointMode(self, endPointMode):
-        extractedFilesDict = self.GetExtractedFilesDict()
-        assert endPointMode in extractedFilesDict, "The endPointMode {} does not exist as a key in extractedFilesDict, only {} are allowed.".format(endPointMode, list(extractedFilesDict.keys()))
-        return extractedFilesDict[endPointMode]
-
-    def GetTimePoint(self):
-        return self.folderContent["timePoint"]
-
-    def GetTimePointIdxFrom(self, allTimePoints):
-        isTimePoint = np.isin(allTimePoints, self.folderContent["timePoint"])
-        whereIsTimePoint = np.where(isTimePoint)[0]
-        if len(whereIsTimePoint) > 0:
-            timePointIdx = whereIsTimePoint[0]
-        else:
-            timePointIdx = None
-            if self.verbose >= 1:
-                print("The time point of the tissue {} is not in the given time point list {} and is therefore given back as {}".format(self.GetTissueName(), additionallyReturnTimeIdxFromAllTimePointsList, timePointIdx))
-        return timePointIdx
-
-    def GetTissueInfos(self, additionallyReturnTimeIdxFromAllTimePointsList=None):
-        genotype = self.GetGenotype()
-        replicateId = self.GetReplicateId()
-        timePoint = self.GetTimePoint()
-        if not additionallyReturnTimeIdxFromAllTimePointsList is None:
-            timePointIdx = self.GetTimePointIdxFrom(additionallyReturnTimeIdxFromAllTimePointsList)
-            return genotype, replicateId, timePoint, timePointIdx
-        return genotype, replicateId, timePoint
-
-    def GetTissueName(self, sep="_"):
-        tissueName = self.combineNames(sep)
-        return tissueName
-
     def SavePartOfExtractedFilesTo(self, keys, saveToFilename):
         if type(keys) == "str":
             keys = [keys]
@@ -319,9 +322,6 @@ class FolderContent (object):
             else:
                 data_structure[key] = NoIndent(value)
         return data_structure
-
-    def SetFilenameDict(self, filenameDict):
-        self.folderContent["filenameDict"] = filenameDict
 
     def __str__(self):
         text = "The content of the tissue {}\n".format(self.GetTissueName())

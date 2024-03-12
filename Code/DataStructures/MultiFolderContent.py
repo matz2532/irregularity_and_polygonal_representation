@@ -46,6 +46,173 @@ class MultiFolderContent:
              text += str(folderContent)
         return text
 
+    def GetDataOfTimePointWithKey(self, timePoint, complexityKey, pooled=False):
+        contentsOfTimePoint = self.GetFolderContentsOfTimePoint(timePoint)
+        dataOfTimePoint = []
+        for content in contentsOfTimePoint:
+            data = content.GetExtractedFilesKeyValues(complexityKey)
+            if pooled and type(data) == dict:
+                data = list(data.values())
+                if isinstance(data[0], (list, np.ndarray)):
+                    data = np.concatenate(data)
+            dataOfTimePoint.append(data)
+        if pooled:
+            dataOfTimePoint = np.concatenate(dataOfTimePoint)
+        return dataOfTimePoint
+
+    def GetDataWithKey(self, complexityKey, pooled=True):
+        allData = []
+        for content in self.allFolderContents:
+            data = content.GetExtractedFilesKeyValues(complexityKey)
+            if pooled and type(data) == dict:
+                data = list(data.values())
+                if isinstance(data[0], (list, np.ndarray)):
+                    data = np.concatenate(data)
+            allData.append(data)
+        if pooled:
+            allData = np.concatenate(allData)
+        return allData
+
+    def GetFolderContentByIdx(self, idx):
+        return self.allFolderContents[idx]
+
+    def GetFolderContentOfIdentifier(self, identifier):
+        genotype, selectedReplicateId, timePoint = identifier
+        isSelectedTissue = self.isFolderContentIdentifier(identifier)
+        assert np.sum(isSelectedTissue) > 0, f"The number of tissues corresponding to {genotype=}, {selectedReplicateId=} and {timePoint=} should be 1 == {np.sum(isSelectedTissue)}.\nThe following identifiers are present {[f.GetTissueName() for f in self.allFolderContents]}"
+        if np.sum(isSelectedTissue) > 1:
+            warnings.warn(f"The number of tissues corresponding to {genotype=}, {selectedReplicateId=} and {timePoint=} should be 1 == {np.sum(isSelectedTissue)=}.\nThe first folder content is returned.\nThe following identifiers are present {[f.GetTissueName() for f in self.allFolderContents]}")
+        return self.allFolderContents[np.where(isSelectedTissue)[0]][0]
+
+    def GetFolderContentOfReplicateAtTimePoint(self, selectedReplicateId, timePoint):
+        isSelectedReplicateAtTimePoint = self.isFolderContentReplicateAndTimePointId(selectedReplicateId, timePoint)
+        assert np.sum(isSelectedReplicateAtTimePoint) == 1, f"The number of tissues corresponding to {selectedReplicateId=} and {timePoint=} should be 1 != {np.sum(isSelectedReplicateAtTimePoint)=}.\nThe following replicate-time point pairs are present {self.GetReplicateTimePointPairs()}"
+        return self.allFolderContents[np.where(isSelectedReplicateAtTimePoint)[0]][0]
+
+    def GetFolderContentsOfGenotype(self, genotypeName):
+        genotypeOfFolderContents = self.GetGenotypes()
+        isSelectedGenotype = np.isin(genotypeOfFolderContents, genotypeName)
+        rawFolderContents = [i.GetFolderContent() for i in self.allFolderContents[isSelectedGenotype]]
+        return MultiFolderContent(rawFolderContents=rawFolderContents)
+
+    def GetFolderContentsOfReplicate(self, selectedReplicateId):
+        replicateIds = [i.GetReplicateId() for i in self.allFolderContents]
+        isSelectedReplicate = np.isin(replicateIds, selectedReplicateId)
+        return self.allFolderContents[np.where(isSelectedReplicate)[0]]
+
+    def GetFolderContentsOfTimePoint(self, timePoint):
+        timePointIds = [i.GetTimePoint() for i in self.allFolderContents]
+        isSelectedTimePoint = np.isin(timePointIds, timePoint)
+        return self.allFolderContents[np.where(isSelectedTimePoint)[0]]
+
+    def GetFolderContentWithTissueName(self, selectedTissueName):
+        tissueNames = self.GetTissueNames()
+        isSelectedTissueName = np.isin(tissueNames, selectedTissueName)
+        if np.sum(isSelectedTissueName) > 1:
+            warnings.warn(f"The {selectedTissueName=} have been found multiple times ({np.sum(isSelectedTissueName)}) in the folder contents from {self.allFolderContentsFilename}")
+        if np.sum(isSelectedTissueName) > 0:
+            return self.allFolderContents[np.where(isSelectedTissueName)[0]][0]
+        return None
+
+    def GetGenotypes(self):
+        genotypeOfFolderContents = [i.GetGenotype() for i in self.allFolderContents]
+        return genotypeOfFolderContents
+
+    def GetPresentTissueIdentifiers(self):
+        if self.allFolderContents is None:
+            return []
+        else:
+            return [folderContent.GetTissueInfos() for folderContent in self.allFolderContents]
+
+    def GetReplicateTimePointPairs(self, delimiter=" || "):
+        allReplicateTimePointPairs = []
+        for folderContent in self.allFolderContents:
+            replicateId = folderContent.GetReplicateId()
+            timePoint = folderContent.GetTimePoint()
+            replicateTimePointPair = delimiter.join([replicateId, timePoint])
+            allReplicateTimePointPairs.append(replicateTimePointPair)
+        return allReplicateTimePointPairs
+
+    def GetTissueWithData(self, targetFolderContentData: dict, allowMultipleToReturn: bool = False, warnAboutMultiple: bool = True):
+        indexSelectedOfFolderContent = []
+        for i, folderContent in enumerate(list(self)):
+            isSelectedTissue = folderContent.IsPresentFolderContentDataTheSame(targetFolderContentData)
+            if isSelectedTissue:
+                indexSelectedOfFolderContent.append(i)
+        if len(indexSelectedOfFolderContent) == 0:
+            return None
+        elif len(indexSelectedOfFolderContent) == 1:
+            return list(self)[indexSelectedOfFolderContent[0]]
+        else:
+            if allowMultipleToReturn:
+                return self.allFolderContents[indexSelectedOfFolderContent]
+            else:
+                if warnAboutMultiple:
+                    print(f"Multiple entries where found while checking the folder content data for {targetFolderContentData}\nwhile searching the MultiFolderContent {self.allFolderContentsFilename}")
+                return list(self)[indexSelectedOfFolderContent[0]]
+
+    def GetTidyDataFrameOf(self, valueKeysToInclude, includeCellId=False):
+        baseColumns = ["genotype", "replicate id", "time point"]
+        if not isinstance(valueKeysToInclude, (list, np.ndarray, tuple)):
+            valueKeysToInclude = list(valueKeysToInclude)
+        sampleFolderContent = self.allFolderContents[0]
+        isValueDictType = [isinstance(sampleFolderContent.GetExtractedFilesKeyValues(key), dict) for key in valueKeysToInclude]
+        unwrapDictTyp = np.any(isValueDictType)
+        if unwrapDictTyp:
+            assert np.all(isValueDictType), "If any value key is of type dict, all have to be of type dict, {} are dicts, but {} are not".format(np.array(valueKeysToInclude)[isValueDictType], np.array(valueKeysToInclude)[np.invert(isValueDictType)])
+            baseColumns.append("cell label")
+            if includeCellId:
+                self.myCellIdTracker = CellIdTracker()
+                baseColumns.append("cell id")
+        columns = np.concatenate([baseColumns, valueKeysToInclude])
+        tidyArray = []
+        unwrapDictTypCheckMessages = []
+        for content in self.allFolderContents:
+            valuesOfKeys = []
+            cellLabelsOfValueKey = {}
+            for valueKey in valueKeysToInclude:
+                if unwrapDictTyp:
+                    valuesOfCurrentKey, cellLabelsOfSamples, cellIdsOfSamples = self.extractCellValueAndLabelOf(valueKey, content, includeCellId=includeCellId)
+                    valuesOfKeys.append(valuesOfCurrentKey)
+                    cellLabelsOfValueKey[valueKey] = cellLabelsOfSamples
+                else:
+                    valuesOfKeys.append(content.GetExtractedFilesKeyValues(valueKey))
+                    cellIdsOfSamples = None
+            if unwrapDictTyp:
+                msg = self.assertEqualSampleNumbersOfAllKeys(valuesOfKeys, valueKeysToInclude, cellLabelsOfValueKey, content)
+                if not msg is None:
+                    unwrapDictTypCheckMessages.append(msg)
+            else:
+                msg = None
+            if msg is None:
+                tidyArrayOfContent = self.combineValues(content, valuesOfKeys, unwrapDictTyp, cellLabelsOfSamples, includeCellId, cellIdsOfSamples)
+                tidyArray.append(tidyArrayOfContent)
+        assert len(unwrapDictTypCheckMessages) == 0, "\n\n".join(unwrapDictTypCheckMessages)
+        tidyArray = np.vstack(tidyArray)
+        tidyDf = pd.DataFrame(tidyArray, columns=columns)
+        tidyDf["cell label"] = tidyDf["cell label"].astype(np.int32) # this should be done as the table could not be merged with others, but may lead to later confusions, when one does not want to have cell labels to be integers
+        return tidyDf
+
+    def GetTimePoints(self):
+        timePointIds = [i.GetTimePoint() for i in self.allFolderContents]
+        return timePointIds
+
+    def GetTissueNames(self):
+        return [i.GetTissueName() for i in self.allFolderContents]
+
+    def GetUniqueTimePoints(self):
+        timePointIds = self.GetTimePoints()
+        _, previousOrder = np.unique(timePointIds, return_index=True)
+        return np.array(timePointIds)[np.sort(previousOrder)]
+
+    def GetUniqueGenotypes(self):
+        genotypeOfFolderContents = self.GetGenotypes()
+        _, previousOrder = np.unique(genotypeOfFolderContents, return_index=True)
+        return np.array(genotypeOfFolderContents)[np.sort(previousOrder)]
+
+    def SetAllFolderContentsFilename(self, allFolderContentsFilename):
+        self.allFolderContentsFilename = allFolderContentsFilename
+
     def ResetFolderContents(self):
         self.rawFolderContents = []
         self.allFolderContents = np.asarray([], dtype=FolderContent)
@@ -158,24 +325,6 @@ class MultiFolderContent:
         sumOfMatchingInfos = np.sum(presentTissueIdentifiers == selectedTissueInfo, axis=1)
         return np.any(sumOfMatchingInfos == 3)
 
-    def GetTissueWithData(self, targetFolderContentData: dict, allowMultipleToReturn: bool = False, warnAboutMultiple: bool = True):
-        indexSelectedOfFolderContent = []
-        for i, folderContent in enumerate(list(self)):
-            isSelectedTissue = folderContent.IsPresentFolderContentDataTheSame(targetFolderContentData)
-            if isSelectedTissue:
-                indexSelectedOfFolderContent.append(i)
-        if len(indexSelectedOfFolderContent) == 0:
-            return None
-        elif len(indexSelectedOfFolderContent) == 1:
-            return list(self)[indexSelectedOfFolderContent[0]]
-        else:
-            if allowMultipleToReturn:
-                return self.allFolderContents[indexSelectedOfFolderContent]
-            else:
-                if warnAboutMultiple:
-                    print(f"Multiple entries where found while checking the folder content data for {targetFolderContentData}\nwhile searching the MultiFolderContent {self.allFolderContentsFilename}")
-                return list(self)[indexSelectedOfFolderContent[0]]
-
     def ExchangeFolderContent(self, folderContent):
         currentContentIdentifier = folderContent.GetTissueInfos()
         isContent = self.isFolderContentIdentifier(currentContentIdentifier)
@@ -242,135 +391,6 @@ class MultiFolderContent:
                 rawContentsToSave.append(jsonCompatibleFolderContent)
         dummyContent.prettyDumpJson(rawContentsToSave, saveToFilename)
 
-    def GetDataOfTimePointWithKey(self, timePoint, complexityKey, pooled=False):
-        contentsOfTimePoint = self.GetFolderContentsOfTimePoint(timePoint)
-        dataOfTimePoint = []
-        for content in contentsOfTimePoint:
-            data = content.GetExtractedFilesKeyValues(complexityKey)
-            if pooled and type(data) == dict:
-                data = list(data.values())
-                if isinstance(data[0], (list, np.ndarray)):
-                    data = np.concatenate(data)
-            dataOfTimePoint.append(data)
-        if pooled:
-            dataOfTimePoint = np.concatenate(dataOfTimePoint)
-        return dataOfTimePoint
-
-    def GetPresentTissueIdentifiers(self):
-        if self.allFolderContents is None:
-            return []
-        else:
-            return [folderContent.GetTissueInfos() for folderContent in self.allFolderContents]
-
-    def GetDataWithKey(self, complexityKey, pooled=True):
-        allData = []
-        for content in self.allFolderContents:
-            data = content.GetExtractedFilesKeyValues(complexityKey)
-            if pooled and type(data) == dict:
-                data = list(data.values())
-                if isinstance(data[0], (list, np.ndarray)):
-                    data = np.concatenate(data)
-            allData.append(data)
-        if pooled:
-            allData = np.concatenate(allData)
-        return allData
-
-    def GetFolderContentByIdx(self, idx):
-        return self.allFolderContents[idx]
-
-    def GetFolderContentOfIdentifier(self, identifier):
-        genotype, selectedReplicateId, timePoint = identifier
-        isSelectedTissue = self.isFolderContentIdentifier(identifier)
-        assert np.sum(isSelectedTissue) > 0, f"The number of tissues corresponding to {genotype=}, {selectedReplicateId=} and {timePoint=} should be 1 == {np.sum(isSelectedTissue)}.\nThe following identifiers are present {[f.GetTissueName() for f in self.allFolderContents]}"
-        if np.sum(isSelectedTissue) > 1:
-            warnings.warn(f"The number of tissues corresponding to {genotype=}, {selectedReplicateId=} and {timePoint=} should be 1 == {np.sum(isSelectedTissue)=}.\nThe first folder content is returned.\nThe following identifiers are present {[f.GetTissueName() for f in self.allFolderContents]}")
-        return self.allFolderContents[np.where(isSelectedTissue)[0]][0]
-
-    def GetFolderContentOfReplicateAtTimePoint(self, selectedReplicateId, timePoint):
-        isSelectedReplicateAtTimePoint = self.isFolderContentReplicateAndTimePointId(selectedReplicateId, timePoint)
-        assert np.sum(isSelectedReplicateAtTimePoint) == 1, f"The number of tissues corresponding to {selectedReplicateId=} and {timePoint=} should be 1 != {np.sum(isSelectedReplicateAtTimePoint)=}.\nThe following replicate-time point pairs are present {self.GetReplicateTimePointPairs()}"
-        return self.allFolderContents[np.where(isSelectedReplicateAtTimePoint)[0]][0]
-
-    def GetFolderContentsOfGenotype(self, genotypeName):
-        genotypeOfFolderContents = self.GetGenotypes()
-        isSelectedGenotype = np.isin(genotypeOfFolderContents, genotypeName)
-        rawFolderContents = [i.GetFolderContent() for i in self.allFolderContents[isSelectedGenotype]]
-        return MultiFolderContent(rawFolderContents=rawFolderContents)
-
-    def GetFolderContentsOfReplicate(self, selectedReplicateId):
-        replicateIds = [i.GetReplicateId() for i in self.allFolderContents]
-        isSelectedReplicate = np.isin(replicateIds, selectedReplicateId)
-        return self.allFolderContents[np.where(isSelectedReplicate)[0]]
-
-    def GetFolderContentsOfTimePoint(self, timePoint):
-        timePointIds = [i.GetTimePoint() for i in self.allFolderContents]
-        isSelectedTimePoint = np.isin(timePointIds, timePoint)
-        return self.allFolderContents[np.where(isSelectedTimePoint)[0]]
-
-    def GetFolderContentWithTissueName(self, selectedTissueName):
-        tissueNames = self.GetTissueNames()
-        isSelectedTissueName = np.isin(tissueNames, selectedTissueName)
-        if np.sum(isSelectedTissueName) > 1:
-            warnings.warn(f"The {selectedTissueName=} have been found multiple times ({np.sum(isSelectedTissueName)}) in the folder contents from {self.allFolderContentsFilename}")
-        if np.sum(isSelectedTissueName) > 0:
-            return self.allFolderContents[np.where(isSelectedTissueName)[0]][0]
-        return None
-
-    def GetGenotypes(self):
-        genotypeOfFolderContents = [i.GetGenotype() for i in self.allFolderContents]
-        return genotypeOfFolderContents
-
-    def GetReplicateTimePointPairs(self, delimiter=" || "):
-        allReplicateTimePointPairs = []
-        for folderContent in self.allFolderContents:
-            replicateId = folderContent.GetReplicateId()
-            timePoint = folderContent.GetTimePoint()
-            replicateTimePointPair = delimiter.join([replicateId, timePoint])
-            allReplicateTimePointPairs.append(replicateTimePointPair)
-        return allReplicateTimePointPairs
-
-    def GetTidyDataFrameOf(self, valueKeysToInclude, includeCellId=False):
-        baseColumns = ["genotype", "replicate id", "time point"]
-        if not isinstance(valueKeysToInclude, (list, np.ndarray, tuple)):
-            valueKeysToInclude = list(valueKeysToInclude)
-        sampleFolderContent = self.allFolderContents[0]
-        isValueDictType = [isinstance(sampleFolderContent.GetExtractedFilesKeyValues(key), dict) for key in valueKeysToInclude]
-        unwrapDictTyp = np.any(isValueDictType)
-        if unwrapDictTyp:
-            assert np.all(isValueDictType), "If any value key is of type dict, all have to be of type dict, {} are dicts, but {} are not".format(np.array(valueKeysToInclude)[isValueDictType], np.array(valueKeysToInclude)[np.invert(isValueDictType)])
-            baseColumns.append("cell label")
-            if includeCellId:
-                self.myCellIdTracker = CellIdTracker()
-                baseColumns.append("cell id")
-        columns = np.concatenate([baseColumns, valueKeysToInclude])
-        tidyArray = []
-        unwrapDictTypCheckMessages = []
-        for content in self.allFolderContents:
-            valuesOfKeys = []
-            cellLabelsOfValueKey = {}
-            for valueKey in valueKeysToInclude:
-                if unwrapDictTyp:
-                    valuesOfCurrentKey, cellLabelsOfSamples, cellIdsOfSamples = self.extractCellValueAndLabelOf(valueKey, content, includeCellId=includeCellId)
-                    valuesOfKeys.append(valuesOfCurrentKey)
-                    cellLabelsOfValueKey[valueKey] = cellLabelsOfSamples
-                else:
-                    valuesOfKeys.append(content.GetExtractedFilesKeyValues(valueKey))
-                    cellIdsOfSamples = None
-            if unwrapDictTyp:
-                msg = self.assertEqualSampleNumbersOfAllKeys(valuesOfKeys, valueKeysToInclude, cellLabelsOfValueKey, content)
-                if not msg is None:
-                    unwrapDictTypCheckMessages.append(msg)
-            else:
-                msg = None
-            if msg is None:
-                tidyArrayOfContent = self.combineValues(content, valuesOfKeys, unwrapDictTyp, cellLabelsOfSamples, includeCellId, cellIdsOfSamples)
-                tidyArray.append(tidyArrayOfContent)
-        assert len(unwrapDictTypCheckMessages) == 0, "\n\n".join(unwrapDictTypCheckMessages)
-        tidyArray = np.vstack(tidyArray)
-        tidyDf = pd.DataFrame(tidyArray, columns=columns)
-        tidyDf["cell label"] = tidyDf["cell label"].astype(np.int32) # this should be done as the table could not be merged with others, but may lead to later confusions, when one does not want to have cell labels to be integers
-        return tidyDf
-
     def extractCellValueAndLabelOf(self, valueKey, content, includeCellId=False):
         if includeCellId:
             self.myCellIdTracker.RunCellIdTracker(folderContent=content)
@@ -435,26 +455,6 @@ class MultiFolderContent:
             toManySampleLabels = [np.setdiff1d(cellLabelsOfValueKey[keyName], expectedSampleLabels) for keyName in differentKeyNames]
             return f"The given number of samples {nrOfSamples} is not identical for the keys {differentKeyNames} with {nrOfSamples[isSampleNumberDifferent]} samples in the tissue {content.GetTissueName()}.\nThe samples {missingSampleLabels} are missing and {toManySampleLabels} should not be present."
         return None
-
-    def GetTimePoints(self):
-        timePointIds = [i.GetTimePoint() for i in self.allFolderContents]
-        return timePointIds
-
-    def GetTissueNames(self):
-        return [i.GetTissueName() for i in self.allFolderContents]
-
-    def GetUniqueTimePoints(self):
-        timePointIds = self.GetTimePoints()
-        _, previousOrder = np.unique(timePointIds, return_index=True)
-        return np.array(timePointIds)[np.sort(previousOrder)]
-
-    def GetUniqueGenotypes(self):
-        genotypeOfFolderContents = self.GetGenotypes()
-        _, previousOrder = np.unique(genotypeOfFolderContents, return_index=True)
-        return np.array(genotypeOfFolderContents)[np.sort(previousOrder)]
-
-    def SetAllFolderContentsFilename(self, allFolderContentsFilename):
-        self.allFolderContentsFilename = allFolderContentsFilename
 
 def convertFilenameDictPathsToStrings(allFolderContentsFilename):
     myMultiFolderContent = MultiFolderContent(allFolderContentsFilename)
