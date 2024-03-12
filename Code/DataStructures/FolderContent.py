@@ -11,8 +11,8 @@ from pathlib import Path
 
 class FolderContent (object):
 
-    verbose = 1
-    resolutionKey="resolution"
+    verbose: int = 1
+    resolutionKey: str = "resolution"
 
     def __init__(self, folderContent: dict = {}):
         self.folderContent = folderContent
@@ -31,14 +31,14 @@ class FolderContent (object):
     def GetExtractedFilesDict(self):
         return self.folderContent["extractedFilesDict"]
 
-    def GetExtractedFilesKeyValues(self, key):
+    def GetExtractedFilesKeyValues(self, key: str):
         assert key in self.folderContent["extractedFilesDict"], "The key {} is not in the extractedFilesDict of {}".format(key, str(self))
         return self.folderContent["extractedFilesDict"][key]
 
     def GetFilenameDict(self):
         return self.folderContent["filenameDict"]
 
-    def GetFilenameDictKeyValue(self, key):
+    def GetFilenameDictKeyValue(self, key: str):
         assert key in self.folderContent["filenameDict"], "The key {} is not in the filenameDict of {}".format(key, str(self))
         filename = self.folderContent["filenameDict"][key]
         if platform.system() == "Linux":
@@ -66,13 +66,13 @@ class FolderContent (object):
                 print("You wanted to get the resolution of tissue {}, but the resolutionKey {} is not present in {}.".format(self.GetTissueName(), self.resolutionKey, list(self.folderContent.keys())))
             return None
 
-    def GetSegmentList(self, segmentKey="segments"):
+    def GetSegmentList(self, segmentKey: str = "segments"):
         extractedFilesDict = self.folderContent["extractedFilesDict"]
-        assert segmentKey in extractedFilesDict, "The segment key {} is not present in the tissue {}".format(segmentListKey, self.GetTissueName())
+        assert segmentKey in extractedFilesDict, "The segment key {} is not present in the tissue {}".format(segmentKey, self.GetTissueName())
         segmentList = extractedFilesDict[segmentKey]
         return segmentList
 
-    def GetSegmentOfEndPointMode(self, endPointMode):
+    def GetSegmentOfEndPointMode(self, endPointMode: str):
         extractedFilesDict = self.GetExtractedFilesDict()
         assert endPointMode in extractedFilesDict, "The endPointMode {} does not exist as a key in extractedFilesDict, only {} are allowed.".format(endPointMode, list(extractedFilesDict.keys()))
         return extractedFilesDict[endPointMode]
@@ -80,7 +80,7 @@ class FolderContent (object):
     def GetTimePoint(self):
         return self.folderContent["timePoint"]
 
-    def GetTimePointIdxFrom(self, allTimePoints):
+    def GetTimePointIdxFrom(self, allTimePoints: list or np.ndarray, additionallyReturnTimeIdxFromAllTimePointsList: str = None):
         isTimePoint = np.isin(allTimePoints, self.folderContent["timePoint"])
         whereIsTimePoint = np.where(isTimePoint)[0]
         if len(whereIsTimePoint) > 0:
@@ -91,7 +91,7 @@ class FolderContent (object):
                 print("The time point of the tissue {} is not in the given time point list {} and is therefore given back as {}".format(self.GetTissueName(), additionallyReturnTimeIdxFromAllTimePointsList, timePointIdx))
         return timePointIdx
 
-    def GetTissueInfos(self, additionallyReturnTimeIdxFromAllTimePointsList=None):
+    def GetTissueInfos(self, additionallyReturnTimeIdxFromAllTimePointsList: str = None):
         genotype = self.GetGenotype()
         replicateId = self.GetReplicateId()
         timePoint = self.GetTimePoint()
@@ -100,17 +100,17 @@ class FolderContent (object):
             return genotype, replicateId, timePoint, timePointIdx
         return genotype, replicateId, timePoint
 
-    def GetTissueName(self, sep="_"):
+    def GetTissueName(self, sep: str = "_"):
         tissueName = self.combineNames(sep)
         return tissueName
 
-    def SetFilenameDict(self, filenameDict):
+    def SetFilenameDict(self, filenameDict: dict):
         self.folderContent["filenameDict"] = filenameDict
 
-    def AddDataToExtractedFilesDict(self, data, key):
+    def AddDataToExtractedFilesDict(self, data, key: str):
         self.folderContent["extractedFilesDict"][key] = data
 
-    def AddDataToFilenameDict(self, data, key, supressDataConversionToString: bool = False):
+    def AddDataToFilenameDict(self, data: str or Path, key: str, supressDataConversionToString: bool = False):
         if key in self.folderContent["filenameDict"] and self.verbose >= 1:
             if str(self.folderContent["filenameDict"][key]) != str(data):
                 print("Overwriting {} of key {} in filenameDict to {}".format(self.folderContent["filenameDict"][key], key, data))
@@ -133,17 +133,17 @@ class FolderContent (object):
                     print(f"The key {keyToCheck} is not present in the folder content data check of the tissue named {self.GetTissueName()}")
         return True
 
-    def IsKeyInExtractedFilesDict(self, key):
+    def IsKeyInExtractedFilesDict(self, key: str):
         return key in self.folderContent["extractedFilesDict"]
 
-    def IsKeyInFilenameDict(self, key):
+    def IsKeyInFilenameDict(self, key: str):
         return key in self.folderContent["filenameDict"]
 
-    def LoadKeyUsingFilenameDict(self, key, **kwargs):
+    def LoadKeyUsingFilenameDict(self, key: str, **kwargs):
         assert key in self.folderContent["filenameDict"], "The key {} is not in the filenameDict of {} only the keys: {} are present.".format(key, self.GetTissueName(), list(self.folderContent["filenameDict"].keys()))
         return self.loadFile(self.folderContent["filenameDict"][key], **kwargs)
 
-    def LoadKeysCalculatingRatioUsingFilenameDict(self, filenameKey, numeratorSubKey, denominatorSubKey, warnAboutMissingLabels=True, **kwargs):
+    def LoadKeysCalculatingRatioUsingFilenameDict(self, filenameKey: str, numeratorSubKey: str, denominatorSubKey: str, warnAboutMissingLabels: bool = True, **kwargs):
         multiValuesOfDict = self.LoadKeyUsingFilenameDict(filenameKey, **kwargs)
         isNumeratorKeyPresent = numeratorSubKey in multiValuesOfDict
         isDenominatorKeyPresent = denominatorSubKey in multiValuesOfDict
@@ -163,7 +163,7 @@ class FolderContent (object):
                 print(f"The {numberOfCellsWithNumerator=} != {numberOfCellsWithDenominator=} != {numberOfCellsWithRatios=}, with the present labels being\nnumeratorCellLabels={list(numeratorValuesOfCells.keys())}\ndenominatorCellLabels={list(denominatorValuesOfCells.keys())}\nratiosCellLabels={list(numberOfCellsWithRatios.keys())}")
         return ratioValuesDict
 
-    def SavePartOfExtractedFilesTo(self, keys, saveToFilename):
+    def SavePartOfExtractedFilesTo(self, keys: list or str, saveToFilename: str or Path):
         if type(keys) == "str":
             keys = [keys]
         dataToSave = {}
@@ -174,7 +174,7 @@ class FolderContent (object):
         with open(saveToFilename, "wb") as fh:
             pickle.dump(dataToSave, fh)
 
-    def SaveDataFilesTo(self, dataToSave, saveToFilename: str, convertDictValuesToList: bool = False, prettyDumpJson: bool = True):
+    def SaveDataFilesTo(self, dataToSave: dict, saveToFilename: str, convertDictValuesToList: bool = False, prettyDumpJson: bool = True):
         implementedSuffixes = (".pkl", ".json")
         suffix = Path(saveToFilename).suffix
         assert suffix in implementedSuffixes, f"The {suffix=} is not present in the implemented suffixes {implementedSuffixes} for the filename {saveToFilename}"
@@ -193,7 +193,7 @@ class FolderContent (object):
                 with open(saveToFilename, "w") as fh:
                     json.dump(dataToSave, fh)
 
-    def combineNames(self, seperator="", addSeperatorAtEnd=False):
+    def combineNames(self, seperator: str = "", addSeperatorAtEnd: bool = False):
         namesToConcat = []
         if "genotype" in self.folderContent:
             namesToConcat.append(self.folderContent["genotype"])
@@ -278,7 +278,7 @@ class FolderContent (object):
             tmpDict[k] = v
         return tmpDict
 
-    def ensureSavabilityAsJson(self, dataToSave, recursiveLayer: int = 0, maxRecursiveLayer: int = 5):
+    def ensureSavabilityAsJson(self, dataToSave: str or list or tuple, recursiveLayer: int = 0, maxRecursiveLayer: int = 5):
         if recursiveLayer >= maxRecursiveLayer:
             return dataToSave
         if isinstance(dataToSave, dict):
@@ -318,7 +318,7 @@ class FolderContent (object):
             with open(filename, "w") as f:
                 f.write(prettyJsonFormattedObject)
 
-    def recursiveDictNotImplementationDecision(self, obj, depth: int, maxDepth: int = 2):
+    def recursiveDictNotImplementationDecision(self, obj: dict, depth: int, maxDepth: int = 2):
         data_structure = {}
         for key, value in obj.items():
             if isinstance(value, dict):
