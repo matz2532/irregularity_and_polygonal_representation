@@ -213,28 +213,6 @@ class MultiFolderContent:
     def SetAllFolderContentsFilename(self, allFolderContentsFilename):
         self.allFolderContentsFilename = allFolderContentsFilename
 
-    def ResetFolderContents(self):
-        self.rawFolderContents = []
-        self.allFolderContents = np.asarray([], dtype=FolderContent)
-
-    def ConvertRawToProcessedFolderContents(self, rawFolderContents: list or np.ndarray):
-        typeOfRawFolderContent = [type(i) for i in rawFolderContents]
-        isAllowedType = np.isin(typeOfRawFolderContent, [dict, FolderContent])
-        assert np.all(isAllowedType), f"The raw folder contents need to be of type 'dict' or 'FolderContent', but are of type {typeOfRawFolderContent}"
-        allFolderContents = np.array([i if type(i) == FolderContent else FolderContent(i) for i in rawFolderContents])
-        return allFolderContents
-
-    def LoadFolderContentsFromFilename(self, allFolderContentsFilename: str):
-        if Path(allFolderContentsFilename).is_file():
-            self.allFolderContentsFilename = allFolderContentsFilename
-            self.rawFolderContents = FolderContent().loadFile(allFolderContentsFilename, convertDictKeysToInt=False, convertDictValuesToNpArray=False, convertNestedDictKeysToInt=False)
-            self.allFolderContents = self.ConvertRawToProcessedFolderContents(self.rawFolderContents)
-        else:
-            print("There was no file under {}, so MultiFolderContent was initialised empty.".format(allFolderContentsFilename))
-            self.ResetFolderContents()
-            if self.verbose >= 1:
-                    pass
-
     def AddDataFromFilenameContainingMultipleDicts(self, extractDataFromFilenameUsingKey, returnIndividualKeysAdded=False, nonNestedKeys: list = []):
         individualDataKeys = []
         for f in self.allFolderContents:
@@ -270,19 +248,6 @@ class MultiFolderContent:
             assert np.all(isCountEqualToFirst), f"The key/s {unorderedUniqueKeys[np.invert(isCountEqualToFirst)]} don't appear as often as the first key {counts[np.invert(isCountEqualToFirst)]} != {counts[0]} of key {unorderedUniqueKeys[0]}, while extracting data from {extractDataFromFilenameUsingKey} of {self.allFolderContentsFilename}"
             return pd.unique(individualDataKeys).tolist()
 
-    def tryToConvertKeysToInts(self, data, additionalInfoWithConversionError: str = ""):
-        try:
-            tmpDict = {}
-            for k, v in data.items():
-                convertedKey = int(float(k))
-                tmpDict[convertedKey] = data[k]
-            return tmpDict
-        except ValueError as e:
-            print("ValueError caught during key to int conversion:", e)
-            if additionalInfoWithConversionError:
-                print(f"{additionalInfoWithConversionError=}")
-            return data
-
     def AddDataFromFilename(self, dataKey, extractDataFromFilenameUsingKey="regularityMeasuresFilename"):
         for f in self.allFolderContents:
             filenameDict = f.GetFilenameDict()
@@ -313,6 +278,13 @@ class MultiFolderContent:
         else:
             print("No folder content is appended as the type {} is neither dict, nor FolderContent".format(type(folderContent)))
 
+    def ConvertRawToProcessedFolderContents(self, rawFolderContents: list or np.ndarray):
+        typeOfRawFolderContent = [type(i) for i in rawFolderContents]
+        isAllowedType = np.isin(typeOfRawFolderContent, [dict, FolderContent])
+        assert np.all(isAllowedType), f"The raw folder contents need to be of type 'dict' or 'FolderContent', but are of type {typeOfRawFolderContent}"
+        allFolderContents = np.array([i if type(i) == FolderContent else FolderContent(i) for i in rawFolderContents])
+        return allFolderContents
+
     def IsTissuePresent(self, selectedReplicateId, timePoint):
         isSelectedReplicateAtTimePoint = self.isFolderContentReplicateAndTimePointId(selectedReplicateId, timePoint)
         numberOfSelectedTissues = np.sum(isSelectedReplicateAtTimePoint)
@@ -335,22 +307,16 @@ class MultiFolderContent:
         else:
             self.AppendFolderContent(folderContent)
 
-    def UpdateFolderContents(self, printOut=False):
-        if not self.allFolderContentsFilename is None:
-            if isinstance(self.allFolderContentsFilename, Path):
-                temporarySaveFilename = self.allFolderContentsFilename.parent.joinpath(self.allFolderContentsFilename.stem + "_tmp.pkl")
-            else:
-                temporarySaveFilename = self.allFolderContentsFilename[:-4] + "_tmp.pkl"
-            if self.verbose >= 2:
-                print("Updating folder content of {}.".format(self.allFolderContentsFilename))
-            self.SaveFolderContents(temporarySaveFilename)
-            self.SaveFolderContents(self.allFolderContentsFilename)
-            os.remove(temporarySaveFilename)
-            if printOut:
-                print(f"Updated and overwrote {self.allFolderContentsFilename}")
+    def LoadFolderContentsFromFilename(self, allFolderContentsFilename: str):
+        if Path(allFolderContentsFilename).is_file():
+            self.allFolderContentsFilename = allFolderContentsFilename
+            self.rawFolderContents = FolderContent().loadFile(allFolderContentsFilename, convertDictKeysToInt=False, convertDictValuesToNpArray=False, convertNestedDictKeysToInt=False)
+            self.allFolderContents = self.ConvertRawToProcessedFolderContents(self.rawFolderContents)
         else:
+            print("There was no file under {}, so MultiFolderContent was initialised empty.".format(allFolderContentsFilename))
+            self.ResetFolderContents()
             if self.verbose >= 1:
-                print("Could not update MultiFolderContent of tissues {} as self.allFolderContentsFilename is None.".format([i.GetTissueName() for i in self.allFolderContents]))
+                    pass
 
     def RemoveFolderContentAt(self, idx):
          self.allFolderContents = np.delete(self.allFolderContents, idx)
@@ -390,6 +356,36 @@ class MultiFolderContent:
             if jsonCompatibleFolderContent is not None:
                 rawContentsToSave.append(jsonCompatibleFolderContent)
         dummyContent.prettyDumpJson(rawContentsToSave, saveToFilename)
+
+    def UpdateFolderContents(self, printOut=False):
+        if not self.allFolderContentsFilename is None:
+            if isinstance(self.allFolderContentsFilename, Path):
+                temporarySaveFilename = self.allFolderContentsFilename.parent.joinpath(self.allFolderContentsFilename.stem + "_tmp.pkl")
+            else:
+                temporarySaveFilename = self.allFolderContentsFilename[:-4] + "_tmp.pkl"
+            if self.verbose >= 2:
+                print("Updating folder content of {}.".format(self.allFolderContentsFilename))
+            self.SaveFolderContents(temporarySaveFilename)
+            self.SaveFolderContents(self.allFolderContentsFilename)
+            os.remove(temporarySaveFilename)
+            if printOut:
+                print(f"Updated and overwrote {self.allFolderContentsFilename}")
+        else:
+            if self.verbose >= 1:
+                print("Could not update MultiFolderContent of tissues {} as self.allFolderContentsFilename is None.".format([i.GetTissueName() for i in self.allFolderContents]))
+
+    def tryToConvertKeysToInts(self, data, additionalInfoWithConversionError: str = ""):
+        try:
+            tmpDict = {}
+            for k, v in data.items():
+                convertedKey = int(float(k))
+                tmpDict[convertedKey] = data[k]
+            return tmpDict
+        except ValueError as e:
+            print("ValueError caught during key to int conversion:", e)
+            if additionalInfoWithConversionError:
+                print(f"{additionalInfoWithConversionError=}")
+            return data
 
     def extractCellValueAndLabelOf(self, valueKey, content, includeCellId=False):
         if includeCellId:

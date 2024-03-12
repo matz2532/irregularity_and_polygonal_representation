@@ -21,6 +21,13 @@ class FolderContent (object):
         if not "extractedFilesDict" in self.folderContent:
             self.folderContent["extractedFilesDict"] = {}
 
+    def __str__(self):
+        text = "The content of the tissue {}\n".format(self.GetTissueName())
+        text += "contains the keys {} and\n".format(list(self.folderContent.keys()))
+        text += "the extractedFilesDict contains the keys {}\n".format(list(self.GetExtractedFilesDict().keys()))
+        text += "the filenameDict contains the names {}\n".format(self.GetFilenameDict())
+        return text
+
     def GetExtractedFilesDict(self):
         return self.folderContent["extractedFilesDict"]
 
@@ -100,19 +107,6 @@ class FolderContent (object):
     def SetFilenameDict(self, filenameDict):
         self.folderContent["filenameDict"] = filenameDict
 
-    def combineNames(self, seperator="", addSeperatorAtEnd=False):
-        namesToConcat = []
-        if "genotype" in self.folderContent:
-            namesToConcat.append(self.folderContent["genotype"])
-        if "replicateId" in self.folderContent:
-            namesToConcat.append(self.folderContent["replicateId"])
-        if "timePoint" in self.folderContent:
-            namesToConcat.append(self.folderContent["timePoint"])
-        combinedName = seperator.join([str(i) for i in namesToConcat])
-        if addSeperatorAtEnd:
-            combinedName += seperator
-        return combinedName
-
     def AddDataToExtractedFilesDict(self, data, key):
         self.folderContent["extractedFilesDict"][key] = data
 
@@ -168,6 +162,49 @@ class FolderContent (object):
             if numberOfCellsWithNumerator != numberOfCellsWithDenominator != numberOfCellsWithRatios:
                 print(f"The {numberOfCellsWithNumerator=} != {numberOfCellsWithDenominator=} != {numberOfCellsWithRatios=}, with the present labels being\nnumeratorCellLabels={list(numeratorValuesOfCells.keys())}\ndenominatorCellLabels={list(denominatorValuesOfCells.keys())}\nratiosCellLabels={list(numberOfCellsWithRatios.keys())}")
         return ratioValuesDict
+
+    def SavePartOfExtractedFilesTo(self, keys, saveToFilename):
+        if type(keys) == "str":
+            keys = [keys]
+        dataToSave = {}
+        isKeyPresent = [k in self.extractedFilesDict for k in keys]
+        assert np.all(isKeyPresent), f"The keys {np.asarray(keys)[isKeyPresent]} are not present in the extractedFilesDict, only {list(self.extractedFilesDict.keys())} are present as keys."
+        for k in keys:
+            dataToSave[k] = self.extractedFilesDict[k]
+        with open(saveToFilename, "wb") as fh:
+            pickle.dump(dataToSave, fh)
+
+    def SaveDataFilesTo(self, dataToSave, saveToFilename: str, convertDictValuesToList: bool = False, prettyDumpJson: bool = True):
+        implementedSuffixes = (".pkl", ".json")
+        suffix = Path(saveToFilename).suffix
+        assert suffix in implementedSuffixes, f"The {suffix=} is not present in the implemented suffixes {implementedSuffixes} for the filename {saveToFilename}"
+        if convertDictValuesToList:
+            for key, value in dataToSave.items():
+                if type(value) == np.ndarray:
+                    dataToSave[key] = value.tolist()
+        if suffix == ".pkl":
+            with open(saveToFilename, "wb") as fh:
+                pickle.dump(dataToSave, fh)
+        elif suffix == ".json":
+            dataToSave = self.ensureSavabilityAsJson(dataToSave)
+            if prettyDumpJson:
+                self.prettyDumpJson(dataToSave, saveToFilename)
+            else:
+                with open(saveToFilename, "w") as fh:
+                    json.dump(dataToSave, fh)
+
+    def combineNames(self, seperator="", addSeperatorAtEnd=False):
+        namesToConcat = []
+        if "genotype" in self.folderContent:
+            namesToConcat.append(self.folderContent["genotype"])
+        if "replicateId" in self.folderContent:
+            namesToConcat.append(self.folderContent["replicateId"])
+        if "timePoint" in self.folderContent:
+            namesToConcat.append(self.folderContent["timePoint"])
+        combinedName = seperator.join([str(i) for i in namesToConcat])
+        if addSeperatorAtEnd:
+            combinedName += seperator
+        return combinedName
 
     def loadFile(self, filename: str or Path, convertDictKeysToInt: bool = True, convertDictValuesToNpArray: bool = True,
                  convertNestedDictKeysToInt: bool = True, supressConversionWarning: bool = False,
@@ -241,36 +278,6 @@ class FolderContent (object):
             tmpDict[k] = v
         return tmpDict
 
-    def SavePartOfExtractedFilesTo(self, keys, saveToFilename):
-        if type(keys) == "str":
-            keys = [keys]
-        dataToSave = {}
-        isKeyPresent = [k in self.extractedFilesDict for k in keys]
-        assert np.all(isKeyPresent), f"The keys {np.asarray(keys)[isKeyPresent]} are not present in the extractedFilesDict, only {list(self.extractedFilesDict.keys())} are present as keys."
-        for k in keys:
-            dataToSave[k] = self.extractedFilesDict[k]
-        with open(saveToFilename, "wb") as fh:
-            pickle.dump(dataToSave, fh)
-
-    def SaveDataFilesTo(self, dataToSave, saveToFilename: str, convertDictValuesToList: bool = False, prettyDumpJson: bool = True):
-        implementedSuffixes = (".pkl", ".json")
-        suffix = Path(saveToFilename).suffix
-        assert suffix in implementedSuffixes, f"The {suffix=} is not present in the implemented suffixes {implementedSuffixes} for the filename {saveToFilename}"
-        if convertDictValuesToList:
-            for key, value in dataToSave.items():
-                if type(value) == np.ndarray:
-                    dataToSave[key] = value.tolist()
-        if suffix == ".pkl":
-            with open(saveToFilename, "wb") as fh:
-                pickle.dump(dataToSave, fh)
-        elif suffix == ".json":
-            dataToSave = self.ensureSavabilityAsJson(dataToSave)
-            if prettyDumpJson:
-                self.prettyDumpJson(dataToSave, saveToFilename)
-            else:
-                with open(saveToFilename, "w") as fh:
-                    json.dump(dataToSave, fh)
-
     def ensureSavabilityAsJson(self, dataToSave, recursiveLayer: int = 0, maxRecursiveLayer: int = 5):
         if recursiveLayer >= maxRecursiveLayer:
             return dataToSave
@@ -322,10 +329,3 @@ class FolderContent (object):
             else:
                 data_structure[key] = NoIndent(value)
         return data_structure
-
-    def __str__(self):
-        text = "The content of the tissue {}\n".format(self.GetTissueName())
-        text += "contains the keys {} and\n".format(list(self.folderContent.keys()))
-        text += "the extractedFilesDict contains the keys {}\n".format(list(self.GetExtractedFilesDict().keys()))
-        text += "the filenameDict contains the names {}\n".format(self.GetFilenameDict())
-        return text
