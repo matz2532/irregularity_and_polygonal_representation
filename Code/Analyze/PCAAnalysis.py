@@ -266,10 +266,9 @@ def analyseEngCotyledonsRegularityPooledPCA(pcXIdx: int = 0, pcYIdx: int = 1, ju
     saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
     analyser.SaveOrShowFigure(**saveOrShowKwargs)
 
-def plotCorrelationMatrix():
+def plotDependencyMatrix(mutualInformation: bool = True):
     import seaborn as sns
     tableFilename = "Results/combinedMeasures_Eng2021Cotyledons.csv"
-    baseFilenameToSave = f"Results/regularityResults/PCA/PCA_Eng2021Cotyledons_pooled"
     labelNameConverterDict = {"lengthGiniCoeff": "Gini coefficient of length", "angleGiniCoeff": "Gini coefficient of angle",
                               "relativeCompleteness": "relative completeness", "lobyness": "lobyness"}
     columnsToAnalyse = ["angleGiniCoeff", "lengthGiniCoeff", "relativeCompleteness", "lobyness"]
@@ -281,13 +280,36 @@ def plotCorrelationMatrix():
     analyser = PCAAnalysis(tableFilename)
 
     df = analyser.table[columnsToAnalyse]
-    matrix = df.corr().round(2)
+    if mutualInformation:
+        matrix = calcMutualInformationMatrix(df).round(2)
+        filenameToSave = "Results/regularityResults/PCA/MutualInformationMatrix.png"
+    else:
+        matrix = df.corr().round(2)
+        filenameToSave = "Results/regularityResults/PCA/CorrelationMatrix.png"
     sns.heatmap(matrix, annot=True)
-    filenameToSave = "Results/regularityResults/PCA/CorrelationMatrix.png"
     saveOrShowKwargs = {"filenameToSave": filenameToSave, "showPlot": True, "dpi": 300}
     analyser.SaveOrShowFigure(**saveOrShowKwargs)
 
+def calcMutualInformationMatrix(data: pd.DataFrame or np.ndarray):
+    from sklearn.feature_selection import mutual_info_regression
+    import itertools
+    isTable = isinstance(data, pd.DataFrame)
+    if isTable:
+        originalColumns = data.columns
+        data = data.to_numpy()
+    dataShape = data.shape
+    assert len(dataShape) == 2, f"The data needs to be two dimensional to calculate mutual information matrix, but it's {dataShape=} of data:\n{data}"
+    numberOfFeatures = data.shape[1]
+    mutualInformationMatrix = np.ones((numberOfFeatures, numberOfFeatures))
+    for i, j in itertools.combinations(range(numberOfFeatures), r=2):
+        mutualInformation = mutual_info_regression(data[:, i].reshape(-1, 1), data[:, j])
+        mutualInformationMatrix[i, j] = mutualInformationMatrix[j, i] = mutualInformation
+    if isTable:
+        mutualInformationMatrix = pd.DataFrame(mutualInformationMatrix, columns=originalColumns, index=originalColumns)
+    return mutualInformationMatrix
+
 if __name__ == '__main__':
+    plotDependencyMatrix()
     for pcXIdx, pcYIdx in itertools.combinations(range(4), r=2):
         analyseEngCotyledonsRegularityIndividualPCA(pcXIdx=pcXIdx, pcYIdx=pcYIdx)
         analyseEngCotyledonsRegularityPooledPCA(pcXIdx=pcXIdx, pcYIdx=pcYIdx)
