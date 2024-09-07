@@ -191,8 +191,7 @@ def correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons"):
         for areaColumnToScale in np.unique(potentialYValueColumnNames):
             for genotypeNames, resolution in genotypesResolutionDict.items():
                 isSelectedGenotype = allGenotypeTableData[genotypeColumnName] == genotypeNames
-                dataOfGenotype = allGenotypeTableData.loc[isSelectedGenotype]
-                dataOfGenotype[areaColumnToScale] *= resolution
+                allGenotypeTableData.loc[isSelectedGenotype, areaColumnToScale] *= resolution
 
     saveInsteadOfShowingFigure = False
     for yValueColumnName, xValueColumnName in itertools.product(potentialYValueColumnNames, potentialXValueColumnNames):
