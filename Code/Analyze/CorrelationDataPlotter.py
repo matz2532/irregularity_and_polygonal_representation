@@ -192,7 +192,6 @@ def correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons"):
     unabreviatedDatasetName = titleConverter[dataSetname] if dataSetname in titleConverter else dataSetname
 
     saveInsteadOfShowingFigure = True
-    correlationPlotter = CorrelationDataPlotter()
 
     baseSize = np.array([4, 3]) * 1.5
     figsize = [baseSize[0] * nrOfTimePoints, baseSize[1] * nrOfGenotypes]
@@ -208,19 +207,13 @@ def correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons"):
                 resolution = 1
             isSelectedGenotype = allGenotypeTableData[genotypeColumnName] == selectedGenotype
             isSelectedTimePoint = allGenotypeTableData[timePointColumnName] == selectedTimePoint
-            dataOfGenotype = allGenotypeTableData.loc[isSelectedGenotype & isSelectedTimePoint]
-            assert xValueColumnName in dataOfGenotype.columns, f"The column {xValueColumnName} is not present in the table, only are present {dataOfGenotype.columns}"
-            assert yValueColumnName in dataOfGenotype.columns, f"The column {yValueColumnName} is not present in the table, only are present {dataOfGenotype.columns}"
-            xValues = dataOfGenotype[xValueColumnName]
-            yValues = dataOfGenotype[yValueColumnName] * resolution
-            sns.scatterplot(x=xValues, y=yValues, ax=ax[i], color=genotypeColorConversion[selectedGenotype])  # , label=selectedGenotype)
-            correlationPlotter.addRegressionLineAndText(ax[i], x=xValues, y=yValues, showRSquared=True)
+            dataOfGenotype = pd.DataFrame(allGenotypeTableData.loc[isSelectedGenotype & isSelectedTimePoint])
+            dataOfGenotype[yValueColumnName] *= resolution
+            plotScatterPlotWithCorrelation(ax[i], dataOfGenotype, xValueColumnName, yValueColumnName, genotypeColorConversion[selectedGenotype])
             if i % nrOfTimePoints != 0:
                 ax[i].set_ylabel("")
             if np.ceil((i + 1) / nrOfTimePoints) != nrOfGenotypes:
                 ax[i].set_xlabel("")
-            ax[i].spines['top'].set_visible(False)
-            ax[i].spines['right'].set_visible(False)
             i += 1
         # plt.legend()
         if saveInsteadOfShowingFigure:
@@ -228,6 +221,17 @@ def correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons"):
             plt.close()
         else:
             plt.show()
+
+def plotScatterPlotWithCorrelation(ax, dataTable, xValueColumnName, yValueColumnName, scatterPointColor=None):
+    assert xValueColumnName in dataTable.columns, f"The column {xValueColumnName} is not present in the table, only are present {dataTable.columns}"
+    assert yValueColumnName in dataTable.columns, f"The column {yValueColumnName} is not present in the table, only are present {dataTable.columns}"
+    xValues = dataTable[xValueColumnName]
+    yValues = dataTable[yValueColumnName]
+    sns.scatterplot(x=xValues, y=yValues, ax=ax, color=scatterPointColor)
+    correlationPlotter = CorrelationDataPlotter()
+    correlationPlotter.addRegressionLineAndText(ax, x=xValues, y=yValues, showRSquared=True)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
 
 def main():
     myCorrelationDataPlotter = CorrelationDataPlotter()
