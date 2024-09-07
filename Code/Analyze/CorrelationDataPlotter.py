@@ -111,7 +111,7 @@ class CorrelationDataPlotter (object):
                 textToAdd += correlationTxt
             if not manuallyAddText:
                 if type(textLocation) == str:
-                    anchoredText = AnchoredText(textToAdd, loc=textLocation)
+                    anchoredText = AnchoredText(textToAdd, loc=textLocation, frameon=False)
                     ax.add_artist(anchoredText)
                 else:
                     if textLocation is None:
