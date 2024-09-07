@@ -110,7 +110,7 @@ class CorrelationDataPlotter (object):
                 correlationTxt = self.createCorrelationText(r, p, correlationAbbreviationName=correlationAbbreviationName, showRSquared=showRSquared)
                 textToAdd += correlationTxt
             if not manuallyAddText:
-                if type(textLocation) == "str":
+                if type(textLocation) == str:
                     anchoredText = AnchoredText(textToAdd, loc=textLocation)
                     ax.add_artist(anchoredText)
                 else:
