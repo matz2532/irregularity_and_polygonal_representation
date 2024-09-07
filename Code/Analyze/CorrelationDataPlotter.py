@@ -160,7 +160,7 @@ class CorrelationDataPlotter (object):
         linearFormulaTxt = linearFormulaTxt.format(m, b)
         return linearFormulaTxt
 
-def correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons"):
+def correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons", saveInsteadOfShowingFigure=True):
     import sys
 
     sys.path.insert(0, "./Code/DataStructures/")
@@ -193,12 +193,39 @@ def correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons"):
                 isSelectedGenotype = allGenotypeTableData[genotypeColumnName] == genotypeNames
                 allGenotypeTableData.loc[isSelectedGenotype, areaColumnToScale] *= resolution
 
-    saveInsteadOfShowingFigure = False
     for yValueColumnName, xValueColumnName in itertools.product(potentialYValueColumnNames, potentialXValueColumnNames):
         plotScatterWithCorrelationOfIndividualCombinations(allGenotypeTableData, yValueColumnName, xValueColumnName, genotypeColumnName, timePointColumnName, genotypeColorConversion)
         # plt.legend()
         if saveInsteadOfShowingFigure:
             plt.savefig(f"./Results/regularityResults/areaVs/{unabreviatedDatasetName} with {yValueColumnName} vs {xValueColumnName}.png", bbox_inches="tight", dpi=300)
+            plt.close()
+        else:
+            plt.show()
+
+    if len(pd.unique(allGenotypeTableData[timePointColumnName])) <= 1:
+        # skip pooling of time points, when there is no pooling to be done
+        return
+    for yValueColumnName, xValueColumnName in itertools.product(potentialYValueColumnNames, potentialXValueColumnNames):
+        genotypeNames = pd.unique(allGenotypeTableData[genotypeColumnName])
+        nrOfGenotypes, nrOfTimePoints = 1, len(genotypeNames) # switch row and column orientation
+
+        baseSize = np.array([4, 3]) * 1.5
+        figsize = [baseSize[0] * nrOfTimePoints, baseSize[1] * nrOfGenotypes]
+        fig, ax = plt.subplots(nrOfGenotypes, nrOfTimePoints, figsize=figsize)
+        ax = ax.ravel()
+        i = 0
+
+        for selectedRowValue in genotypeNames:
+            isSelectedGenotype = allGenotypeTableData[genotypeColumnName] == selectedRowValue
+            dataOfGenotype = allGenotypeTableData.loc[isSelectedGenotype]
+            plotScatterPlotWithCorrelation(ax[i], dataOfGenotype, xValueColumnName, yValueColumnName, genotypeColorConversion[selectedRowValue])
+            if i % nrOfTimePoints != 0:
+                ax[i].set_ylabel("")
+            if np.ceil((i + 1) / nrOfTimePoints) != nrOfGenotypes:
+                ax[i].set_xlabel("")
+            i += 1
+        if saveInsteadOfShowingFigure:
+            plt.savefig(f"./Results/regularityResults/areaVs/{unabreviatedDatasetName} pooled time with {yValueColumnName} vs {xValueColumnName}.png", bbox_inches="tight", dpi=300)
             plt.close()
         else:
             plt.show()
@@ -246,6 +273,6 @@ def main():
     txt = myCorrelationDataPlotter.createLinearFormulaFunctionText(0.5, 0.2)
 
 if __name__ == '__main__':
-    # correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons")
+    correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons")
     correlateAreaVsIrregularitiesOfDataSet(dataSetname="Smit2023Cotyledons")
     # main()
