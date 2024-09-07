@@ -1,3 +1,4 @@
+import itertools
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -160,7 +161,6 @@ class CorrelationDataPlotter (object):
         return linearFormulaTxt
 
 def correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons"):
-    import itertools
     import sys
 
     sys.path.insert(0, "./Code/DataStructures/")
@@ -184,43 +184,48 @@ def correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons"):
     potentialXValueColumnNames = ["angleGiniCoeff", "lengthGiniCoeff", "angleGiniCoeff_ignoringGuardCells", "lengthGiniCoeff_ignoringGuardCells"]
     potentialYValueColumnNames = ["labelledImageArea", "originalPolygonArea", "regularPolygonArea"]
 
-    genotypeNames = pd.unique(allGenotypeTableData[genotypeColumnName])
-    timePointNames = pd.unique(allGenotypeTableData[timePointColumnName])
-    nrOfGenotypes, nrOfTimePoints = len(genotypeNames), len(timePointNames)
-
     titleConverter = {"Eng2021Cotyledons": "Eng 2021 cotyledons 0-96h", "Smit2023Cotyledons": "Smit 2023 cotyledons"}
     unabreviatedDatasetName = titleConverter[dataSetname] if dataSetname in titleConverter else dataSetname
 
-    saveInsteadOfShowingFigure = True
+    if genotypesResolutionDict is not None:
+        for areaColumnToScale in np.unqiue(potentialYValueColumnNames):
+            for genotypeNames, resolution in genotypesResolutionDict.items():
+                isSelectedGenotype = allGenotypeTableData[genotypeColumnName] == genotypeNames
+                dataOfGenotype = allGenotypeTableData.loc[isSelectedGenotype]
+                dataOfGenotype[areaColumnToScale] *= resolution
 
-    baseSize = np.array([4, 3]) * 1.5
-    figsize = [baseSize[0] * nrOfTimePoints, baseSize[1] * nrOfGenotypes]
+    saveInsteadOfShowingFigure = False
     for yValueColumnName, xValueColumnName in itertools.product(potentialYValueColumnNames, potentialXValueColumnNames):
-        fig, ax = plt.subplots(nrOfGenotypes, nrOfTimePoints, figsize=figsize)
-        ax = ax.ravel()
-        i = 0
-        for selectedGenotype, selectedTimePoint in itertools.product(genotypeNames, timePointNames):
-            if genotypesResolutionDict is not None:
-                assert selectedGenotype in genotypesResolutionDict, f"The {selectedGenotype=} is not in the genotypesResolutionDict keys {list(genotypesResolutionDict.keys())}"
-                resolution = genotypesResolutionDict[selectedGenotype]
-            else:
-                resolution = 1
-            isSelectedGenotype = allGenotypeTableData[genotypeColumnName] == selectedGenotype
-            isSelectedTimePoint = allGenotypeTableData[timePointColumnName] == selectedTimePoint
-            dataOfGenotype = pd.DataFrame(allGenotypeTableData.loc[isSelectedGenotype & isSelectedTimePoint])
-            dataOfGenotype[yValueColumnName] *= resolution
-            plotScatterPlotWithCorrelation(ax[i], dataOfGenotype, xValueColumnName, yValueColumnName, genotypeColorConversion[selectedGenotype])
-            if i % nrOfTimePoints != 0:
-                ax[i].set_ylabel("")
-            if np.ceil((i + 1) / nrOfTimePoints) != nrOfGenotypes:
-                ax[i].set_xlabel("")
-            i += 1
+        plotScatterWithCorrelationOfIndividualCombinations(allGenotypeTableData, yValueColumnName, xValueColumnName, genotypeColumnName, timePointColumnName, genotypeColorConversion)
         # plt.legend()
         if saveInsteadOfShowingFigure:
             plt.savefig(f"./Results/regularityResults/areaVs/{unabreviatedDatasetName} with {yValueColumnName} vs {xValueColumnName}.png", bbox_inches="tight", dpi=300)
             plt.close()
         else:
             plt.show()
+
+def plotScatterWithCorrelationOfIndividualCombinations(fullTable, yValueColumnName, xValueColumnName, rowNameToPlot, columnNameToPlot, columnToColorConversion):
+    genotypeNames = pd.unique(fullTable[rowNameToPlot])
+    timePointNames = pd.unique(fullTable[columnNameToPlot])
+    nrOfGenotypes, nrOfTimePoints = len(genotypeNames), len(timePointNames)
+
+    baseSize = np.array([4, 3]) * 1.5
+    figsize = [baseSize[0] * nrOfTimePoints, baseSize[1] * nrOfGenotypes]
+    fig, ax = plt.subplots(nrOfGenotypes, nrOfTimePoints, figsize=figsize)
+    ax = ax.ravel()
+    i = 0
+
+    for selectedRowValue, selectedColumnValue in itertools.product(genotypeNames, timePointNames):
+        isSelectedGenotype = fullTable[rowNameToPlot] == selectedRowValue
+        isSelectedTimePoint = fullTable[columnNameToPlot] == selectedColumnValue
+        dataOfGenotype = pd.DataFrame(fullTable.loc[isSelectedGenotype & isSelectedTimePoint])
+        plotScatterPlotWithCorrelation(ax[i], dataOfGenotype, xValueColumnName, yValueColumnName, columnToColorConversion[selectedRowValue])
+        if i % nrOfTimePoints != 0:
+            ax[i].set_ylabel("")
+        if np.ceil((i + 1) / nrOfTimePoints) != nrOfGenotypes:
+            ax[i].set_xlabel("")
+        i += 1
+
 
 def plotScatterPlotWithCorrelation(ax, dataTable, xValueColumnName, yValueColumnName, scatterPointColor=None):
     assert xValueColumnName in dataTable.columns, f"The column {xValueColumnName} is not present in the table, only are present {dataTable.columns}"
