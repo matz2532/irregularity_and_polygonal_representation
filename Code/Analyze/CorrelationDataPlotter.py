@@ -159,6 +159,76 @@ class CorrelationDataPlotter (object):
         linearFormulaTxt = linearFormulaTxt.format(m, b)
         return linearFormulaTxt
 
+def correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons"):
+    import itertools
+    import sys
+
+    sys.path.insert(0, "./Code/DataStructures/")
+    sys.path.insert(0, "./Code/Analyze/")
+    sys.path.insert(0, "./Images/")
+
+    from InputData import GetResolutions
+    from CorrelationDataPlotter import CorrelationDataPlotter
+
+    if dataSetname == "Eng2021Cotyledons":
+        genotypesResolutionDict = GetResolutions()
+    else:
+        genotypesResolutionDict = None
+    filename = f"Results/combinedMeasures_{dataSetname}.csv"
+    allGenotypeTableData = pd.read_csv(filename)
+    colorPalette = sns.color_palette("colorblind")
+    genotypeColorConversion = {"WT": colorPalette[7], "col-0": colorPalette[7], "WT_4dag": colorPalette[7], "Oryzalin": colorPalette[8], "WT+Oryzalin": colorPalette[8], "ktn": colorPalette[0], "ktn1-2": colorPalette[0],
+                               "$\it{ktn1}$-$\it{2}$": colorPalette[0], "speechless": colorPalette[1]}
+    genotypeColumnName = "genotype"
+    timePointColumnName = "time point"
+    potentialXValueColumnNames = ["angleGiniCoeff", "lengthGiniCoeff", "angleGiniCoeff_ignoringGuardCells", "lengthGiniCoeff_ignoringGuardCells"]
+    potentialYValueColumnNames = ["labelledImageArea", "originalPolygonArea", "regularPolygonArea"]
+
+    genotypeNames = pd.unique(allGenotypeTableData[genotypeColumnName])
+    timePointNames = pd.unique(allGenotypeTableData[timePointColumnName])
+    nrOfGenotypes, nrOfTimePoints = len(genotypeNames), len(timePointNames)
+
+    titleConverter = {"Eng2021Cotyledons": "Eng 2021 cotyledons 0-96h", "Smit2023Cotyledons": "Smit 2023 cotyledons"}
+    unabreviatedDatasetName = titleConverter[dataSetname] if dataSetname in titleConverter else dataSetname
+
+    saveInsteadOfShowingFigure = True
+    correlationPlotter = CorrelationDataPlotter()
+
+    baseSize = np.array([4, 3]) * 1.5
+    figsize = [baseSize[0] * nrOfTimePoints, baseSize[1] * nrOfGenotypes]
+    for yValueColumnName, xValueColumnName in itertools.product(potentialYValueColumnNames, potentialXValueColumnNames):
+        fig, ax = plt.subplots(nrOfGenotypes, nrOfTimePoints, figsize=figsize)
+        ax = ax.ravel()
+        i = 0
+        for selectedGenotype, selectedTimePoint in itertools.product(genotypeNames, timePointNames):
+            if genotypesResolutionDict is not None:
+                assert selectedGenotype in genotypesResolutionDict, f"The {selectedGenotype=} is not in the genotypesResolutionDict keys {list(genotypesResolutionDict.keys())}"
+                resolution = genotypesResolutionDict[selectedGenotype]
+            else:
+                resolution = 1
+            isSelectedGenotype = allGenotypeTableData[genotypeColumnName] == selectedGenotype
+            isSelectedTimePoint = allGenotypeTableData[timePointColumnName] == selectedTimePoint
+            dataOfGenotype = allGenotypeTableData.loc[isSelectedGenotype & isSelectedTimePoint]
+            assert xValueColumnName in dataOfGenotype.columns, f"The column {xValueColumnName} is not present in the table, only are present {dataOfGenotype.columns}"
+            assert yValueColumnName in dataOfGenotype.columns, f"The column {yValueColumnName} is not present in the table, only are present {dataOfGenotype.columns}"
+            xValues = dataOfGenotype[xValueColumnName]
+            yValues = dataOfGenotype[yValueColumnName] * resolution
+            sns.scatterplot(x=xValues, y=yValues, ax=ax[i], color=genotypeColorConversion[selectedGenotype])  # , label=selectedGenotype)
+            correlationPlotter.addRegressionLineAndText(ax[i], x=xValues, y=yValues, showRSquared=True)
+            if i % nrOfTimePoints != 0:
+                ax[i].set_ylabel("")
+            if np.ceil((i + 1) / nrOfTimePoints) != nrOfGenotypes:
+                ax[i].set_xlabel("")
+            ax[i].spines['top'].set_visible(False)
+            ax[i].spines['right'].set_visible(False)
+            i += 1
+        # plt.legend()
+        if saveInsteadOfShowingFigure:
+            plt.savefig(f"./Results/regularityResults/areaVs/{unabreviatedDatasetName} with {yValueColumnName} vs {xValueColumnName}.png", bbox_inches="tight", dpi=300)
+            plt.close()
+        else:
+            plt.show()
+
 def main():
     myCorrelationDataPlotter = CorrelationDataPlotter()
     txt = myCorrelationDataPlotter.createCorrelationText(0.05, 0.2)
@@ -168,4 +238,6 @@ def main():
     txt = myCorrelationDataPlotter.createLinearFormulaFunctionText(0.5, 0.2)
 
 if __name__ == '__main__':
-    main()
+    # correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons")
+    correlateAreaVsIrregularitiesOfDataSet(dataSetname="Smit2023Cotyledons")
+    # main()
