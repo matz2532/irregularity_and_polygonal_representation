@@ -188,7 +188,7 @@ def correlateAreaVsIrregularitiesOfDataSet(dataSetname="Eng2021Cotyledons"):
     unabreviatedDatasetName = titleConverter[dataSetname] if dataSetname in titleConverter else dataSetname
 
     if genotypesResolutionDict is not None:
-        for areaColumnToScale in np.unqiue(potentialYValueColumnNames):
+        for areaColumnToScale in np.unique(potentialYValueColumnNames):
             for genotypeNames, resolution in genotypesResolutionDict.items():
                 isSelectedGenotype = allGenotypeTableData[genotypeColumnName] == genotypeNames
                 dataOfGenotype = allGenotypeTableData.loc[isSelectedGenotype]
