@@ -26,8 +26,8 @@ class EdgeRandomizationAnalysis:
         assert self.folderContents is not None, f"The folder contents needs to be defined, when setting the junction positions of these contents."
         self.junctionPositionsOfContent = {}
         for folderContent in self.folderContents:
-            tissueName = folderContent.GetTissueName()
-            self.junctionPositionsOfContent[tissueName] = folderContent.LoadKeyUsingFilenameDict(junctionPositionsKey,
+            tissueTag: tuple = folderContent.GetTissueInfos()
+            self.junctionPositionsOfContent[tissueTag] = folderContent.LoadKeyUsingFilenameDict(junctionPositionsKey,
                                                                                                  **dict(convertDictKeysToInt=True,
                                                                                                         convertDictValuesToNpArray=True))
 
@@ -63,11 +63,11 @@ class EdgeRandomizationAnalysis:
             if resolution is None:
                 resolution = 1
             polygonHelper.SetResolution(resolution)
-            tissueName = folderContent.GetTissueName()
-            junctionsOfCells = self.junctionPositionsOfContent[tissueName]
-            edgeDistances[tissueName] = {}
+            tissueTag: tuple = folderContent.GetTissueInfos()
+            junctionsOfCells = self.junctionPositionsOfContent[tissueTag]
+            edgeDistances[tissueTag] = {}
             for cellId, junctionPositions in junctionsOfCells.items():
-                edgeDistances[tissueName][cellId] = polygonHelper.calcPolygonSideLengths(junctionPositions)
+                edgeDistances[tissueTag][cellId] = polygonHelper.calcPolygonSideLengths(junctionPositions)
         return edgeDistances
 
 def testFunctionality():
