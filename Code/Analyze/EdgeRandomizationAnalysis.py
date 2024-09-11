@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import sys
 
 sys.path.insert(0, "./Code/DataStructures/")
@@ -13,6 +14,7 @@ class EdgeRandomizationAnalysis:
     currentSeed: int = 42
     junctionPositionsOfContent: dict or None = None #dict[str, dict[int, list[list[float]]]] or None = None
     originalEdgeDistances: dict or None = None # dict[str, list[float]] or None
+    pooledTags: dict or None = None # dict[str, list[tuple]]
     randomizationDifferencesPerContent: dict or None = None # dict[str, list[list[float]]] or None
     # inner list of floats represents difference of original with randomization
     # outer list represents different entries from original
@@ -28,18 +30,21 @@ class EdgeRandomizationAnalysis:
         for folderContent in self.folderContents:
             tissueTag: tuple = folderContent.GetTissueInfos()
             self.junctionPositionsOfContent[tissueTag] = folderContent.LoadKeyUsingFilenameDict(junctionPositionsKey,
-                                                                                                 **dict(convertDictKeysToInt=True,
-                                                                                                        convertDictValuesToNpArray=True))
+                                                                                                **dict(convertDictKeysToInt=True,
+                                                                                                       convertDictValuesToNpArray=True))
 
     def RandomizeEdgesWithoutPlanarityCheck(self,
-            randomizationSeed: int or None = None,
-            junctionPositionsKey: str or None = None,
-            compareToValuesKey: str or None = None
-        ):
+                                            randomizationSeed: int or None = None,
+                                            junctionPositionsKey: str or None = None,
+                                            compareToValuesKey: str or None = None,
+                                            poolingStrategy: str = "genotype",
+                                            randomizationStrategy: str = "withReplacement"
+                                            ):
         if junctionPositionsKey is not None:
             self.SetJunctionPositionsOfContent(junctionPositionsKey=junctionPositionsKey)
             self.randomizationDifferencesPerContent = {}
             self.originalEdgeDistances = None
+            self.pooledTags = None
         assert self.junctionPositionsOfContent is not None, f"You need to either specify the junction positions of the corresponding contents (name being key) or specify the junctionPositionsKey parameter."
         if self.originalEdgeDistances is None:
             self.originalEdgeDistances = self.extractEdgeDistanceFromFolderContents()
@@ -47,6 +52,10 @@ class EdgeRandomizationAnalysis:
             self.currentSeed += 1
         else:
             self.currentSeed = randomizationSeed
+        #  pooling and randomization of edges
+        folderContentTags = list(self.originalEdgeDistances.keys())
+        if self.pooledTags is None:
+            self.pooledTags = self.determineTagsToPool(folderContentTags, poolingStrategy)
 
     def AnalyzeRandomizationResults(self, saveProperties: dict or None = None, showPlot: bool = False):
         # <----- implement visualization here
@@ -69,6 +78,29 @@ class EdgeRandomizationAnalysis:
             for cellId, junctionPositions in junctionsOfCells.items():
                 edgeDistances[tissueTag][cellId] = polygonHelper.calcPolygonSideLengths(junctionPositions)
         return edgeDistances
+
+    def determineTagsToPool(self, tagsToPool: list, poolingStrategy: str):
+        # thinkable could also be a combination of genotype and time point
+        # check GetTissueInfos for order of tag information
+        if poolingStrategy == "genotype":
+            return self.poolTagsByIndex(tagsToPool, 0)
+        else:
+            raise NotImplementedError(f"THe pooling strategy {poolingStrategy} is not yet implemented")
+
+    def poolTagsByIndex(self, tagsToPool: list, indexToPoolBy: int):
+        pooledTags = [[tagsToPool[0]]]
+        identifierOfPool = [tagsToPool[0][indexToPoolBy]]
+        for tag in tagsToPool[1::]:
+            currentIdentifier = tag[indexToPoolBy]
+            indexOfCorrespondingPools = np.where(np.isin(identifierOfPool, currentIdentifier))[0]
+            if len(indexOfCorrespondingPools) == 0:
+                identifierOfPool.append(currentIdentifier)
+                pooledTags.append([tag])
+            elif len(indexOfCorrespondingPools) == 1:
+                pooledTags[indexOfCorrespondingPools[0]].append(tag)
+            else:
+                raise IndexError(f"There should never be more than one identifier to pool tags by index, indices {indexOfCorrespondingPools} is the current id {currentIdentifier} in the already existing identifiers {identifierOfPool}")
+        return pooledTags
 
 def testFunctionality():
     dataSetName = "Eng2021Cotyledons" # "Smit2023Cotyledons" #
