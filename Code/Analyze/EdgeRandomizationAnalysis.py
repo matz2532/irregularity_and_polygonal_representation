@@ -55,11 +55,19 @@ class EdgeRandomizationAnalysis:
             self.currentSeed += 1
         else:
             self.currentSeed = randomizationSeed
+        np.random.seed(self.currentSeed)
         #  pooling and randomization of edges
         folderContentTags = list(self.originalEdgeDistances.keys())
         if self.pooledTags is None:
             self.pooledTags = self.determineTagsToPool(folderContentTags, poolingStrategy)
             self.pooledEdgeDistance = self.poolEdgeDistances(self.pooledTags)
+        for identifier, tagsToCombine in self.pooledTags.items():
+            if randomizationStrategy == "withReplacement":
+                edgeDistancesToChooseFrom = self.pooledEdgeDistance[identifier]
+            else:
+                raise NotImplementedError(f"The randomization strategy {randomizationStrategy} is not implemented yet.")
+            currentOriginalEdgeDistances = self.originalEdgeDistances[identifier]
+            randomizedEdgeDistancesOfContent = self.randomizeEdgeDistances(currentOriginalEdgeDistances, edgeDistancesToChooseFrom)
 
     def AnalyzeRandomizationResults(self, saveProperties: dict or None = None, showPlot: bool = False):
         # <----- implement visualization here
@@ -114,6 +122,13 @@ class EdgeRandomizationAnalysis:
                 currentEdgeDistances.extend(self.originalEdgeDistances[tag])
             pooledEdgeDistances[identifier] = currentEdgeDistances
         return pooledEdgeDistances
+
+    def randomizeEdgeDistances(self, currentOriginalEdgeDistances, edgeDistancesToChooseFrom):
+        randomizedEdgeDistances = {}
+        for currentId, currentEdgeDistances in currentOriginalEdgeDistances.items():
+            numberOfOriginalDistances = len(currentEdgeDistances)
+            randomizedEdgeDistances[currentId] = np.random.choice(edgeDistancesToChooseFrom, size=numberOfOriginalDistances, replace=True)
+        return randomizedEdgeDistances
 
 def testFunctionality():
     dataSetName = "Eng2021Cotyledons" # "Smit2023Cotyledons" #
