@@ -1,6 +1,5 @@
-import sys
-
 import matplotlib.pyplot as plt
+import sys
 
 sys.path.insert(0, "./Code/DataStructures/")
 from MultiFolderContent import MultiFolderContent
@@ -21,8 +20,12 @@ class EdgeRandomizationAnalysis:
         if folderContentsFilename is not None:
             self.folderContents = MultiFolderContent(folderContentsFilename)
         assert self.folderContents is not None, f"The folder contents needs to be defined, when setting the junction positions of these contents."
-        # <----- implement from here
         self.junctionPositionsOfContent = {}
+        for folderContent in self.folderContents:
+            tissueName = folderContent.GetTissueName()
+            self.junctionPositionsOfContent[tissueName] = folderContent.LoadKeyUsingFilenameDict(junctionPositionsKey,
+                                                                                                 **dict(convertDictKeysToInt=True,
+                                                                                                        convertDictValuesToNpArray=True))
 
     def RandomizeEdgesWithoutPlanarityCheck(self,
             randomizationSeed: int or None = None,
