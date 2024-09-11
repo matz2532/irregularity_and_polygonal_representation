@@ -2,13 +2,17 @@ import matplotlib.pyplot as plt
 import sys
 
 sys.path.insert(0, "./Code/DataStructures/")
+sys.path.insert(0, "./Code/MeasureCreator/")
+
 from MultiFolderContent import MultiFolderContent
+from PolygonalRegularityCalculator import PolygonalRegularityCalculator
 
 class EdgeRandomizationAnalysis:
 
     folderContents: MultiFolderContent = None
     currentSeed: int = 42
     junctionPositionsOfContent: dict or None = None #dict[str, dict[int, list[list[float]]]] or None = None
+    originalEdgeDistances: dict or None = None # dict[str, list[float]] or None
     randomizationDifferencesPerContent: dict or None = None # dict[str, list[list[float]]] or None
     # inner list of floats represents difference of original with randomization
     # outer list represents different entries from original
@@ -35,12 +39,14 @@ class EdgeRandomizationAnalysis:
         if junctionPositionsKey is not None:
             self.SetJunctionPositionsOfContent(junctionPositionsKey=junctionPositionsKey)
             self.randomizationDifferencesPerContent = {}
+            self.originalEdgeDistances = None
         assert self.junctionPositionsOfContent is not None, f"You need to either specify the junction positions of the corresponding contents (name being key) or specify the junctionPositionsKey parameter."
+        if self.originalEdgeDistances is None:
+            self.originalEdgeDistances = self.extractEdgeDistanceFromFolderContents()
         if randomizationSeed is None:
             self.currentSeed += 1
         else:
             self.currentSeed = randomizationSeed
-        # <----- implement from here
 
     def AnalyzeRandomizationResults(self, saveProperties: dict or None = None, showPlot: bool = False):
         # <----- implement visualization here
@@ -49,9 +55,24 @@ class EdgeRandomizationAnalysis:
         elif showPlot:
             plt.show()
 
+    def extractEdgeDistanceFromFolderContents(self):
+        edgeDistances = {}
+        polygonHelper = PolygonalRegularityCalculator()
+        for folderContent in self.folderContents:
+            resolution = folderContent.GetResolution()
+            if resolution is None:
+                resolution = 1
+            polygonHelper.SetResolution(resolution)
+            tissueName = folderContent.GetTissueName()
+            junctionsOfCells = self.junctionPositionsOfContent[tissueName]
+            edgeDistances[tissueName] = {}
+            for cellId, junctionPositions in junctionsOfCells.items():
+                edgeDistances[tissueName][cellId] = polygonHelper.calcPolygonSideLengths(junctionPositions)
+        return edgeDistances
+
 def testFunctionality():
     dataSetName = "Eng2021Cotyledons" # "Smit2023Cotyledons" #
-    junctionPositionsKey = "finalJunctionFilename"
+    junctionPositionsKey = "orderedJunctionsPerCellFilename"
 
     filename = f"Images/{dataSetName}/{dataSetName}.json"
     randomizer = EdgeRandomizationAnalysis(filename)
