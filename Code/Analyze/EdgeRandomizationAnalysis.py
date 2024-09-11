@@ -15,6 +15,7 @@ class EdgeRandomizationAnalysis:
     junctionPositionsOfContent: dict or None = None #dict[str, dict[int, list[list[float]]]] or None = None
     originalEdgeDistances: dict or None = None # dict[str, list[float]] or None
     pooledTags: dict or None = None # dict[str, list[tuple]]
+    identifiersOfPool: list or None = None
     randomizationDifferencesPerContent: dict or None = None # dict[str, list[list[float]]] or None
     # inner list of floats represents difference of original with randomization
     # outer list represents different entries from original
@@ -44,7 +45,7 @@ class EdgeRandomizationAnalysis:
             self.SetJunctionPositionsOfContent(junctionPositionsKey=junctionPositionsKey)
             self.randomizationDifferencesPerContent = {}
             self.originalEdgeDistances = None
-            self.pooledTags = None
+            self.pooledTags, identifiersOfPool = None, None
         assert self.junctionPositionsOfContent is not None, f"You need to either specify the junction positions of the corresponding contents (name being key) or specify the junctionPositionsKey parameter."
         if self.originalEdgeDistances is None:
             self.originalEdgeDistances = self.extractEdgeDistanceFromFolderContents()
@@ -55,7 +56,7 @@ class EdgeRandomizationAnalysis:
         #  pooling and randomization of edges
         folderContentTags = list(self.originalEdgeDistances.keys())
         if self.pooledTags is None:
-            self.pooledTags = self.determineTagsToPool(folderContentTags, poolingStrategy)
+            self.pooledTags, self.identifiersOfPool = self.determineTagsToPool(folderContentTags, poolingStrategy)
 
     def AnalyzeRandomizationResults(self, saveProperties: dict or None = None, showPlot: bool = False):
         # <----- implement visualization here
@@ -89,18 +90,18 @@ class EdgeRandomizationAnalysis:
 
     def poolTagsByIndex(self, tagsToPool: list, indexToPoolBy: int):
         pooledTags = [[tagsToPool[0]]]
-        identifierOfPool = [tagsToPool[0][indexToPoolBy]]
+        identifiersOfPool = [tagsToPool[0][indexToPoolBy]]
         for tag in tagsToPool[1::]:
             currentIdentifier = tag[indexToPoolBy]
-            indexOfCorrespondingPools = np.where(np.isin(identifierOfPool, currentIdentifier))[0]
+            indexOfCorrespondingPools = np.where(np.isin(identifiersOfPool, currentIdentifier))[0]
             if len(indexOfCorrespondingPools) == 0:
-                identifierOfPool.append(currentIdentifier)
+                identifiersOfPool.append(currentIdentifier)
                 pooledTags.append([tag])
             elif len(indexOfCorrespondingPools) == 1:
                 pooledTags[indexOfCorrespondingPools[0]].append(tag)
             else:
-                raise IndexError(f"There should never be more than one identifier to pool tags by index, indices {indexOfCorrespondingPools} is the current id {currentIdentifier} in the already existing identifiers {identifierOfPool}")
-        return pooledTags
+                raise IndexError(f"There should never be more than one identifier to pool tags by index, indices {indexOfCorrespondingPools} is the current id {currentIdentifier} in the already existing identifiers {identifiersOfPool}")
+        return pooledTags, identifiersOfPool
 
 def testFunctionality():
     dataSetName = "Eng2021Cotyledons" # "Smit2023Cotyledons" #
