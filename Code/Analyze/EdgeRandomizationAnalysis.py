@@ -5,6 +5,7 @@ import sys
 sys.path.insert(0, "./Code/DataStructures/")
 sys.path.insert(0, "./Code/MeasureCreator/")
 
+from copy import deepcopy
 from MultiFolderContent import MultiFolderContent
 from PolygonalRegularityCalculator import PolygonalRegularityCalculator
 
@@ -15,6 +16,7 @@ class EdgeRandomizationAnalysis:
     junctionPositionsOfContent: dict or None = None #dict[str, dict[int, list[list[float]]]] or None = None
     originalEdgeDistances: dict or None = None # dict[str, list[float]] or None
     pooledTags: dict or None = None # dict[str, list[tuple]]
+    pooledEdgeDistance: dict or None = None # dict[str, list[float]]
     randomizationDifferencesPerContent: dict or None = None # dict[str, list[list[float]]] or None
     # inner list of floats represents difference of original with randomization
     # outer list represents different entries from original
@@ -45,6 +47,7 @@ class EdgeRandomizationAnalysis:
             self.randomizationDifferencesPerContent = {}
             self.originalEdgeDistances = None
             self.pooledTags = None
+            self.pooledEdgeDistance = None
         assert self.junctionPositionsOfContent is not None, f"You need to either specify the junction positions of the corresponding contents (name being key) or specify the junctionPositionsKey parameter."
         if self.originalEdgeDistances is None:
             self.originalEdgeDistances = self.extractEdgeDistanceFromFolderContents()
@@ -56,6 +59,7 @@ class EdgeRandomizationAnalysis:
         folderContentTags = list(self.originalEdgeDistances.keys())
         if self.pooledTags is None:
             self.pooledTags = self.determineTagsToPool(folderContentTags, poolingStrategy)
+            self.pooledEdgeDistance = self.poolEdgeDistances(self.pooledTags)
 
     def AnalyzeRandomizationResults(self, saveProperties: dict or None = None, showPlot: bool = False):
         # <----- implement visualization here
@@ -101,6 +105,15 @@ class EdgeRandomizationAnalysis:
             else:
                 raise IndexError(f"There should never be more than one identifier to pool tags by index, indices {indexOfCorrespondingPools} is the current id {currentIdentifier} in the already existing identifiers {identifierOfPools}")
         return dict(zip(identifierOfPools, pooledTags))
+
+    def poolEdgeDistances(self, pooledTags: dict):
+        pooledEdgeDistances = {}
+        for identifier, tagsToCombine in pooledTags.items():
+            currentEdgeDistances = []
+            for tag in tagsToCombine:
+                currentEdgeDistances.extend(self.originalEdgeDistances[tag])
+            pooledEdgeDistances[identifier] = currentEdgeDistances
+        return pooledEdgeDistances
 
 def testFunctionality():
     dataSetName = "Eng2021Cotyledons" # "Smit2023Cotyledons" #
