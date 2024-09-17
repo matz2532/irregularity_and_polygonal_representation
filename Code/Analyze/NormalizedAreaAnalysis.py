@@ -30,7 +30,7 @@ def calcNormalizedToCirclePolygonalArea(c):
     normalizedArea = [calcToCircleWithPerimeterNormalizedArea(p, a) for p, a in zip(perimeterOfPolygonizedCells, originalPolygonalArea)]
     return normalizedArea
 
-def calcNumberOfNeighborsAndMeanPlusStdNormAreasFor(mfc):
+def calcNormalizedAreaWithNumberOfNeighbors(mfc):
     pooledNormalizedPolygonalAreas, pooledNeighborsPerCell = [], []
     for c in mfc:
         normalizedAreaPolygonalArea = calcNormalizedToCirclePolygonalArea(c)
@@ -39,6 +39,9 @@ def calcNumberOfNeighborsAndMeanPlusStdNormAreasFor(mfc):
         orderedJunctionsPerCell = c.LoadKeyUsingFilenameDict(selectedKey)
         numberOfNeighborsPerCell = [len(junctionPositions) for junctionPositions in orderedJunctionsPerCell.values()]
         pooledNeighborsPerCell.extend(numberOfNeighborsPerCell)
+    return pooledNormalizedPolygonalAreas, pooledNeighborsPerCell
+
+def calcMeanAndStdOfGrouping(pooledNormalizedPolygonalAreas, pooledNeighborsPerCell):
     existingNumberOfNeighbors = np.unique(pooledNeighborsPerCell)
     stdNormalizedPolygonalAreaWithNeighbors, meanNormalizedPolygonalAreaWithNeighbors = [], []
     for n in existingNumberOfNeighbors:
@@ -48,9 +51,14 @@ def calcNumberOfNeighborsAndMeanPlusStdNormAreasFor(mfc):
         stdNormalizedPolygonalAreaWithNeighbors.append(np.std(selectedArea))
     return existingNumberOfNeighbors, meanNormalizedPolygonalAreaWithNeighbors, stdNormalizedPolygonalAreaWithNeighbors
 allGenotypeData = {}
-for genotype in mfc.GetGenotypes():
+numberOfNeighborsOfGenotypes = {}
+normalizedAreaOfGenotypes = {}
+for genotype in np.unique(mfc.GetGenotypes()):
     genotypeTissues = mfc.GetFolderContentsOfGenotype(genotype)
-    dataOfGenotype = calcNumberOfNeighborsAndMeanPlusStdNormAreasFor(genotypeTissues)
+    pooledNormalizedPolygonalAreas, pooledNeighborsPerCell = calcNormalizedAreaWithNumberOfNeighbors(genotypeTissues)
+    normalizedAreaOfGenotypes[genotype] = pooledNormalizedPolygonalAreas
+    numberOfNeighborsOfGenotypes[genotype] = pooledNeighborsPerCell
+    dataOfGenotype = calcMeanAndStdOfGrouping(pooledNormalizedPolygonalAreas, pooledNeighborsPerCell)
     allGenotypeData[genotype] = dataOfGenotype
 
 allExistingNumberOfNeighbors = np.concatenate([data[0] for data in allGenotypeData.values()])
