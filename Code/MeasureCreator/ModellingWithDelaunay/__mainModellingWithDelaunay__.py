@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import warnings
 
 sys.path.insert(0, "./Code/DataStructures/")
 
@@ -30,7 +31,7 @@ def delaunayTriangulatedTissue(tissueProperties, tissue, seed: int or None = Non
 
 def extractTissueProperties(tissue: FolderContent):
     tissueProperties = {}
-    tissueProperties["numberOfCells"] = None
+    tissueProperties["numberOfCells"] = getNumberOfCells(tissue)
     tissueProperties["numberOfCellsAtPerimeter"] = None
     tissueProperties["numberOfJunctions"] = None
     tissueProperties["perimeterPoints"] = None
@@ -38,6 +39,18 @@ def extractTissueProperties(tissue: FolderContent):
     tissueProperties["tissueAreaInMicrons^2"] = None
 
     return tissueProperties
+
+def getNumberOfCells(tissue: FolderContent, keyForFileWithCellDict: str = "areaMeasuresPerCell", nestedKeyName: str or None = "labelledImageArea"):
+    cellDict = tissue.LoadKeyUsingFilenameDict(keyForFileWithCellDict)
+    if nestedKeyName is not None:
+        assert nestedKeyName in cellDict, f"Invalid {nestedKeyName=} for the tissue {tissue.GetTissueName()}, it's data from the key={keyForFileWithCellDict}"
+        cellDict = cellDict[nestedKeyName]
+    assert type(cellDict) == dict, f"For the tissue {tissue.GetTissueName()}, it's data from the key={keyForFileWithCellDict} was no dictionary (with cells representing the key), {type(cellDict)} != dict"
+    numberOfCells = len(cellDict)
+    assert numberOfCells != 0, f"The tissue {tissue.GetTissueName()} seemed to contain no cells please check the corresponding cell dictionary from the key={keyForFileWithCellDict}"
+    if numberOfCells < 10:
+        warnings.warn(f"Please double check the tissue {tissue.GetTissueName()} as it seem to contain less than 10 cell ({numberOfCells=}) from the key={keyForFileWithCellDict} in file={tissue.GetFilenameDictKeyValue(keyForFileWithCellDict)}")
+    return numberOfCells
 
 def determineRandomisedPerimeter(numberOfPerimeterPoints: int, perimeterLength: float):
     # have different modes, but for now just do a circle
