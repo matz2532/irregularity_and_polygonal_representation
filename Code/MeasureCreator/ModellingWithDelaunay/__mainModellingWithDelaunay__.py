@@ -33,7 +33,8 @@ def extractTissueProperties(tissue: FolderContent):
     tissueProperties = {}
     tissueProperties["numberOfCells"] = getNumberOfCells(tissue)
     tissueProperties["numberOfCellsAtPerimeter"] = None
-    tissueProperties["numberOfJunctions"] = None
+    # need to implement extraction of junction positions based on cellular adjacency graph and junctions of cells for tissues without final junction filename
+    tissueProperties["numberOfJunctions"] = getNumberOfJunctions(tissue)
     tissueProperties["perimeterPoints"] = None
     tissueProperties["perimeterInMicrons"] = None
     tissueProperties["tissueAreaInMicrons^2"] = getTissueArea(tissue)
@@ -50,6 +51,10 @@ def getNumberOfCells(tissue: FolderContent, keyForFileWithCellDict: str = "areaM
     if numberOfCells < 10:
         warnings.warn(f"Please double check the tissue {tissue.GetTissueName()} as it seem to contain less than 10 cell ({numberOfCells=}) from the key={keyForFileWithCellDict} in file={tissue.GetFilenameDictKeyValue(keyForFileWithCellDict)}")
     return numberOfCells
+
+def getNumberOfJunctions(tissue: FolderContent, keyForJunctionPositions: str = "finalJunctionFilename"):
+    junctionPositions = tissue.LoadKeyUsingFilenameDict(keyForJunctionPositions)
+    return len(junctionPositions)
 
 def getTissueArea(tissue: FolderContent, keyForFileWithAreaDict: str = "areaMeasuresPerCell", nestedKeyName: str or None = "labelledImageArea", resolutionFactor: float or None = None):
     areaPerCellDict = tissue.LoadKeyUsingFilenameDict(keyForFileWithAreaDict)
