@@ -36,8 +36,7 @@ def extractTissueProperties(tissue: FolderContent):
     tissueProperties["numberOfJunctions"] = None
     tissueProperties["perimeterPoints"] = None
     tissueProperties["perimeterInMicrons"] = None
-    tissueProperties["tissueAreaInMicrons^2"] = None
-
+    tissueProperties["tissueAreaInMicrons^2"] = getTissueArea(tissue)
     return tissueProperties
 
 def getNumberOfCells(tissue: FolderContent, keyForFileWithCellDict: str = "areaMeasuresPerCell", nestedKeyName: str or None = "labelledImageArea"):
@@ -51,6 +50,26 @@ def getNumberOfCells(tissue: FolderContent, keyForFileWithCellDict: str = "areaM
     if numberOfCells < 10:
         warnings.warn(f"Please double check the tissue {tissue.GetTissueName()} as it seem to contain less than 10 cell ({numberOfCells=}) from the key={keyForFileWithCellDict} in file={tissue.GetFilenameDictKeyValue(keyForFileWithCellDict)}")
     return numberOfCells
+
+def getTissueArea(tissue: FolderContent, keyForFileWithAreaDict: str = "areaMeasuresPerCell", nestedKeyName: str or None = "labelledImageArea", resolutionFactor: float or None = None):
+    areaPerCellDict = tissue.LoadKeyUsingFilenameDict(keyForFileWithAreaDict)
+    if nestedKeyName is not None:
+        assert nestedKeyName in areaPerCellDict, f"Invalid {nestedKeyName=} for the tissue {tissue.GetTissueName()}, it's data from the key={keyForFileWithAreaDict}"
+        areaPerCellDict = areaPerCellDict[nestedKeyName]
+    assert type(areaPerCellDict) == dict, f"For the tissue {tissue.GetTissueName()}, it's data from the key={keyForFileWithAreaDict} was no dictionary (with cells representing the key), {type(areaPerCellDict)} != dict"
+    numberOfCells = len(areaPerCellDict)
+    assert numberOfCells != 0, f"The tissue {tissue.GetTissueName()} seemed to contain no cells please check the corresponding cell dictionary from the key={keyForFileWithAreaDict}"
+    if numberOfCells < 10:
+        warnings.warn(f"Please double check the tissue {tissue.GetTissueName()} as it seem to contain less than 10 cell ({numberOfCells=}) from the key={keyForFileWithAreaDict} in file={tissue.GetFilenameDictKeyValue(keyForFileWithAreaDict)}")
+    tissueArea = 0
+    for cellArea in areaPerCellDict.values():
+        tissueArea += cellArea
+        print(cellArea)
+    if tissueArea < 10:
+        warnings.warn(f"Please double check the tissue {tissue.GetTissueName()} as it seem to be smaller than {tissueArea} in size from the key={keyForFileWithAreaDict} in file={tissue.GetFilenameDictKeyValue(keyForFileWithAreaDict)}")
+    if resolutionFactor is not None:
+        tissueArea *= resolutionFactor
+    return tissueArea
 
 def determineRandomisedPerimeter(numberOfPerimeterPoints: int, perimeterLength: float):
     # have different modes, but for now just do a circle
