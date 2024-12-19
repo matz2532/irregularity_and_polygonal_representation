@@ -7,6 +7,31 @@ sys.path.insert(0, "./Code/DataStructures/")
 
 from FolderContent import FolderContent
 
+def findPeripheralNodes(graph: nx.Graph):
+    peripheralNodes, innerNodes = [], []
+    nextNodesToCheck, checkedNodes = [], []
+    nodeClosenessCentralitiesOfNodes = nx.closeness_centrality(graph)
+    nodeClosenessCentralities = list(nodeClosenessCentralitiesOfNodes.values())
+    nodes = list(nodeClosenessCentralitiesOfNodes.keys())
+    startingNode = nodes[np.argmax(nodeClosenessCentralities)]
+    nextNodesToCheck = [startingNode]
+    while len(nextNodesToCheck) > 0:
+        currentNode = nextNodesToCheck.pop()
+        neighbors = list(graph.neighbors(currentNode))
+        nodesOfFirstNeighborhood = [currentNode]
+        nodesOfFirstNeighborhood.extend(neighbors)
+        firstNeighborhoodGraph = graph.subgraph(nodesOfFirstNeighborhood)
+        numberOfNeighbors = len(neighbors)
+        numberOfTrianglesOfCells = nx.triangles(firstNeighborhoodGraph)
+        if numberOfNeighbors == numberOfTrianglesOfCells[currentNode]:
+            peripheralNodes.append(currentNode)
+        else:
+            innerNodes.append(currentNode)
+        checkedNodes.append(currentNode)
+        uncheckedNeighbors = np.array(neighbors)[np.isin(neighbors, checkedNodes, invert=True)]
+        nextNodesToCheck.extend(list(uncheckedNeighbors))
+    return peripheralNodes
+
 def calculateAdjacencyGraph(tissue: FolderContent, adjacencyListFilenameKey: str or None = None, neighborDistancesFilenameKey: str or None = None):
     assert adjacencyListFilenameKey is not None or neighborDistancesFilenameKey is not None, f"You have to provide either the adjacencyListFilenameKey or the neighborDistancesFilenameKey for the calculation of the cellular adjacency graph of {tissue.GetTissueName()}"
     if adjacencyListFilenameKey is not None:
@@ -61,7 +86,9 @@ def main():
     filename = f"Images/{dataSetname}/{dataSetname}.json"
     mfc = MultiFolderContent(filename)
     tissueContent = list(mfc)[0]
-    overlAyadjacencyGraphOnLabelledImage(tissueContent)
+    # overlAyadjacencyGraphOnLabelledImage(tissueContent)
+    graph = calculateAdjacencyGraph(tissueContent, adjacencyListFilenameKey="labelledImageAdjacencyList")
+    peripheralNodes = findPeripheralNodes(graph)
 
 if __name__ == '__main__':
     main()
