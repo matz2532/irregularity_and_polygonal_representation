@@ -7,7 +7,7 @@ sys.path.insert(0, "./Code/DataStructures/")
 
 from FolderContent import FolderContent
 
-def findPeripheralNodes(graph: nx.Graph):
+def findPeripheralNodes(graph: nx.Graph, selectFirstLayerPeripheralNodes = True):
     peripheralNodes, innerNodes = [], []
     nextNodesToCheck, checkedNodes = [], []
     nodeClosenessCentralitiesOfNodes = nx.closeness_centrality(graph)
@@ -23,14 +23,19 @@ def findPeripheralNodes(graph: nx.Graph):
         firstNeighborhoodGraph = graph.subgraph(nodesOfFirstNeighborhood)
         numberOfNeighbors = len(neighbors)
         numberOfTrianglesOfCells = nx.triangles(firstNeighborhoodGraph)
-        if numberOfNeighbors == numberOfTrianglesOfCells[currentNode]:
+        if numberOfNeighbors <= 3 or numberOfNeighbors != numberOfTrianglesOfCells[currentNode]:
             peripheralNodes.append(currentNode)
         else:
             innerNodes.append(currentNode)
         checkedNodes.append(currentNode)
         uncheckedNeighbors = np.array(neighbors)[np.isin(neighbors, checkedNodes, invert=True)]
         nextNodesToCheck.extend(list(uncheckedNeighbors))
-    return peripheralNodes
+    innerNodes = np.unique(innerNodes)
+    if not selectFirstLayerPeripheralNodes:
+        return peripheralNodes
+    allInnerNodesNeighbors = np.unique(np.concatenate([list(graph.neighbors(n)) for n in innerNodes]))
+    firstPeripheryNodes = allInnerNodesNeighbors[np.isin(allInnerNodesNeighbors, innerNodes, invert=True)]
+    return firstPeripheryNodes
 
 def calculateAdjacencyGraph(tissue: FolderContent, adjacencyListFilenameKey: str or None = None, neighborDistancesFilenameKey: str or None = None):
     assert adjacencyListFilenameKey is not None or neighborDistancesFilenameKey is not None, f"You have to provide either the adjacencyListFilenameKey or the neighborDistancesFilenameKey for the calculation of the cellular adjacency graph of {tissue.GetTissueName()}"
