@@ -7,6 +7,16 @@ sys.path.insert(0, "./Code/DataStructures/")
 
 from FolderContent import FolderContent
 
+def extractOrderedPeripheralNodes(graph: nx.Graph):
+    peripheralNodes = findPeripheralNodes(graph, selectFirstLayerPeripheralNodes=True)
+    depthFirstEdgeOrdering = list(nx.dfs_edges(graph.subgraph(peripheralNodes)))
+    assert len(depthFirstEdgeOrdering) > 0, f"Expected more than one edge to order peripheral nodes, {len(depthFirstEdgeOrdering)} == 0"
+    orderedPeripheralNodes = []
+    for edge in depthFirstEdgeOrdering:
+        orderedPeripheralNodes.append(edge[0])
+    orderedPeripheralNodes.append(edge[1])
+    return orderedPeripheralNodes
+
 def findPeripheralNodes(graph: nx.Graph, selectFirstLayerPeripheralNodes = True):
     peripheralNodes, innerNodes = [], []
     nextNodesToCheck, checkedNodes = [], []
@@ -35,6 +45,9 @@ def findPeripheralNodes(graph: nx.Graph, selectFirstLayerPeripheralNodes = True)
         return peripheralNodes
     allInnerNodesNeighbors = np.unique(np.concatenate([list(graph.neighbors(n)) for n in innerNodes]))
     firstPeripheryNodes = allInnerNodesNeighbors[np.isin(allInnerNodesNeighbors, innerNodes, invert=True)]
+    trianglesOfPeripheryNodes = nx.triangles(graph.subgraph(firstPeripheryNodes))
+    if np.any(np.array(list(trianglesOfPeripheryNodes.values())) > 0):
+        raise NotImplementedError("Found a triangle in the first layer of peripheral nodes and the removal of them is not yet implemented.")
     return firstPeripheryNodes
 
 def calculateAdjacencyGraph(tissue: FolderContent, adjacencyListFilenameKey: str or None = None, neighborDistancesFilenameKey: str or None = None):
@@ -94,6 +107,7 @@ def main():
     # overlAyadjacencyGraphOnLabelledImage(tissueContent)
     graph = calculateAdjacencyGraph(tissueContent, adjacencyListFilenameKey="labelledImageAdjacencyList")
     peripheralNodes = findPeripheralNodes(graph)
+    extractOrderedPeripheralNodes(graph)
 
 if __name__ == '__main__':
     main()
