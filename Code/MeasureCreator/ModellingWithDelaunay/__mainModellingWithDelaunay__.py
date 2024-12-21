@@ -3,12 +3,15 @@ import sys
 import warnings
 
 sys.path.insert(0, "./Code/DataStructures/")
+sys.path.insert(0, "./Code/MeasureCreator/")
 
+from AdjacencyGraphHelper import extractAdjacencyGraph, extractOrderedPeripheralNodes
 from GraphCreatorFromDelaunayTriangulation import pointsAdjacencyGraphFromDelaunayTriangulation, faceAdjacencyGraphFromDelaunayTriangulation
 from FolderContent import FolderContent
 from MultiFolderContent import MultiFolderContent
 from scipy.spatial import Delaunay
 
+verbosity = 1
 def createAndAnalyseDelaunayTriangulatedTissueFrom(tissue: FolderContent, repetitions: int = 1, startingSeed: int = 42):
     tissueProperties = extractTissueProperties(tissue)
     allTriangulatedTissues = []
@@ -31,14 +34,70 @@ def delaunayTriangulatedTissue(tissueProperties, tissue, seed: int or None = Non
 
 def extractTissueProperties(tissue: FolderContent):
     tissueProperties = {}
+    previousVerbosity = tissue.verbose
+    tissue.verbose = 0 # does not give a message, when resolution is not set, but rather just returns none
+    resolution: int or None = tissue.GetResolution()
+
+    # use adjacencyListFilenameKey="labelledImageAdjacencyList" for Eng data and
+    # neighborDistancesFilenameKey="neighborDistance" for MGX data derived tissues (i.e. Matz and Smit data)
+    # (also implement and test extraction of adjacency graph)
+    fullAdjacencyGraph = extractAdjacencyGraph(tissue, adjacencyListFilenameKey="labelledImageAdjacencyList")
+    orderedPerimeterCells = extractOrderedPeripheralNodes(fullAdjacencyGraph)
+    junctionPositions = tissue.LoadKeyUsingFilenameDict("orderedJunctionsPerCellFilename")
+    tissue.verbose = previousVerbosity
+
     tissueProperties["numberOfCells"] = getNumberOfCells(tissue)
-    tissueProperties["numberOfCellsAtPerimeter"] = None
-    # need to implement extraction of junction positions based on cellular adjacency graph and junctions of cells for tissues without final junction filename
+    tissueProperties["numberOfCellsAtPerimeter"] = len(orderedPerimeterCells)
+    orderedPerimeterPositions = extractOrderedPerimeterPoints(orderedPerimeterCells, junctionPositions)
+    tissueProperties["perimeterPoints"] = len(orderedPerimeterPositions)
+    tissueProperties["perimeterInMicrons"] = getPerimeterDistance(orderedPerimeterPositions, resolution)
     tissueProperties["numberOfJunctions"] = getNumberOfJunctions(tissue)
-    tissueProperties["perimeterPoints"] = None
-    tissueProperties["perimeterInMicrons"] = None
     tissueProperties["tissueAreaInMicrons^2"] = getTissueArea(tissue)
     return tissueProperties
+
+def findSharedPoints(pointsFrom1, pointsFrom2, tolerance: float = np.sqrt(5)):
+    sharedPoints, indicesOfSharedPoints = [], []
+    for i, p1 in enumerate(pointsFrom1):
+        # print(pointsFrom2 - p1)
+        distanceToP1 = np.linalg.norm(pointsFrom2 - p1, axis=1)
+        # print(np.min(distanceToP1))
+        isShared = distanceToP1 <= tolerance
+        if np.any(isShared):
+            sharedPoints.append(p1)
+            indicesOfSharedPoints.append((i, np.where(isShared)[0][0]))
+    return sharedPoints, indicesOfSharedPoints
+
+def findSharedEdges(orderedPerimeterCells, junctionPositionsOfCells, returnIndicesToo: bool = True):
+    sharedJunctionsOfEdges, indicesSharedJunctionsOfEdges = {}
+    for i, currentPerimeterCell in enumerate(orderedPerimeterCells):
+        previousPerimeterCell = orderedPerimeterCells[i - 1]
+        if previousPerimeterCell in junctionPositionsOfCells and currentPerimeterCell in junctionPositionsOfCells:
+            sharedJunctions, indicesOfSharedJunctions = findSharedPoints(junctionPositionsOfCells[previousPerimeterCell], junctionPositionsOfCells[currentPerimeterCell])
+        else:
+            if verbosity > 0:
+                print(
+                    f"Extracting ordered perimeter points between {previousPerimeterCell} and {currentPerimeterCell} resulted in no shared points even though they are neighbors. {(previousPerimeterCell in junctionPositionsOfCells)=} {(currentPerimeterCell in junctionPositionsOfCells)=}")
+            sharedJunctions, indicesOfSharedJunctions = None, None
+        edge = (previousPerimeterCell, currentPerimeterCell)
+        sharedJunctionsOfEdges[edge] = sharedJunctions
+        indicesSharedJunctionsOfEdges[edge] = indicesOfSharedJunctions
+    if returnIndicesToo:
+        return sharedJunctionsOfEdges, indicesSharedJunctionsOfEdges
+    return sharedJunctionsOfEdges
+def extractOrderedPerimeterPoints(orderedPerimeterCells, junctionPositionsOfCells):
+    orderedPerimeterPositions = [] # min number is len(orderedPerimeterCells), but can be higher as well
+    # check two shared junctions of adjacent cells, determine, which appears only twice
+    # if there are junctions only appearing once add them continuously until reaching one with more than one appearance
+    sharedJunctionsOfEdges, indicesSharedJunctionsOfEdges = findSharedEdges(orderedPerimeterCells, junctionPositionsOfCells)
+    return orderedPerimeterPositions
+
+def getPerimeterDistance(orderedPerimeterPositions, resolution):
+    nextPerimeterPosition = np.concatenate([orderedPerimeterPositions[1:], [orderedPerimeterPositions[0]]])
+    distanceBetweenPoints = np.linalg.norm(orderedPerimeterPositions-nextPerimeterPosition, axis=1)
+    if resolution == 1:
+        return distanceBetweenPoints.sum()
+    else:
+        return distanceBetweenPoints.sum() * resolution
 
 def getNumberOfCells(tissue: FolderContent, keyForFileWithCellDict: str = "areaMeasuresPerCell", nestedKeyName: str or None = "labelledImageArea"):
     cellDict = tissue.LoadKeyUsingFilenameDict(keyForFileWithCellDict)

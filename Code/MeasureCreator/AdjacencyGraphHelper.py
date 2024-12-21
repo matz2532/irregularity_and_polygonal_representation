@@ -50,7 +50,7 @@ def findPeripheralNodes(graph: nx.Graph, selectFirstLayerPeripheralNodes = True)
         raise NotImplementedError("Found a triangle in the first layer of peripheral nodes and the removal of them is not yet implemented.")
     return firstPeripheryNodes
 
-def calculateAdjacencyGraph(tissue: FolderContent, adjacencyListFilenameKey: str or None = None, neighborDistancesFilenameKey: str or None = None):
+def extractAdjacencyGraph(tissue: FolderContent, adjacencyListFilenameKey: str or None = None, neighborDistancesFilenameKey: str or None = None):
     assert adjacencyListFilenameKey is not None or neighborDistancesFilenameKey is not None, f"You have to provide either the adjacencyListFilenameKey or the neighborDistancesFilenameKey for the calculation of the cellular adjacency graph of {tissue.GetTissueName()}"
     if adjacencyListFilenameKey is not None:
         adjacencyList = tissue.LoadKeyUsingFilenameDict(adjacencyListFilenameKey)
@@ -64,7 +64,7 @@ def rotateImageToFitMatpltlibOrientation(image):
 
 def overlAyadjacencyGraphOnLabelledImage(tissue, displayInterestedCellsPositionFromLabelledImage: bool = False):
     # from neighborDistances or labelledImageAdjacencyList -> extract adjacencyGraph
-    adjacencyGraph = calculateAdjacencyGraph(tissue, adjacencyListFilenameKey="labelledImageAdjacencyList")
+    adjacencyGraph = extractAdjacencyGraph(tissue, adjacencyListFilenameKey="labelledImageAdjacencyList")
 
     labelledImage = tissue.LoadKeyUsingFilenameDict("labelledImageFilename")
 
@@ -105,7 +105,7 @@ def main():
     mfc = MultiFolderContent(filename)
     tissueContent = list(mfc)[0]
     # overlAyadjacencyGraphOnLabelledImage(tissueContent)
-    graph = calculateAdjacencyGraph(tissueContent, adjacencyListFilenameKey="labelledImageAdjacencyList")
+    graph = extractAdjacencyGraph(tissueContent, adjacencyListFilenameKey="labelledImageAdjacencyList")
     peripheralNodes = findPeripheralNodes(graph)
     extractOrderedPeripheralNodes(graph)
 
