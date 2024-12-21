@@ -7,17 +7,22 @@ sys.path.insert(0, "./Code/DataStructures/")
 
 from FolderContent import FolderContent
 
-def extractOrderedPeripheralNodes(graph: nx.Graph):
-    peripheralNodes = findPeripheralNodes(graph, selectFirstLayerPeripheralNodes=True)
+def extractOrderedPeripheralNodes(graph: nx.Graph, returnInnerNodesToo: bool = True):
+    peripheralNodes = findPeripheralNodes(graph, selectFirstLayerPeripheralNodes=True, returnInnerNodesToo=returnInnerNodesToo)
+    if returnInnerNodesToo:
+        peripheralNodes, innerNodes = peripheralNodes
     depthFirstEdgeOrdering = list(nx.dfs_edges(graph.subgraph(peripheralNodes)))
     assert len(depthFirstEdgeOrdering) > 0, f"Expected more than one edge to order peripheral nodes, {len(depthFirstEdgeOrdering)} == 0"
     orderedPeripheralNodes = []
     for edge in depthFirstEdgeOrdering:
         orderedPeripheralNodes.append(edge[0])
     orderedPeripheralNodes.append(edge[1])
-    return orderedPeripheralNodes
+    if returnInnerNodesToo:
+        return orderedPeripheralNodes, innerNodes
+    else:
+        return orderedPeripheralNodes
 
-def findPeripheralNodes(graph: nx.Graph, selectFirstLayerPeripheralNodes = True):
+def findPeripheralNodes(graph: nx.Graph, selectFirstLayerPeripheralNodes = True, returnInnerNodesToo: bool = True):
     peripheralNodes, innerNodes = [], []
     nextNodesToCheck, checkedNodes = [], []
     nodeClosenessCentralitiesOfNodes = nx.closeness_centrality(graph)
@@ -42,13 +47,19 @@ def findPeripheralNodes(graph: nx.Graph, selectFirstLayerPeripheralNodes = True)
         nextNodesToCheck.extend(list(uncheckedNeighbors))
     innerNodes = np.unique(innerNodes)
     if not selectFirstLayerPeripheralNodes:
-        return peripheralNodes
+        if returnInnerNodesToo:
+            return peripheralNodes, innerNodes
+        else:
+            return peripheralNodes
     allInnerNodesNeighbors = np.unique(np.concatenate([list(graph.neighbors(n)) for n in innerNodes]))
     firstPeripheryNodes = allInnerNodesNeighbors[np.isin(allInnerNodesNeighbors, innerNodes, invert=True)]
     trianglesOfPeripheryNodes = nx.triangles(graph.subgraph(firstPeripheryNodes))
     if np.any(np.array(list(trianglesOfPeripheryNodes.values())) > 0):
         raise NotImplementedError("Found a triangle in the first layer of peripheral nodes and the removal of them is not yet implemented.")
-    return firstPeripheryNodes
+    if returnInnerNodesToo:
+        return firstPeripheryNodes, innerNodes
+    else:
+        return firstPeripheryNodes
 
 def extractAdjacencyGraph(tissue: FolderContent, adjacencyListFilenameKey: str or None = None, neighborDistancesFilenameKey: str or None = None):
     assert adjacencyListFilenameKey is not None or neighborDistancesFilenameKey is not None, f"You have to provide either the adjacencyListFilenameKey or the neighborDistancesFilenameKey for the calculation of the cellular adjacency graph of {tissue.GetTissueName()}"
