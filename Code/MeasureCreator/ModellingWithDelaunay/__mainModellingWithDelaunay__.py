@@ -68,15 +68,14 @@ def findSharedPoints(pointsFrom1, pointsFrom2, tolerance: float = np.sqrt(5)):
     return sharedPoints, indicesOfSharedPoints
 
 def findSharedEdges(orderedPerimeterCells, junctionPositionsOfCells, returnIndicesToo: bool = True):
-    sharedJunctionsOfEdges, indicesSharedJunctionsOfEdges = {}
+    sharedJunctionsOfEdges, indicesSharedJunctionsOfEdges = {}, {}
     for i, currentPerimeterCell in enumerate(orderedPerimeterCells):
         previousPerimeterCell = orderedPerimeterCells[i - 1]
         if previousPerimeterCell in junctionPositionsOfCells and currentPerimeterCell in junctionPositionsOfCells:
             sharedJunctions, indicesOfSharedJunctions = findSharedPoints(junctionPositionsOfCells[previousPerimeterCell], junctionPositionsOfCells[currentPerimeterCell])
         else:
             if verbosity > 0:
-                print(
-                    f"Extracting ordered perimeter points between {previousPerimeterCell} and {currentPerimeterCell} resulted in no shared points even though they are neighbors. {(previousPerimeterCell in junctionPositionsOfCells)=} {(currentPerimeterCell in junctionPositionsOfCells)=}")
+                print(f"Extracting ordered perimeter points between {previousPerimeterCell} and {currentPerimeterCell} resulted in no shared points even though they are neighbors. {(previousPerimeterCell in junctionPositionsOfCells)=} {(currentPerimeterCell in junctionPositionsOfCells)=}")
             sharedJunctions, indicesOfSharedJunctions = None, None
         edge = (previousPerimeterCell, currentPerimeterCell)
         sharedJunctionsOfEdges[edge] = sharedJunctions
