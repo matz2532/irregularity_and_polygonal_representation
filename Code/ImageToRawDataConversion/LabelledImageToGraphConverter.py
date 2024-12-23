@@ -110,23 +110,26 @@ class LabelledImageToGraphConverter (object):
         return adjacencyList
 
 def main():
-    import matplotlib.pyplot as plt
     import networkx as nx
     from MultiFolderContent import MultiFolderContent
-    dataBaseFolder = "Images/"
+    sys.path.insert(0, "./Code/MeasureCreator/")
+    from AdjacencyGraphHelper import overlAyadjacencyGraphOnLabelledImage
+
+    dataBaseFolder = "Images/Eng2021Cotyledons/"
     folderContentsName = "Eng2021Cotyledons.json"
     allFolderContentsFilename = dataBaseFolder + folderContentsName
     multiFolderContent = MultiFolderContent(allFolderContentsFilename)
-    contourDict = list(multiFolderContent)[0].LoadKeyUsingFilenameDict("cellContours", convertDictKeysToInt=True, convertDictValuesToNpArray=True)
+    tissue = list(multiFolderContent)[0]
+    contourDict = tissue.LoadKeyUsingFilenameDict("cellContours", convertDictKeysToInt=True, convertDictValuesToNpArray=True)
     selectedCellLabels = np.sort(list(contourDict.keys()))
     myLabelledImageToGraphConverter = LabelledImageToGraphConverter(folderContent=list(multiFolderContent)[0], selectedCellIds=selectedCellLabels)
     adjacencyList = myLabelledImageToGraphConverter.GetAdjacencyList()
-    myLabelledImageToGraphConverter.SaveAdjacencyList(dataBaseFolder=dataBaseFolder)
+    # myLabelledImageToGraphConverter.SaveAdjacencyList(dataBaseFolder=dataBaseFolder)
     # multiFolderContent.UpdateFolderContents()
+
     print(adjacencyList)
     graph = nx.from_dict_of_lists(adjacencyList)
-    nx.draw(graph)
-    plt.show()
+    overlAyadjacencyGraphOnLabelledImage(tissue, adjacencyGraph=graph)
 
 if __name__ == '__main__':
     main()
