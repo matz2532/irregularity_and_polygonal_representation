@@ -9,6 +9,7 @@ from AdjacencyGraphHelper import extractAdjacencyGraph, extractOrderedPeripheral
 from GraphCreatorFromDelaunayTriangulation import pointsAdjacencyGraphFromDelaunayTriangulation, faceAdjacencyGraphFromDelaunayTriangulation
 from FolderContent import FolderContent
 from MultiFolderContent import MultiFolderContent
+from Utils import findSharedPoints
 from scipy.spatial import Delaunay
 
 verbosity = 1
@@ -54,18 +55,6 @@ def extractTissueProperties(tissue: FolderContent):
     tissueProperties["numberOfJunctions"] = getNumberOfJunctions(tissue)
     tissueProperties["tissueAreaInMicrons^2"] = getTissueArea(tissue)
     return tissueProperties
-
-def findSharedPoints(pointsFrom1, pointsFrom2, tolerance: float = np.sqrt(5)):
-    sharedPoints, indicesOfSharedPoints = [], []
-    for i, p1 in enumerate(pointsFrom1):
-        # print(pointsFrom2 - p1)
-        distanceToP1 = np.linalg.norm(pointsFrom2 - p1, axis=1)
-        # print(np.min(distanceToP1))
-        isShared = distanceToP1 <= tolerance
-        if np.any(isShared):
-            sharedPoints.append(p1)
-            indicesOfSharedPoints.append((i, np.where(isShared)[0][0]))
-    return sharedPoints, indicesOfSharedPoints
 
 def findSharedEdges(orderedPerimeterCells, junctionPositionsOfCells, returnIndicesToo: bool = True):
     sharedJunctionsOfEdges, indicesSharedJunctionsOfEdges = {}, {}
