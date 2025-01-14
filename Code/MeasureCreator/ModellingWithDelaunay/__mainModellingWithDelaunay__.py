@@ -48,7 +48,8 @@ def extractTissueProperties(tissue: FolderContent):
     myLabelledImageToGraphConverter = LabelledImageToGraphConverter(folderContent=tissue, selectedCellIds=[])
     adjacencyList = myLabelledImageToGraphConverter.GetAdjacencyList()
     fullAdjacencyGraph = nx.Graph(adjacencyList)
-    orderedPerimeterCells, innerCells = extractOrderedPeripheralNodes(fullAdjacencyGraph)
+    # orderedPerimeterCells, innerCells = extractOrderedPeripheralNodes(fullAdjacencyGraph)
+    orderedPerimeterCells = [66, 57, 49, 43, 26, 19, 12, 15, 13, 8, 7, 22, 25, 34, 28, 50, 59, 67, 68, 62, 61, 63, 52]
     tissueSubgraph = fullAdjacencyGraph.subgraph(np.concatenate([orderedPerimeterCells, innerCells]))
     # nx.draw_networkx(tissueSubgraph)
     # import matplotlib.pyplot as plt
