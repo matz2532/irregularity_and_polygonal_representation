@@ -50,6 +50,9 @@ def extractTissueProperties(tissue: FolderContent):
     fullAdjacencyGraph = nx.Graph(adjacencyList)
     # orderedPerimeterCells, innerCells = extractOrderedPeripheralNodes(fullAdjacencyGraph)
     orderedPerimeterCells = [66, 57, 49, 43, 26, 19, 12, 15, 13, 8, 7, 22, 25, 34, 28, 50, 59, 67, 68, 62, 61, 63, 52]
+    tmpGraph = nx.Graph(adjacencyList)
+    tmpGraph.remove_nodes_from(orderedPerimeterCells)
+    innerCells = extractNodesFromBiggestContinuousGraph(tmpGraph)
     tissueSubgraph = fullAdjacencyGraph.subgraph(np.concatenate([orderedPerimeterCells, innerCells]))
     # nx.draw_networkx(tissueSubgraph)
     # import matplotlib.pyplot as plt
@@ -150,6 +153,18 @@ def extractOrderedPerimeterPoints(orderedPerimeterCells, junctionPositionsOfCell
             cellsPerimeterPointsToDoubleCheck.append(currentCell)
 
     return orderedPerimeterPositions
+
+def extractNodesFromBiggestContinuousGraph(graph):
+    possibleStartingNodes = np.array(list(graph.nodes))
+    possibleInnerGraphs = []
+    while len(possibleStartingNodes) > 0:
+        startingNode = possibleStartingNodes[0]
+        resultingGraph = nx.bfs_tree(graph, startingNode)
+        possibleInnerGraphs.append(resultingGraph)
+        possibleStartingNodes = possibleStartingNodes[np.isin(possibleStartingNodes, list(resultingGraph), invert=True)]
+    numberOfNodesPerGraph = [len(list(g.nodes)) for g in possibleInnerGraphs]
+    indexOfBiggestGraph = np.argmax(numberOfNodesPerGraph)
+    return np.array(list(possibleInnerGraphs[indexOfBiggestGraph].nodes))
 
 def findOutsideFacingJunctionsOfCellsCheckingTissueSize(sharedJunctionsOfEdges):
     # find ordered perimeter points based on creating polygon based on choosing one side to walk and
