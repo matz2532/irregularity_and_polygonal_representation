@@ -1,13 +1,16 @@
+import networkx as nx
 import numpy as np
 import sys
 import warnings
 
 sys.path.insert(0, "./Code/DataStructures/")
+sys.path.insert(0, "./Code/ImageToRawDataConversion/")
 sys.path.insert(0, "./Code/MeasureCreator/")
 
 from AdjacencyGraphHelper import extractAdjacencyGraph, extractOrderedPeripheralNodes
 from GraphCreatorFromDelaunayTriangulation import pointsAdjacencyGraphFromDelaunayTriangulation, faceAdjacencyGraphFromDelaunayTriangulation
 from FolderContent import FolderContent
+from LabelledImageToGraphConverter import LabelledImageToGraphConverter
 from MultiFolderContent import MultiFolderContent
 from Utils import findSharedPoints
 from scipy.spatial import Delaunay
@@ -42,14 +45,20 @@ def extractTissueProperties(tissue: FolderContent):
     # use adjacencyListFilenameKey="labelledImageAdjacencyList" for Eng data and
     # neighborDistancesFilenameKey="neighborDistance" for MGX data derived tissues (i.e. Matz and Smit data)
     # (also implement and test extraction of adjacency graph)
-    fullAdjacencyGraph = extractAdjacencyGraph(tissue, adjacencyListFilenameKey="labelledImageAdjacencyList")
-    orderedPerimeterCells = extractOrderedPeripheralNodes(fullAdjacencyGraph)
+    myLabelledImageToGraphConverter = LabelledImageToGraphConverter(folderContent=tissue, selectedCellIds=[])
+    adjacencyList = myLabelledImageToGraphConverter.GetAdjacencyList()
+    fullAdjacencyGraph = nx.Graph(adjacencyList)
+    orderedPerimeterCells, innerCells = extractOrderedPeripheralNodes(fullAdjacencyGraph)
+    tissueSubgraph = fullAdjacencyGraph.subgraph(np.concatenate([orderedPerimeterCells, innerCells]))
+    # nx.draw_networkx(tissueSubgraph)
+    # import matplotlib.pyplot as plt
+    # plt.show()
     junctionPositions = tissue.LoadKeyUsingFilenameDict("orderedJunctionsPerCellFilename")
     tissue.verbose = previousVerbosity
 
     tissueProperties["numberOfCells"] = getNumberOfCells(tissue)
     tissueProperties["numberOfCellsAtPerimeter"] = len(orderedPerimeterCells)
-    orderedPerimeterPositions = extractOrderedPerimeterPoints(orderedPerimeterCells, junctionPositions)
+    orderedPerimeterPositions = extractOrderedPerimeterPoints(orderedPerimeterCells, junctionPositions, tissueSubgraph)
     tissueProperties["perimeterPoints"] = len(orderedPerimeterPositions)
     tissueProperties["perimeterInMicrons"] = getPerimeterDistance(orderedPerimeterPositions, resolution)
     tissueProperties["numberOfJunctions"] = getNumberOfJunctions(tissue)
@@ -72,12 +81,92 @@ def findSharedEdges(orderedPerimeterCells, junctionPositionsOfCells, returnIndic
     if returnIndicesToo:
         return sharedJunctionsOfEdges, indicesSharedJunctionsOfEdges
     return sharedJunctionsOfEdges
-def extractOrderedPerimeterPoints(orderedPerimeterCells, junctionPositionsOfCells):
-    orderedPerimeterPositions = [] # min number is len(orderedPerimeterCells), but can be higher as well
+
+def findInsideFacingJunctionsOfCells(junctionPositionsOfCells: dict, selectedCells: list, adjacencyGraph: nx.Graph):
+    indicesOfInsideFacingJunctionsPerCell = {}
+    for cell in selectedCells:
+        if cell in junctionPositionsOfCells:
+            occurrencesOfSharedPointsIndices = []
+            junctionsOfCell = junctionPositionsOfCells[cell]
+            neighbors = list(adjacencyGraph.neighbors(cell))
+            for neighborCell in neighbors:
+                if neighborCell in junctionPositionsOfCells:
+                    sharedPoints, indicesOfSharedPoints = findSharedPoints(junctionsOfCell, junctionPositionsOfCells[neighborCell])
+                    occurrencesOfSharedPointsIndices.extend(list(indicesOfSharedPoints))
+            indices, occurrenceOfIndices = np.unique(occurrencesOfSharedPointsIndices, return_counts=True)
+            insideFacingJunctions = indices[occurrenceOfIndices == 3]
+            if len(insideFacingJunctions) == 0:
+                insideFacingJunctions = None
+        else:
+            insideFacingJunctions = None
+        indicesOfInsideFacingJunctionsPerCell[cell] = insideFacingJunctions
+    return indicesOfInsideFacingJunctionsPerCell
+
+def extractFirstCellWithKnownDirectionalityOfJunctionFacing(sharedJunctionsOfEdges, indicesOfInsideFacingJunctionsPerCell):
+    firstCellWithKnownDirectionality = None
+    for cell, insideFacingJunctionIndices in indicesOfInsideFacingJunctionsPerCell.items():
+        edgeWithPreviousNeighbor = list(sharedJunctionsOfEdges.keys())[np.where([edge[1] == cell for edge in sharedJunctionsOfEdges])[0][0]]
+        sharedJunctions = sharedJunctionsOfEdges[edgeWithPreviousNeighbor]
+        if sharedJunctions is not None and insideFacingJunctionIndices is not None and len(insideFacingJunctionIndices) > 0:
+            firstCellWithKnownDirectionality = cell
+            break
+    return firstCellWithKnownDirectionality
+
+def extractOrderedPerimeterPoints(orderedPerimeterCells, junctionPositionsOfCells, perimeterAndInnerCellsAdjacencyGraph: nx.Graph):
     # check two shared junctions of adjacent cells, determine, which appears only twice
     # if there are junctions only appearing once add them continuously until reaching one with more than one appearance
     sharedJunctionsOfEdges, indicesSharedJunctionsOfEdges = findSharedEdges(orderedPerimeterCells, junctionPositionsOfCells)
+    indicesOfInsideFacingJunctionsPerCell = findInsideFacingJunctionsOfCells(junctionPositionsOfCells, orderedPerimeterCells, perimeterAndInnerCellsAdjacencyGraph)
+    firstCellWithKnownDirectionality = extractFirstCellWithKnownDirectionalityOfJunctionFacing(sharedJunctionsOfEdges, indicesOfInsideFacingJunctionsPerCell)
+
+    numberOfPerimeterCells = len(orderedPerimeterCells)
+    i = numberOfPerimeterCells
+    if firstCellWithKnownDirectionality is None:
+        currentCellIdx = 0
+    else:
+        currentCellIdx = np.where([edge[1] == firstCellWithKnownDirectionality for edge in sharedJunctionsOfEdges])[0][0]
+    orderedPerimeterPositions, perimeterPointsBelongingCell = [], []
+    nextJunction = []
+    while i > 0:
+        currentCell = sharedJunctionsOfEdges[currentCellIdx][1]
+        currentPerimeterPoints = []
+        
+        orderedPerimeterPositions.extend(currentPerimeterPoints)
+        perimeterPointsBelongingCell.extend(len(currentPerimeterPoints) * [currentCell])
+        currentCellIdx += 1
+        if currentCellIdx > numberOfPerimeterCells:
+            currentCellIdx = 0
+        i -= 1
+
+    # print(f"{indicesSharedJunctionsOfEdges=}")
+    # print(f"{indicesOfInsideFacingJunctionsPerCell=}")
+    sys.exit()
+    cellsPerimeterPointsToDoubleCheck = []
+    for adjacentCells, sharedJunctions in sharedJunctionsOfEdges.items():
+        currentCell = adjacentCells[1]
+        currentOutsideFacingIndices = indicesOfOutsideFacingJunctionsPerCell[currentCell]
+        if currentOutsideFacingIndices is None:
+            cellsPerimeterPointsToDoubleCheck.append(currentCell)
+
     return orderedPerimeterPositions
+
+def findOutsideFacingJunctionsOfCellsCheckingTissueSize(sharedJunctionsOfEdges):
+    # find ordered perimeter points based on creating polygon based on choosing one side to walk and
+    # testing whether the other side would increase the total area (i.e. it is the correct outside)
+    cellsContinuouslySharingTwoJunctions, currentlySharing = [], []
+    for adjacentCells, sharedJunctions in sharedJunctionsOfEdges.items():
+        if sharedJunctions is None:
+            if len(currentlySharing) != 0:
+                cellsContinuouslySharingTwoJunctions.append(currentlySharing)
+        if len(sharedJunctions) < 2:
+            if len(currentlySharing) != 0:
+                cellsContinuouslySharingTwoJunctions.append(currentlySharing)
+            cellsContinuouslySharingTwoJunctions.append(adjacentCells)
+            currentlySharing = []
+        if len(sharedJunctions) == 2:
+            if len(currentlySharing) == 0:
+                currentlySharing.append(adjacentCells[0])
+            currentlySharing.append(adjacentCells[1])
 
 def getPerimeterDistance(orderedPerimeterPositions, resolution):
     nextPerimeterPosition = np.concatenate([orderedPerimeterPositions[1:], [orderedPerimeterPositions[0]]])
@@ -172,6 +261,7 @@ def main():
     filename = f"Images/{dataSetname}/{dataSetname}.json"
     mfc = MultiFolderContent(filename)
     tissueContent = list(mfc)[0]
+    print(tissueContent.GetTissueName())
     createAndAnalyseDelaunayTriangulatedTissueFrom(tissueContent)
 
 if __name__ == '__main__':
