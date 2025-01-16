@@ -116,7 +116,25 @@ def extractFirstCellWithKnownDirectionalityOfJunctionFacing(sharedJunctionsOfEdg
             break
     return firstCellWithKnownDirectionality
 
+def determineSharedPerimeterPointUsingMeanOfSharedJunctions(currentCell, previousCell, junctionPositionsOfCells: dict):
+    if currentCell not in junctionPositionsOfCells or previousCell not in junctionPositionsOfCells:
+        return None
+    currentJunctionPositions = junctionPositionsOfCells[currentCell]
+    previousJunctionPositions = junctionPositionsOfCells[previousCell]
+    sharedPoints, _ = findSharedPoints(currentJunctionPositions, previousJunctionPositions)
+    meanSharedPoints = np.mean(sharedPoints, axis=0)
+    return meanSharedPoints
+
 def extractOrderedPerimeterPoints(orderedPerimeterCells, junctionPositionsOfCells, perimeterAndInnerCellsAdjacencyGraph: nx.Graph):
+    orderedPerimeterPoints = []
+    for i, currentCell in enumerate(orderedPerimeterCells):
+        previousCell = orderedPerimeterCells[i-1]
+        # this approach ignores junctions facing outside and just uses
+        # made it simple -> revisit and improve
+        perimeterPoint = determineSharedPerimeterPointUsingMeanOfSharedJunctions(currentCell, previousCell, junctionPositionsOfCells)
+        if perimeterPoint is not None:
+            orderedPerimeterPoints.append(perimeterPoint)
+    return np.array(orderedPerimeterPoints)
     # check two shared junctions of adjacent cells, determine, which appears only twice
     # if there are junctions only appearing once add them continuously until reaching one with more than one appearance
     sharedJunctionsOfEdges, indicesSharedJunctionsOfEdges = findSharedEdges(orderedPerimeterCells, junctionPositionsOfCells)
