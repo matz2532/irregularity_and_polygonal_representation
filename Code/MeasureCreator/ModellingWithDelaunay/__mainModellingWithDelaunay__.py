@@ -14,7 +14,7 @@ from LabelledImageToGraphConverter import LabelledImageToGraphConverter
 from MultiFolderContent import MultiFolderContent
 from Utils import findSharedPoints
 from scipy.spatial import Delaunay
-from shapely import Polygon
+from shapely import Polygon, Point
 
 verbosity = 1
 def createAndAnalyseDelaunayTriangulatedTissueFrom(tissue: FolderContent, repetitions: int = 1, startingSeed: int = 42):
@@ -28,8 +28,7 @@ def createAndAnalyseDelaunayTriangulatedTissueFrom(tissue: FolderContent, repeti
     visualizeTissueProperties(allTriangulatedTissues)
 
 def delaunayTriangulatedTissue(tissueProperties, tissue, seed: int or None = None, useOriginalPerimeter: bool = True):
-    if seed is not None:
-        np.random.set_state(seed)
+    rng = np.random.default_rng(seed)
     if useOriginalPerimeter:
         perimeterPoints = tissueProperties["perimeterPoints"]
     else:
@@ -265,12 +264,47 @@ def determineRandomisedPerimeter(numberOfPerimeterPoints: int, perimeterLength: 
     randomisedPerimeterPoints = np.zeros((numberOfPerimeterPoints, 2))
     return randomisedPerimeterPoints
 
-def placePointsInsidePerimeter(numberOfPoints: int, perimeterPoints: np.array):
+def placePointsInsidePerimeter(numberOfPoints: int, perimeterPoints: np.array, rng = None, maxAllowedRejections: int = 100_000, visualizePoints: bool or str = False):
     # could have different modes, but for now randomly select points and
     # kick them out when they are not inside the perimeter until target number of points is reached
     # do I need a buffer zone to avoid points right at perimeter (probably, should be something like half of mean cell perimeter)
+    if rng is None:
+        rng = np.random.default_rng()
     points = np.zeros((numberOfPoints, 2))
+    tissuePolygon = Polygon(perimeterPoints)
+    boundary = tissuePolygon.bounds # minX, minY, maxX, maxY
+    numberOfCreatedPoints, numberOfRejectedPoint = 0, 0
+    rejectedPoints = []
+    while numberOfCreatedPoints < numberOfPoints and numberOfRejectedPoint < maxAllowedRejections:
+        potentialPoint = uniformlyDrawPointFrom(rng, boundary)
+        intersection = tissuePolygon.intersection(Point(potentialPoint))
+        if intersection:
+            points[numberOfCreatedPoints] = potentialPoint
+            numberOfCreatedPoints += 1
+        else:
+            rejectedPoints.append(potentialPoint)
+            numberOfRejectedPoint += 1
+    if visualizePoints:
+        visualizeRandomPointsInTissue(perimeterPoints, points, rejectedPoints, saveAs=visualizePoints if type(visualizePoints) == str else None)
     return points
+
+def uniformlyDrawPointFrom(rng, boundary: tuple):
+    assert len(boundary) == 4, f"Expected exactly 4 values from {boundary=}, {len(boundary)} != 4."
+    x = rng.uniform(boundary[0], boundary[2])
+    y = rng.uniform(boundary[1], boundary[3])
+    return x, y
+
+def visualizeRandomPointsInTissue(perimeterPoints, points, rejectedPoints, saveAs: str or None = None):
+    import matplotlib.pyplot as plt
+    rejectedPoints = np.array(rejectedPoints)
+    plt.plot(np.concatenate([perimeterPoints[:, 0], [perimeterPoints[0, 0]]]), np.concatenate([perimeterPoints[:, 1], [perimeterPoints[0, 1]]]), label="tissue boarder")
+    plt.scatter(points[:, 0], points[:, 1], label="accepted points")
+    plt.scatter(rejectedPoints[:, 0], rejectedPoints[:, 1], label="rejected points")
+    plt.legend()
+    if saveAs:
+        raise NotImplementedError(f"Trying to save the visualization of random points in a tissue under {saveAs}, but this is not yet implemented as it was not really needed.")
+    else:
+        plt.show()
 
 def applyDelaunayTriangulationTo(points, perimeterPoints):
     pointsWithPerimeter = None
