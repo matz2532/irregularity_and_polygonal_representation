@@ -37,7 +37,7 @@ def delaunayTriangulatedTissue(tissueProperties, tissue, seed: int or None = Non
     triangulatedTissue: FolderContent = parameterizeDelaunayDerivedTissue(triangulation, tissueProperties, tissue)
     return triangulatedTissue
 
-def extractTissueProperties(tissue: FolderContent):
+def extractTissueProperties(tissue: FolderContent, tissueAreaByCellArea: bool = False):
     tissueProperties = {}
     previousVerbosity = tissue.verbose
     tissue.verbose = 0 # does not give a message, when resolution is not set, but rather just returns none
@@ -67,7 +67,10 @@ def extractTissueProperties(tissue: FolderContent):
     tissueProperties["perimeterPoints"] = len(orderedPerimeterPositions)
     tissueProperties["perimeterInMicrons"] = getPerimeterDistance(orderedPerimeterPositions, resolution)
     tissueProperties["numberOfJunctions"] = getNumberOfJunctions(tissue)
-    tissueProperties["tissueAreaInMicrons^2"] = getTissueArea(tissue)
+    if tissueAreaByCellArea:
+        tissueProperties["tissueAreaInMicrons^2"] = getTissueArea(tissue)
+    else:
+        tissueProperties["tissueAreaInMicrons^2"] = getTissueAreaByPerimeterPositions(orderedPerimeterPositions, resolution)
     return tissueProperties
 
 def findSharedEdges(orderedPerimeterCells, junctionPositionsOfCells, returnIndicesToo: bool = True):
