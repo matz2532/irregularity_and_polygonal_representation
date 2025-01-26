@@ -27,10 +27,13 @@ def createAndAnalyseDelaunayTriangulatedTissueFrom(tissue: FolderContent, repeti
     allTriangulatedTissues = MultiFolderContent(allTriangulatedTissues)
     visualizeTissueProperties(allTriangulatedTissues)
 
-def delaunayTriangulatedTissue(tissueProperties, tissue, seed: int or None = None):
+def delaunayTriangulatedTissue(tissueProperties, tissue, seed: int or None = None, useOriginalPerimeter: bool = True):
     if seed is not None:
         np.random.set_state(seed)
-    perimeterPoints = determineRandomisedPerimeter(tissueProperties["numberOfCellsAtPerimeter"], tissueProperties["perimeterInMicrons"])
+    if useOriginalPerimeter:
+        perimeterPoints = tissueProperties["perimeterPoints"]
+    else:
+        perimeterPoints = determineRandomisedPerimeter(tissueProperties["numberOfCellsAtPerimeter"], tissueProperties["perimeterInMicrons"])
     newCellCenters = placePointsInsidePerimeter(tissueProperties["numberOfCells"], perimeterPoints)
     triangulation = applyDelaunayTriangulationTo(newCellCenters, perimeterPoints)
     triangulation = removeExcessPointsOrEdges(triangulation, None)
