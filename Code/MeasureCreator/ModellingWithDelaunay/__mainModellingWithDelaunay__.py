@@ -243,7 +243,7 @@ def getTissueArea(tissue: FolderContent, keyForFileWithAreaDict: str = "areaMeas
     if tissueArea < 10:
         warnings.warn(f"Please double check the tissue {tissue.GetTissueName()} as it seem to be smaller than {tissueArea} in size from the key={keyForFileWithAreaDict} in file={tissue.GetFilenameDictKeyValue(keyForFileWithAreaDict)}")
     if resolutionFactor is not None:
-        tissueArea *= resolutionFactor
+        tissueArea *= resolutionFactor * resolutionFactor
     return tissueArea
 
 def determineRandomisedPerimeter(numberOfPerimeterPoints: int, perimeterLength: float):
