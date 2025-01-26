@@ -14,6 +14,7 @@ from LabelledImageToGraphConverter import LabelledImageToGraphConverter
 from MultiFolderContent import MultiFolderContent
 from Utils import findSharedPoints
 from scipy.spatial import Delaunay
+from shapely import Polygon
 
 verbosity = 1
 def createAndAnalyseDelaunayTriangulatedTissueFrom(tissue: FolderContent, repetitions: int = 1, startingSeed: int = 42):
@@ -225,6 +226,13 @@ def getNumberOfCells(tissue: FolderContent, keyForFileWithCellDict: str = "areaM
 def getNumberOfJunctions(tissue: FolderContent, keyForJunctionPositions: str = "finalJunctionFilename"):
     junctionPositions = tissue.LoadKeyUsingFilenameDict(keyForJunctionPositions)
     return len(junctionPositions)
+
+def getTissueAreaByPerimeterPositions(orderedPerimeterPositions, resolutionFactor: float or None = None):
+    tissuePolygon = Polygon(orderedPerimeterPositions)
+    tissueArea = tissuePolygon.area
+    if resolutionFactor is not None:
+        tissueArea *= resolutionFactor * resolutionFactor
+    return tissueArea
 
 def getTissueArea(tissue: FolderContent, keyForFileWithAreaDict: str = "areaMeasuresPerCell", nestedKeyName: str or None = "labelledImageArea", resolutionFactor: float or None = None):
     areaPerCellDict = tissue.LoadKeyUsingFilenameDict(keyForFileWithAreaDict)
