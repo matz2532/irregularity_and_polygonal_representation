@@ -67,7 +67,7 @@ def extractTissueProperties(tissue: FolderContent, tissueAreaByCellArea: bool = 
     tissueProperties["numberOfCells"] = getNumberOfCells(tissue)
     tissueProperties["numberOfCellsAtPerimeter"] = len(orderedPerimeterCells)
     orderedPerimeterPositions = extractOrderedPerimeterPoints(orderedPerimeterCells, junctionPositions, tissueSubgraph)
-    tissueProperties["perimeterPoints"] = len(orderedPerimeterPositions)
+    tissueProperties["perimeterPoints"] = orderedPerimeterPositions
     tissueProperties["perimeterInMicrons"] = getPerimeterDistance(orderedPerimeterPositions, resolution)
     tissueProperties["numberOfJunctions"] = getNumberOfJunctions(tissue)
     if tissueAreaByCellArea:
