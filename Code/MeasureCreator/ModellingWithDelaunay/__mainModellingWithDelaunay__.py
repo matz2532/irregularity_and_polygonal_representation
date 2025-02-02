@@ -38,6 +38,7 @@ def delaunayTriangulatedTissue(tissueProperties, tissue, seed: int or None = Non
     diameterFromArea = np.sqrt(tissueProperties["tissueAreaInMicrons^2"]/np.pi)
     triangulation, extendedPerimeterPoints = applyDelaunayTriangulationTo(newCellCenters, perimeterPoints, diameterFromArea)
     triangulation = removeExcessPointsOrEdges(triangulation, None)
+    # visualizePolygonalAndConnectivityRepresentationFromTriangulation(triangulation, newCellCenters, extendedPerimeterPoints, tissueProperties["labelledImage"])
     triangulatedTissue: FolderContent = parameterizeDelaunayDerivedTissue(triangulation, tissueProperties, tissue)
     return triangulatedTissue
 
@@ -267,7 +268,9 @@ def determineRandomisedPerimeter(numberOfPerimeterPoints: int, perimeterLength: 
     randomisedPerimeterPoints = np.zeros((numberOfPerimeterPoints, 2))
     return randomisedPerimeterPoints
 
-def placePointsInsidePerimeter(numberOfPoints: int, perimeterPoints: np.array, rng = None, maxAllowedRejections: int = 100_000, visualizePoints: bool or str = False):
+def placePointsInsidePerimeter(numberOfPoints: int, perimeterPoints: np.array, rng = None,
+                               maxAllowedRejections: int = 100_000, visualizePoints: bool or str = False
+                               ):
     # could have different modes, but for now randomly select points and
     # kick them out when they are not inside the perimeter until target number of points is reached
     # do I need a buffer zone to avoid points right at perimeter (probably, should be something like half of mean cell perimeter)
@@ -354,6 +357,25 @@ def removeExcessPointsOrEdges(
         return tri
     # remove edges, "merging" adjacent points, needs an edge/points selection method (maybe very small once?)
     return tri
+
+def visualizePolygonalAndConnectivityRepresentationFromTriangulation(triangulation,
+                                                                     newCellCenters,
+                                                                     extendedPerimeterPoints,
+                                                                     labelledImage,
+                                                                     showPolygonalRepresentation: bool = True,
+                                                                     showConnectivityRepresentation: bool = True,
+                                                                     ):
+    if showPolygonalRepresentation:
+        pointsWithPerimeterDefiningPoints = np.concatenate([newCellCenters, extendedPerimeterPoints], axis=0)
+        delaunayFaceGraph = faceAdjacencyGraphFromDelaunayTriangulation(triangulation, pointsWithPerimeterDefiningPoints)
+        nx.draw_networkx_edges(delaunayFaceGraph, pos=nx.get_node_attributes(delaunayFaceGraph, "pos"), label="randomized polygonal representation")
+    if showConnectivityRepresentation:
+        # to do: remove perimeter fake cells & double check central cell positions and their polygonal representation centers
+        delaunayVectorGraph = pointsAdjacencyGraphFromDelaunayTriangulation(triangulation)
+        nx.draw_networkx(delaunayVectorGraph, pos=nx.get_node_attributes(delaunayVectorGraph, "pos"))
+    plt.imshow(np.rot90(np.flip(labelledImage, axis=0), k=3))
+    plt.legend()
+    plt.show()
 
 def parameterizeDelaunayDerivedTissue(triangulation, tissueProperties: dict, originalTissue: FolderContent):
     triangulatedTissue = {}
