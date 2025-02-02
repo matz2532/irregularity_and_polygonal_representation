@@ -3,7 +3,7 @@ import numpy as np
 
 from scipy.spatial import Delaunay
 
-def pointsAdjacencyGraphFromDelaunayTriangulation(self, tri):
+def pointsAdjacencyGraphFromDelaunayTriangulation(tri):
     graph = adjacencyGraphFromArray(tri.simplices)
     positions = dict(zip(np.unique(tri.simplices), tri.points))
     nx.set_node_attributes(graph, positions, "pos")

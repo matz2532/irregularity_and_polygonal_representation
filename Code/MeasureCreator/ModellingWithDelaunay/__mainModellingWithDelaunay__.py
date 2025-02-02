@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import sys
@@ -14,7 +15,7 @@ from LabelledImageToGraphConverter import LabelledImageToGraphConverter
 from MultiFolderContent import MultiFolderContent
 from Utils import findSharedPoints
 from scipy.spatial import Delaunay
-from shapely import Polygon, Point
+from shapely import Polygon, Point, LineString
 
 verbosity = 1
 def createAndAnalyseDelaunayTriangulatedTissueFrom(tissue: FolderContent, repetitions: int = 1, startingSeed: int = 42):
@@ -33,8 +34,9 @@ def delaunayTriangulatedTissue(tissueProperties, tissue, seed: int or None = Non
         perimeterPoints = tissueProperties["perimeterPoints"]
     else:
         perimeterPoints = determineRandomisedPerimeter(tissueProperties["numberOfCellsAtPerimeter"], tissueProperties["perimeterInMicrons"])
-    newCellCenters = placePointsInsidePerimeter(tissueProperties["numberOfCells"], perimeterPoints)
-    triangulation = applyDelaunayTriangulationTo(newCellCenters, perimeterPoints)
+    newCellCenters = placePointsInsidePerimeter(tissueProperties["numberOfCells"], perimeterPoints, rng)
+    diameterFromArea = np.sqrt(tissueProperties["tissueAreaInMicrons^2"]/np.pi)
+    triangulation, extendedPerimeterPoints = applyDelaunayTriangulationTo(newCellCenters, perimeterPoints, diameterFromArea)
     triangulation = removeExcessPointsOrEdges(triangulation, None)
     triangulatedTissue: FolderContent = parameterizeDelaunayDerivedTissue(triangulation, tissueProperties, tissue)
     return triangulatedTissue
@@ -73,6 +75,7 @@ def extractTissueProperties(tissue: FolderContent, tissueAreaByCellArea: bool = 
         tissueProperties["tissueAreaInMicrons^2"] = getTissueArea(tissue)
     else:
         tissueProperties["tissueAreaInMicrons^2"] = getTissueAreaByPerimeterPositions(orderedPerimeterPositions, resolution)
+    tissueProperties["labelledImage"] = tissue.LoadKeyUsingFilenameDict("labelledImageFilename")
     return tissueProperties
 
 def findSharedEdges(orderedPerimeterCells, junctionPositionsOfCells, returnIndicesToo: bool = True):
@@ -294,24 +297,49 @@ def uniformlyDrawPointFrom(rng, boundary: tuple):
     y = rng.uniform(boundary[1], boundary[3])
     return x, y
 
-def visualizeRandomPointsInTissue(perimeterPoints, points, rejectedPoints, saveAs: str or None = None):
+def visualizeRandomPointsInTissue(perimeterPoints, points, rejectedPoints,
+                                  saveAs: str or None = None,
+                                  invertYAxis: bool = True
+                                  ):
     import matplotlib.pyplot as plt
     rejectedPoints = np.array(rejectedPoints)
     plt.plot(np.concatenate([perimeterPoints[:, 0], [perimeterPoints[0, 0]]]), np.concatenate([perimeterPoints[:, 1], [perimeterPoints[0, 1]]]), label="tissue boarder")
     plt.scatter(points[:, 0], points[:, 1], label="accepted points")
     plt.scatter(rejectedPoints[:, 0], rejectedPoints[:, 1], label="rejected points")
     plt.legend()
+    if invertYAxis:
+        plt.gca().invert_yaxis()
     if saveAs:
         raise NotImplementedError(f"Trying to save the visualization of random points in a tissue under {saveAs}, but this is not yet implemented as it was not really needed.")
     else:
         plt.show()
 
-def applyDelaunayTriangulationTo(points, perimeterPoints):
-    pointsWithPerimeter = None
-    # unsure of how to incorporate perimeter points, probably just pool points and
-    # double check that the no non-perimeter point is at perimeter
-    tri = Delaunay(pointsWithPerimeter)
-    return tri
+def applyDelaunayTriangulationTo(points, perimeterPoints, extendPerimeterBy: float or None = 0):
+    if extendPerimeterBy is None:
+        extendedPerimeterPoints = []
+    elif extendPerimeterBy == 0:
+        extendedPerimeterPoints = perimeterPoints
+    else:
+        perimeterPolygon = Polygon(perimeterPoints)
+        # extend perimeter polygon by value
+        bufferedPolygon = perimeterPolygon.buffer(extendPerimeterBy, join_style=2)
+        # sample points on perimeter
+        extendedPerimeterPoints = regularlySamplePerimeterPointsOnPolygon(bufferedPolygon, len(perimeterPoints))
+    pointsWithPerimeterDefiningPoints = np.concatenate([points, extendedPerimeterPoints], axis=0)
+    tri = Delaunay(pointsWithPerimeterDefiningPoints)
+    return tri, extendedPerimeterPoints
+
+def regularlySamplePerimeterPointsOnPolygon(polygon, numberOfPoints):
+    x, y = polygon.exterior.xy
+    perimeterPoints = np.array([x, y]).transpose()
+    perimeterLine = LineString(perimeterPoints)
+    distances = np.linspace(0, perimeterLine.length, numberOfPoints)
+    sampledPoints = np.zeros((numberOfPoints, 2))
+    for i, distance in enumerate(distances):
+        p = perimeterLine.interpolate(distance)
+        sampledPoints[i, 0] = p.x
+        sampledPoints[i, 1] = p.y
+    return sampledPoints
 
 def removeExcessPointsOrEdges(
         tri,
