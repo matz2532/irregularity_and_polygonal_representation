@@ -16,7 +16,7 @@ from scipy.spatial import Delaunay
 #endregion
 
 #region MainCode
-def randomizeTissueUsingDelaunayTriangulation(tissue: FolderContent, seed=42, visualizeStepsInBetween=True):
+def randomizeTissueUsingDelaunayTriangulation(tissue: FolderContent, seed=42, visualizeStepsInBetween=False):
     centerOfCells = {}
     orderedJunctionsPerCell = tissue.LoadKeyUsingFilenameDict("orderedJunctionsPerCellFilename")
     areaMeasuresPerCell = tissue.LoadKeyUsingFilenameDict("areaMeasuresPerCell", convertDictKeysToInt=False)["originalPolygonArea"]
@@ -48,6 +48,14 @@ def pointsAlongCircle(radius, numberOfPoints):
     x = radius * np.sin(anglesOfPoints)
     y = radius * np.cos(anglesOfPoints)
     return np.concatenate([x,y]).reshape(2, numberOfPoints).T
+
+def parameterizeDelaunayDerivedTissue(delaunayFaceGraph):
+    # find perimeter nodes
+    # remove outside node
+    # extract cells with junctions
+    # calculate area
+    # calculate Gini coeffs
+    pass
 #endregion
 
 #region mainCodeExecution
@@ -61,6 +69,7 @@ def main():
         print(tissueContent.GetTissueName())
         delaunayFaceGraph, randomizationParameters = randomizeTissueUsingDelaunayTriangulation(tissueContent, seed=startRng)
         nx.get_node_attributes(delaunayFaceGraph, "pos")
+        propertiesOfRandomizedTissue = parameterizeDelaunayDerivedTissue(delaunayFaceGraph)
         startRng += 1 # change seed for each run to avoid the same node position during randomizattion for each tissue (logging the seed though in parameters)
 
 if __name__ == '__main__':
