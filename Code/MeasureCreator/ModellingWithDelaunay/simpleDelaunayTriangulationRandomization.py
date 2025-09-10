@@ -22,11 +22,7 @@ def randomizeTissueUsingDelaunayTriangulation(tissue: FolderContent, seed=42, vi
     areaMeasuresPerCell = tissue.LoadKeyUsingFilenameDict("areaMeasuresPerCell", convertDictKeysToInt=False)["originalPolygonArea"]
     numberOfCells = len(areaMeasuresPerCell)
     totalAreaOfCells = np.sum(list(areaMeasuresPerCell.values()))
-    radiusOfAreaInCircle = np.sqrt(np.pi / totalAreaOfCells)
-    circlePerimeterPoints = pointsAlongCircle(radiusOfAreaInCircle, 360)
-    rng = np.random.default_rng(seed)
-    # improve here: spacing of points should have min distance based on smallest distance between cell centers
-    randomPointsInShape = placePointsInsidePerimeter(numberOfCells, circlePerimeterPoints, rng=rng)
+    randomPointsInShape = randomlyPlacedPointsInCircle(numberOfCells, totalAreaOfCells, seed)
     allCellCenters = randomPointsInShape
     tri = Delaunay(allCellCenters)
     delaunayFaceGraph = faceAdjacencyGraphFromDelaunayTriangulation(tri, allCellCenters)
@@ -35,9 +31,17 @@ def randomizeTissueUsingDelaunayTriangulation(tissue: FolderContent, seed=42, vi
     randomizationParameters = {"node count": numberOfCells,
                                "rng seed": seed,
                                "shape parameters": 
-                                {"shape": "circle", "area": totalAreaOfCells, "radius": radiusOfAreaInCircle}
+                                {"shape": "circle", "area": totalAreaOfCells}
                               }
     return delaunayFaceGraph, randomizationParameters
+
+def randomlyPlacedPointsInCircle(numberOfCells, totalAreaOfCells, seed):
+    radiusOfAreaInCircle = np.sqrt(totalAreaOfCells / np.pi)
+    circlePerimeterPoints = pointsAlongCircle(radiusOfAreaInCircle, 360)
+    rng = np.random.default_rng(seed)
+    # improve here: spacing of points should have min distance based on smallest distance between cell centers
+    randomPointsInShape = placePointsInsidePerimeter(numberOfCells, circlePerimeterPoints, rng=rng)
+    return randomPointsInShape
 
 def pointsAlongCircle(radius, numberOfPoints):
     anglesOfPoints = np.linspace(0, 2*np.pi, numberOfPoints, endpoint=False)
