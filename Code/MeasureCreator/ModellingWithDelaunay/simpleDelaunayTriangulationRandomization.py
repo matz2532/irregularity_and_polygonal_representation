@@ -25,13 +25,19 @@ def randomizeTissueUsingDelaunayTriangulation(tissue: FolderContent, seed=42, vi
     radiusOfAreaInCircle = np.sqrt(np.pi / totalAreaOfCells)
     circlePerimeterPoints = pointsAlongCircle(radiusOfAreaInCircle, 360)
     rng = np.random.default_rng(seed)
+    # improve here: spacing of points should have min distance based on smallest distance between cell centers
     randomPointsInShape = placePointsInsidePerimeter(numberOfCells, circlePerimeterPoints, rng=rng)
     allCellCenters = randomPointsInShape
     tri = Delaunay(allCellCenters)
     delaunayFaceGraph = faceAdjacencyGraphFromDelaunayTriangulation(tri, allCellCenters)
     if visualizeStepsInBetween:
         plotDelaunayTriangulationWithFaceMidPoints(delaunayFaceGraph, allCellCenters, tri)
-    return delaunayFaceGraph
+    randomizationParameters = {"node count": numberOfCells,
+                               "rng seed": seed,
+                               "shape parameters": 
+                                {"shape": "circle", "area": totalAreaOfCells, "radius": radiusOfAreaInCircle}
+                              }
+    return delaunayFaceGraph, randomizationParameters
 
 def pointsAlongCircle(radius, numberOfPoints):
     anglesOfPoints = np.linspace(0, 2*np.pi, numberOfPoints, endpoint=False)
@@ -42,14 +48,16 @@ def pointsAlongCircle(radius, numberOfPoints):
 
 #region mainCodeExecution
 def main():
-    dataSetname = "Eng2021Cotyledons"  # "Smit2023Cotyledons" # 
+    dataSetname = "Eng2021Cotyledons"  # "Smit2023Cotyledons" # "Matz2022SAM" # 
     filename = f"Images/{dataSetname}/{dataSetname}.json"
     mfc = MultiFolderContent(filename)
     #tissueContent = list(mfc)[0]
+    startRng = 42
     for tissueContent in mfc:
         print(tissueContent.GetTissueName())
-        delaunayFaceGraph = randomizeTissueUsingDelaunayTriangulation(tissueContent)
+        delaunayFaceGraph, randomizationParameters = randomizeTissueUsingDelaunayTriangulation(tissueContent, seed=startRng)
         nx.get_node_attributes(delaunayFaceGraph, "pos")
+        startRng += 1 # change seed for each run to avoid the same node position during randomizattion for each tissue (logging the seed though in parameters)
 
 if __name__ == '__main__':
     main()
