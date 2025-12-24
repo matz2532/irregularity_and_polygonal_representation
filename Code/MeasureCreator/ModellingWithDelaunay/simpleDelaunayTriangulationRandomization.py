@@ -17,21 +17,28 @@ from scipy.spatial import Delaunay
 
 #region MainCode
 def randomizeTissueUsingDelaunayTriangulation(tissue: FolderContent, seed=42, visualizeStepsInBetween=False):
+    """
+    Get number and area of cells from tissue
+    Assume circular area for randomized tissue (based on summed area of cells)
+    randomly place same number of points as cells in circular area
+    apply Delaunay triangulation getting getting graph representation of faces
+    """
     centerOfCells = {}
     orderedJunctionsPerCell = tissue.LoadKeyUsingFilenameDict("orderedJunctionsPerCellFilename")
     areaMeasuresPerCell = tissue.LoadKeyUsingFilenameDict("areaMeasuresPerCell", convertDictKeysToInt=False)["originalPolygonArea"]
     numberOfCells = len(areaMeasuresPerCell)
     totalAreaOfCells = np.sum(list(areaMeasuresPerCell.values()))
     randomPointsInShape = randomlyPlacedPointsInCircle(numberOfCells, totalAreaOfCells, seed)
-    allCellCenters = randomPointsInShape
-    tri = Delaunay(allCellCenters)
-    delaunayFaceGraph = faceAdjacencyGraphFromDelaunayTriangulation(tri, allCellCenters)
+    tri = Delaunay(randomPointsInShape)
+    delaunayFaceGraph = faceAdjacencyGraphFromDelaunayTriangulation(tri, randomPointsInShape)
     if visualizeStepsInBetween:
-        plotDelaunayTriangulationWithFaceMidPoints(delaunayFaceGraph, allCellCenters, tri)
+        plotDelaunayTriangulationWithFaceMidPoints(delaunayFaceGraph, randomPointsInShape, tri)
     randomizationParameters = {"node count": numberOfCells,
                                "rng seed": seed,
                                "shape parameters": 
-                                {"shape": "circle", "area": totalAreaOfCells}
+                                {"shape": "circle", "area": totalAreaOfCells},
+                                "points in shape": randomPointsInShape,
+                                "face indices": tri.simplices.copy()
                               }
     return delaunayFaceGraph, randomizationParameters
 
