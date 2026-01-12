@@ -1,20 +1,7 @@
 import matplotlib.pyplot as plt
-from networkx.algorithms import center
 import numpy as np
 
-from shapely.geometry import MultiLineString, Polygon, LineString, LinearRing
-# correct Centroid of triangle
-triangleCorners = [[-5.6, 28.8],
-                   [5.9, 23.1],
-                   [-3.5, 6]]
-wrongCentroid = [-0.8, 18.8]
-# problematic triangles centroid
-triangleCorners = [[-9.75, -18.5],
-                   [-4.9, -23],
-                   [-2.9, -39.8]]
-wrongCentroid = [-5, -27]
-
-addGeometricEstimationOfInnerCircle = True
+from shapely.geometry import LineString, LinearRing
 
 def pointsAlongCircle(radius, numberOfPoints):
     anglesOfPoints = np.linspace(0, 2*np.pi, numberOfPoints, endpoint=False)
@@ -32,30 +19,6 @@ def plotCircleOf(centerPoint, radius, ax, numberOfPoints, circleKwargs={}):
     circle = pointsAlongCircleWithPoint(centerPoint, radius, numberOfPoints)
     plotRing(circle, ax, **circleKwargs)
     return circle
-
-# try to find out whether order of triangles is importent when calculating centroid
-trianglePolygon_1 = Polygon(triangleCorners)
-xyOfCentroid_1 = trianglePolygon_1.centroid
-trianglePolygon_2 = Polygon(np.array([triangleCorners[1], triangleCorners[0], triangleCorners[2]]))
-xyOfCentroid_2 = trianglePolygon_2.centroid
-trianglePolygon_3 = Polygon(np.array([triangleCorners[2], triangleCorners[1], triangleCorners[0]]))
-xyOfCentroid_3 = trianglePolygon_3.centroid
-
-fig, ax = plt.subplots(figsize=(6,6), constrained_layout=True)
-triangleCornersForPlotting = np.concatenate([triangleCorners, [triangleCorners[0]]], axis=0)
-ax.plot(triangleCornersForPlotting[:, 0], triangleCornersForPlotting[:, 1])
-ax.scatter(wrongCentroid[0], wrongCentroid[1], label="original wrong")
-ax.scatter(xyOfCentroid_1.x, xyOfCentroid_1.y, label="1")
-ax.scatter(xyOfCentroid_2.x, xyOfCentroid_2.y, label="2")
-ax.scatter(xyOfCentroid_3.x, xyOfCentroid_3.y, label="3")
-meanCornerPoint = np.mean(triangleCornersForPlotting, axis=0)
-ax.scatter(meanCornerPoint[0], meanCornerPoint[1], label="mean")
-xlim = ax.get_xlim()
-ylim = ax.get_ylim()
-newLim = (np.min([xlim[0], ylim[0]]), np.max([xlim[1], ylim[1]]))
-print(newLim)
-ax.set_xlim(newLim)
-ax.set_ylim(newLim)
 
 def pointArrayFromGeoms(shape):
     return np.array([[pt.x, pt.y] for pt in shape.geoms])
@@ -98,14 +61,61 @@ def intersectFrom(mn1Dict, mn2Dict, mKey="m", nKey="n"):
     y = m1 * x + n1
     return [x, y]
 
-if addGeometricEstimationOfInnerCircle:
+def calcInnerCircleOfTriangle(triangleCorners, ax=None):
     mn1Dict = innerLine(triangleCorners, 0, ax)
     mn2Dict = innerLine(triangleCorners, 1, ax)
-    mn3Dict = innerLine(triangleCorners, 2, ax)
-    intersect = intersectFrom(mn2Dict, mn3Dict)
-    plt.plot([intersect[0], triangleCorners[2][0]], [intersect[1], triangleCorners[2][1]])
-    plt.scatter(*intersect)
+    intersect = intersectFrom(mn1Dict, mn2Dict)
+    if ax is not None:
+        ax.scatter(intersect[0], intersect[1])
+    return intersect
 
+def mainTestingTriangleCentroidError():
+    from shapely.geometry import Polygon
+    # correct Centroid of triangle
+    triangleCorners = [[-5.6, 28.8],
+                       [5.9, 23.1],
+                       [-3.5, 6]]
+    wrongCentroid = [-0.8, 18.8]
+    # problematic triangles centroid
+    triangleCorners = [[-9.75, -18.5],
+                       [-4.9, -23],
+                       [-2.9, -39.8]]
+    wrongCentroid = [-5, -27]
 
-plt.legend()
-plt.show()
+    addGeometricEstimationOfInnerCircle = True
+    # try to find out whether order of triangles is importent when calculating centroid
+    trianglePolygon_1 = Polygon(triangleCorners)
+    xyOfCentroid_1 = trianglePolygon_1.centroid
+    trianglePolygon_2 = Polygon(np.array([triangleCorners[1], triangleCorners[0], triangleCorners[2]]))
+    xyOfCentroid_2 = trianglePolygon_2.centroid
+    trianglePolygon_3 = Polygon(np.array([triangleCorners[2], triangleCorners[1], triangleCorners[0]]))
+    xyOfCentroid_3 = trianglePolygon_3.centroid
+
+    fig, ax = plt.subplots(figsize=(6,6), constrained_layout=True)
+    triangleCornersForPlotting = np.concatenate([triangleCorners, [triangleCorners[0]]], axis=0)
+    ax.plot(triangleCornersForPlotting[:, 0], triangleCornersForPlotting[:, 1])
+    ax.scatter(wrongCentroid[0], wrongCentroid[1], label="original wrong")
+    ax.scatter(xyOfCentroid_1.x, xyOfCentroid_1.y, label="1")
+    ax.scatter(xyOfCentroid_2.x, xyOfCentroid_2.y, label="2")
+    ax.scatter(xyOfCentroid_3.x, xyOfCentroid_3.y, label="3")
+    meanCornerPoint = np.mean(triangleCornersForPlotting, axis=0)
+    ax.scatter(meanCornerPoint[0], meanCornerPoint[1], label="mean")
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+    newLim = (np.min([xlim[0], ylim[0]]), np.max([xlim[1], ylim[1]]))
+    ax.set_xlim(newLim)
+    ax.set_ylim(newLim)
+
+    if addGeometricEstimationOfInnerCircle:
+        mn1Dict = innerLine(triangleCorners, 0, ax)
+        mn2Dict = innerLine(triangleCorners, 1, ax)
+        mn3Dict = innerLine(triangleCorners, 2, ax)
+        intersect = intersectFrom(mn2Dict, mn3Dict)
+        plt.plot([intersect[0], triangleCorners[2][0]], [intersect[1], triangleCorners[2][1]])
+        plt.scatter(*intersect)
+
+    plt.legend()
+    plt.show()
+
+if __name__ == "__main__":
+    mainTestingTriangleCentroidError()
