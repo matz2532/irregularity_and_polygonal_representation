@@ -1,7 +1,9 @@
+import innerCircleOfTriangle
 import networkx as nx
 import numpy as np
 
 from scipy.spatial import Delaunay
+from shapely.geometry import Polygon
 
 def pointsAdjacencyGraphFromDelaunayTriangulation(tri):
     graph = adjacencyGraphFromArray(tri.simplices)
@@ -9,9 +11,9 @@ def pointsAdjacencyGraphFromDelaunayTriangulation(tri):
     nx.set_node_attributes(graph, positions, "pos")
     return graph
 
-def faceAdjacencyGraphFromDelaunayTriangulation(tri, cellCenters):
+def faceAdjacencyGraphFromDelaunayTriangulation(tri, cellCenters, ax=None):
     graph = adjacencyGraphFromArray(tri.neighbors, False)
-    faceMidPoints = extractFaceMidPoint(cellCenters, tri)
+    faceMidPoints = extractFaceMidPoint(cellCenters, tri, ax=ax)
     graph.remove_node(-1)
     positions = dict(zip(graph.nodes, faceMidPoints))
     nx.set_node_attributes(graph, positions, "pos")
@@ -31,11 +33,24 @@ def adjacencyGraphFromArray(array, pointBack=True):
     graph = nx.Graph(adjacencyGraph)
     return graph
 
-def extractFaceMidPoint(faceVerticesPositions, tri):
-    faceMidPoints = np.full((len(tri.simplices), 2), 0)
+import matplotlib.pyplot as plt
+import matplotlib
+def pointsAlongCircle(radius, numberOfPoints):
+    anglesOfPoints = np.linspace(0, 2*np.pi, numberOfPoints, endpoint=False)
+    x = radius * np.sin(anglesOfPoints)
+    y = radius * np.cos(anglesOfPoints)
+    return np.concatenate([x,y]).reshape(2, numberOfPoints).T
+def extractFaceMidPoint(faceVerticesPositions, tri, centerFindingMethod="innerCircleMidPoint", ax=None):
+    faceMidPoints = np.full((len(tri.simplices), 2), 0, dtype=float)
     for i, vertexIndicesOfTriangle in enumerate(tri.simplices):
         vertexPositionsOfCurrentFace = faceVerticesPositions[vertexIndicesOfTriangle, :]
-        midPointOfFace = np.mean(vertexPositionsOfCurrentFace, axis=0)
+        if centerFindingMethod == "innerCircleMidPoint":
+            midPointOfFace = innerCircleOfTriangle.calcInnerCircleOfTriangle(vertexPositionsOfCurrentFace)
+        elif centerFindingMethod == "centroid":
+            triangleAsPolygon = Polygon(vertexPositionsOfCurrentFace)
+            midPointOfFace = [triangleAsPolygon.centroid.x, triangleAsPolygon.centroid.y]
+        else:
+            midPointOfFace = np.mean(vertexPositionsOfCurrentFace, axis=0)
         faceMidPoints[i, :] = midPointOfFace
     return faceMidPoints
 
