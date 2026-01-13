@@ -28,7 +28,9 @@ def innerLine(triangleCornerPoints: np.ndarray, cornerIndex: int, ax=None, numbe
     if type(triangleCornerPoints) != np.ndarray:
         triangleCornerPoints = np.array(triangleCornerPoints)
     assert cornerIndex >= 0 and cornerIndex <= 2, "The index is out of range, should be between 0 - 2, but is {cornerIndex}"
-    radius = 4
+    radius = 0.5 * np.min([np.linalg.norm(triangleCornerPoints[0] - triangleCornerPoints[1]),
+                           np.linalg.norm(triangleCornerPoints[1] - triangleCornerPoints[2]),
+                           np.linalg.norm(triangleCornerPoints[2] - triangleCornerPoints[0])])
     cornerPoint = triangleCornerPoints[cornerIndex, :]
     pointsOfCircleAroundCorner = pointsAlongCircleWithPoint(cornerPoint, radius, numberOfPointsForCircle)
     nextIndexPoint = cornerIndex + 1
