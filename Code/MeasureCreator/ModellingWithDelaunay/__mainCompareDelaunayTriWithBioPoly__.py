@@ -25,7 +25,8 @@ def createDelaunayFromCellCentersOf(tissue: FolderContent, visualizeStepsInBetwe
         plotDelaunayTriangulationWithFaceMidPoints(delaunayFaceGraph, allCellCenters, tri, orderedJunctionsPerCell)
     return delaunayFaceGraph
 
-def plotDelaunayTriangulationWithFaceMidPoints(delaunayFaceGraph, allCellCenters, tri, biologicalJunctions=None, ax=None): #: None|dict[int, np.ndarray]
+def plotDelaunayTriangulationWithFaceMidPoints(delaunayFaceGraph, allCellCenters, tri, biologicalJunctions=None, ax=None,
+                                               addIndexOfCellCenters=False, addIndexOfJunction=False):
     if ax is None:
         fig, ax = plt.subplots(figsize=(8,8), constrained_layout=True)
     nx.draw_networkx_edges(delaunayFaceGraph, pos=nx.get_node_attributes(delaunayFaceGraph, "pos"), label="triangulated edges", ax=ax)
@@ -40,23 +41,16 @@ def plotDelaunayTriangulationWithFaceMidPoints(delaunayFaceGraph, allCellCenters
     ax.plot(allCellCenters[:, 0], allCellCenters[:, 1], 'o', label="cell center")
     ylimDistance = np.max(allCellCenters, axis=0)[0] - np.min(allCellCenters, axis=0)[0]
     
-    for i, p in enumerate(allCellCenters):
-        x, y = p
-        y += ylimDistance * 0.02
-        plt.text(x, y, i, horizontalalignment='center', size='small')
-    
-    faceVerticesPositions = []
-    for i, p in nx.get_node_attributes(delaunayFaceGraph, "pos").items():
-        x, y = p
-        #y += ylimDistance * 0.02
-        ax.text(x, y, i, horizontalalignment='center', size='small')
-        faceVerticesPositions.append(p)
-    faceVerticesPositions = np.array(faceVerticesPositions)
-    def pointsAlongCircle(radius, numberOfPoints):
-        anglesOfPoints = np.linspace(0, 2*np.pi, numberOfPoints, endpoint=False)
-        x = radius * np.sin(anglesOfPoints)
-        y = radius * np.cos(anglesOfPoints)
-        return np.concatenate([x,y]).reshape(2, numberOfPoints).T
+    if addIndexOfCellCenters:
+        for i, p in enumerate(allCellCenters):
+            x, y = p
+            y += ylimDistance * 0.02
+            plt.text(x, y, i, horizontalalignment='center', size='small')
+    if addIndexOfJunction:
+        for i, p in nx.get_node_attributes(delaunayFaceGraph, "pos").items():
+            x, y = p
+            ax.text(x, y, i, horizontalalignment='center', size='small')
+
     plt.legend()
     plt.show()
 #endregion
