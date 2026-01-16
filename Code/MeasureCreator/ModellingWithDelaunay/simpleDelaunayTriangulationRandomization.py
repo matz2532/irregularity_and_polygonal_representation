@@ -57,12 +57,25 @@ def pointsAlongCircle(radius, numberOfPoints):
     return np.concatenate([x,y]).reshape(2, numberOfPoints).T
 
 def parameterizeDelaunayDerivedTissue(delaunayFaceGraph):
-    # find perimeter nodes
-    # remove outside node
-    # extract cells with junctions
+    orderedJunctionsOfFaceGraph = extractOrderedJunctionsOf(delaunayFaceGraph)
     # calculate area
     # calculate Gini coeffs
     pass
+
+def extractOrderedJunctionsOf(delaunayFaceGraph):
+    junctionsOfCells = assignJunctionsToCell(nx.get_node_attributes(delaunayFaceGraph, "adjacent cells"))
+    # order junctions <- use exisiting functionality
+    # exclude cells, whos junctions are not forming a circle
+
+def assignJunctionsToCell(cellsOfJunctions):
+    junctionsOfCells = {}
+    for junctionId, cellIds in cellsOfJunctions.items():
+        for i in cellIds:
+            if i in junctionsOfCells:
+                junctionsOfCells[i].append(junctionId)
+            else:
+                junctionsOfCells[i] = [junctionId]
+    return junctionsOfCells
 #endregion
 
 #region mainCodeExecution

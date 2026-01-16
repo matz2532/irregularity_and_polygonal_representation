@@ -17,6 +17,8 @@ def faceAdjacencyGraphFromDelaunayTriangulation(tri, cellCenters, ax=None):
     graph.remove_node(-1)
     positions = dict(zip(graph.nodes, faceMidPoints))
     nx.set_node_attributes(graph, positions, "pos")
+    cellsFormingTriangle = {i: vertexIndicesOfTriangle for i, vertexIndicesOfTriangle in enumerate(tri.simplices)}
+    nx.set_node_attributes(graph, cellsFormingTriangle, "adjacent cells")
     return graph
 
 def adjacencyGraphFromArray(array, pointBack=True):
