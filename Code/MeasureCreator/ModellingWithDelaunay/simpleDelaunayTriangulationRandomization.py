@@ -53,12 +53,16 @@ def randomizeTissueUsingDelaunayTriangulation(tissue: FolderContent, seed=42, vi
     return delaunayFaceGraph, randomizationParameters
 
 def randomlyPlacedPointsInCircle(numberOfCells, totalAreaOfCells, seed):
-    radiusOfAreaInCircle = np.sqrt(totalAreaOfCells / np.pi)
-    circlePerimeterPoints = pointsAlongCircle(radiusOfAreaInCircle, 360)
+    circlePerimeterPoints = calculateCirclePointsFromArea(totalAreaOfCells)
     rng = np.random.default_rng(seed)
     # improve here: spacing of points should have min distance based on smallest distance between cell centers
     randomPointsInShape = placePointsInsidePerimeter(numberOfCells, circlePerimeterPoints, rng=rng)
     return randomPointsInShape
+
+def calculateCirclePointsFromArea(totalAreaOfCells, numberOfPoints=360):
+    radiusOfAreaInCircle = np.sqrt(totalAreaOfCells / np.pi)
+    circlePerimeterPoints = pointsAlongCircle(radiusOfAreaInCircle, numberOfPoints)
+    return circlePerimeterPoints
 
 def pointsAlongCircle(radius, numberOfPoints):
     anglesOfPoints = np.linspace(0, 2*np.pi, numberOfPoints, endpoint=False)
