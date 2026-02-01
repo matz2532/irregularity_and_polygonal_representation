@@ -92,6 +92,19 @@ def assignJunctionsToCell(cellsOfJunctions):
     return junctionsOfCells
 #endregion
 
+#region VisualizeRandomizationProcedure
+def plotStepsOfRandomizationFor(delaunayFaceGraph, randomizationParameters, ax: Axes=None):
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(8,8), constrained_layout=True)
+    perimeterOfRanomizedTissue = calculateCirclePointsFromArea(randomizationParameters[shapeParameterKey][shapeAreaKey])
+    ax.plot(
+        np.concatenate([perimeterOfRanomizedTissue[:, 0], [perimeterOfRanomizedTissue[0, 0]]]), 
+        np.concatenate([perimeterOfRanomizedTissue[:, 1], [perimeterOfRanomizedTissue[0, 1]]]))
+    randomPoints = randomizationParameters[pointPositionKey]
+    ax.scatter(randomPoints[:, 0], randomPoints[:, 1])
+    plt.show()
+#endregion
+
 #region mainCodeExecution
 def main():
     dataSetname = "Eng2021Cotyledons"  # "Smit2023Cotyledons" # "Matz2022SAM" # 
@@ -99,9 +112,13 @@ def main():
     mfc = MultiFolderContent(filename)
     #tissueContent = list(mfc)[0]
     startRng = 42
+    visualizeRandomizationStepsForTissue = ["col-0_20170327 WT S1_0h"]
+    visualizeRandomizationStepsForRng = [42]
     for tissueContent in mfc:
         print(tissueContent.GetTissueName())
-        delaunayFaceGraph, randomizationParameters = randomizeTissueUsingDelaunayTriangulation(tissueContent, seed=startRng)
+        delaunayFaceGraph, randomizationParameters = randomizeTissueUsingDelaunayTriangulation(tissueContent, seed=startRng) # visualizeStepsInBetween=True
+        if startRng in visualizeRandomizationStepsForRng and tissueContent.GetTissueName() in visualizeRandomizationStepsForTissue:
+            plotStepsOfRandomizationFor(delaunayFaceGraph, randomizationParameters)
         nx.get_node_attributes(delaunayFaceGraph, "pos")
         propertiesOfRandomizedTissue = parameterizeDelaunayDerivedTissue(delaunayFaceGraph)
         startRng += 1 # change seed for each run to avoid the same node position during randomizattion for each tissue (logging the seed though in parameters)
