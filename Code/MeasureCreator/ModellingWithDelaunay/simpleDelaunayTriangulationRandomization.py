@@ -15,6 +15,16 @@ from scipy import ndimage
 from scipy.spatial import Delaunay
 #endregion
 
+#region LocalGlobalParameters
+nodeCountKey = "node count"
+rngSeedKey = "rng seed"
+shapeParameterKey = "shape parameters"
+shapeTypeKey = "shape"
+shapeAreaKey = "area"
+pointPositionKey = "points in shape"
+faceIndicesKey = "face indices"
+#endregion
+
 #region MainCode
 def randomizeTissueUsingDelaunayTriangulation(tissue: FolderContent, seed=42, visualizeStepsInBetween=False):
     """
@@ -33,12 +43,12 @@ def randomizeTissueUsingDelaunayTriangulation(tissue: FolderContent, seed=42, vi
     delaunayFaceGraph = faceAdjacencyGraphFromDelaunayTriangulation(tri, randomPointsInShape)
     if visualizeStepsInBetween:
         plotDelaunayTriangulationWithFaceMidPoints(delaunayFaceGraph, randomPointsInShape, tri)
-    randomizationParameters = {"node count": numberOfCells,
-                               "rng seed": seed,
-                               "shape parameters": 
-                                {"shape": "circle", "area": totalAreaOfCells},
-                                "points in shape": randomPointsInShape,
-                                "face indices": tri.simplices.copy()
+    randomizationParameters = {nodeCountKey: numberOfCells,
+                               rngSeedKey: seed,
+                               shapeParameterKey: 
+                                {shapeTypeKey: "circle", shapeAreaKey: totalAreaOfCells},
+                               pointPositionKey: randomPointsInShape,
+                               faceIndicesKey: tri.simplices.copy()
                               }
     return delaunayFaceGraph, randomizationParameters
 
