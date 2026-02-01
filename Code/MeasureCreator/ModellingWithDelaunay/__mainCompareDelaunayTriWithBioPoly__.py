@@ -1,4 +1,5 @@
 #region Imports
+from pickle import NONE
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -9,15 +10,24 @@ sys.path.insert(0, "./Code/DataStructures/")
 from GraphCreatorFromDelaunayTriangulation import faceAdjacencyGraphFromDelaunayTriangulation
 from FolderContent import FolderContent
 from MultiFolderContent import MultiFolderContent
+from scipy import ndimage
 from scipy.spatial import Delaunay
 #endregion
 
 #region MainCode
-def createDelaunayFromCellCentersOf(tissue: FolderContent, visualizeStepsInBetween=True):
-    orderedJunctionsPerCell = tissue.LoadKeyUsingFilenameDict("orderedJunctionsPerCellFilename")
+def createDelaunayFromCellCentersOf(tissue: FolderContent, centerFindingMethod="fromGeometricCenter", visualizeStepsInBetween=True):
     centerOfCells = {}
-    for cellId, orderedJunctions in orderedJunctionsPerCell.items():
-        centerOfCells[cellId] = np.mean(orderedJunctions, axis=0)
+    orderedJunctionsPerCell = tissue.LoadKeyUsingFilenameDict("orderedJunctionsPerCellFilename")
+    if centerFindingMethod == "fromJunctions":
+        for cellId, orderedJunctions in orderedJunctionsPerCell.items():
+            centerOfCells[cellId] = np.mean(orderedJunctions, axis=0)
+    elif centerFindingMethod == "fromGeometricCenter":
+        labelledImage = tissue.LoadKeyUsingFilenameDict("labelledImageFilename")
+        cellIndices = list(orderedJunctionsPerCell.keys())
+        allLabels = np.arange(1, np.max(labelledImage))
+        centerOfCells = ndimage.center_of_mass(labelledImage, allLabels, cellIndices)
+    else:
+        raise NotImplementedError(f"The method {centerFindingMethod} for finding the center of the cell is not yet implemented!")
     allCellCenters = np.concatenate(list(centerOfCells.values())).reshape(len(centerOfCells), 2)
     tri = Delaunay(allCellCenters)
     delaunayFaceGraph = faceAdjacencyGraphFromDelaunayTriangulation(tri, allCellCenters)
@@ -57,13 +67,14 @@ def plotDelaunayTriangulationWithFaceMidPoints(delaunayFaceGraph, allCellCenters
 
 #region mainCodeExecution
 def main():
-    dataSetname = "Eng2021Cotyledons"  # "Smit2023Cotyledons" #
+    dataSetname = "Eng2021Cotyledons"  # "Smit2023Cotyledons" # 
     filename = f"Images/{dataSetname}/{dataSetname}.json"
     mfc = MultiFolderContent(filename)
-    tissueContent = list(mfc)[0]
-    print(tissueContent.GetTissueName())
-    delaunayFaceGraph = createDelaunayFromCellCentersOf(tissueContent)
-    nx.get_node_attributes(delaunayFaceGraph, "pos")
+    #tissueContent = list(mfc)[0]
+    for tissueContent in mfc:
+        print(tissueContent.GetTissueName())
+        delaunayFaceGraph = createDelaunayFromCellCentersOf(tissueContent)
+        nx.get_node_attributes(delaunayFaceGraph, "pos")
 
 if __name__ == '__main__':
     main()

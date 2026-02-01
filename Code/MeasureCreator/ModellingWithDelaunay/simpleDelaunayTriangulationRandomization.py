@@ -8,6 +8,7 @@ sys.path.insert(0, "./Code/DataStructures/")
 
 from __mainCompareDelaunayTriWithBioPoly__ import plotDelaunayTriangulationWithFaceMidPoints
 from __mainModellingWithDelaunay__ import placePointsInsidePerimeter
+from matplotlib.axes import Axes
 from GraphCreatorFromDelaunayTriangulation import faceAdjacencyGraphFromDelaunayTriangulation
 from FolderContent import FolderContent
 from MultiFolderContent import MultiFolderContent
@@ -90,6 +91,7 @@ def assignJunctionsToCell(cellsOfJunctions):
             else:
                 junctionsOfCells[i] = [junctionId]
     return junctionsOfCells
+
 #endregion
 
 #region VisualizeRandomizationProcedure
@@ -104,6 +106,13 @@ def plotStepsOfRandomizationFor(delaunayFaceGraph, randomizationParameters, ax: 
     ax.scatter(randomPoints[:, 0], randomPoints[:, 1])
     plt.show()
 #endregion
+
+"""
+Next things:
+prepare plots for figure/representation
+fix pointArrayFromGeoms(shape) in innterCircleOfTriangle.py for second tissue -> name: col-0_20170327 WT S1_24h
+calculate features
+"""
 
 #region mainCodeExecution
 def main():
@@ -122,6 +131,7 @@ def main():
         nx.get_node_attributes(delaunayFaceGraph, "pos")
         propertiesOfRandomizedTissue = parameterizeDelaunayDerivedTissue(delaunayFaceGraph)
         startRng += 1 # change seed for each run to avoid the same node position during randomizattion for each tissue (logging the seed though in parameters)
+        break
 
 if __name__ == '__main__':
     main()

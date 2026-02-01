@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from shapely import is_empty
 from shapely.geometry import LineString, LinearRing
 
 def pointsAlongCircle(radius, numberOfPoints):
@@ -21,6 +22,7 @@ def plotCircleOf(centerPoint, radius, ax, numberOfPoints, circleKwargs={}):
     return circle
 
 def pointArrayFromGeoms(shape):
+    # .coords could be better for conversion
     return np.array([[pt.x, pt.y] for pt in shape.geoms])
 
 def innerLine(triangleCornerPoints: np.ndarray, cornerIndex: int, ax=None, numberOfPointsForCircle=120):
@@ -44,7 +46,16 @@ def innerLine(triangleCornerPoints: np.ndarray, cornerIndex: int, ax=None, numbe
                           [secondIntersectionPoint.x, secondIntersectionPoint.y]])
     intersectionCircle_1 = pointsAlongCircleWithPoint(intersectionPoints[0], radius, numberOfPointsForCircle)
     intersectionCircle_2 = pointsAlongCircleWithPoint(intersectionPoints[1], radius, numberOfPointsForCircle)
-    pointsForLinearSection = pointArrayFromGeoms(LinearRing(intersectionCircle_1).intersection(LinearRing(intersectionCircle_2)))
+    ringsIntersect = LinearRing(intersectionCircle_1).intersection(LinearRing(intersectionCircle_2))
+    if ringsIntersect.is_empty:
+        # add visual indication for problematic intersect
+        plt.close()
+        fig, ax = plt.subplots(figsize=(6,6), constrained_layout=True)
+        ax.scatter(triangleCornerPoints[:, 0], triangleCornerPoints[:, 1])
+        plotRing(intersectionCircle_1, ax)
+        plotRing(intersectionCircle_2, ax)
+        plt.show()
+    pointsForLinearSection = pointArrayFromGeoms(ringsIntersect)
     if ax is not None:
         plotRing(pointsOfCircleAroundCorner, ax)
         ax.scatter(intersectionPoints[:, 0], intersectionPoints[:, 1])
