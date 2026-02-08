@@ -103,7 +103,8 @@ def plotStepsOfRandomizationFor(delaunayFaceGraph, randomizationParameters, ax: 
         np.concatenate([perimeterOfRanomizedTissue[:, 0], [perimeterOfRanomizedTissue[0, 0]]]), 
         np.concatenate([perimeterOfRanomizedTissue[:, 1], [perimeterOfRanomizedTissue[0, 1]]]))
     randomPoints = randomizationParameters[pointPositionKey]
-    ax.scatter(randomPoints[:, 0], randomPoints[:, 1])
+    ax.scatter(randomPoints[:, 0], randomPoints[:, 1], c="C2")
+    plt.axis("off")
     plt.show()
 #endregion
 
@@ -125,8 +126,9 @@ def main():
     visualizeRandomizationStepsForRng = [42]
     for tissueContent in mfc:
         print(tissueContent.GetTissueName())
-        delaunayFaceGraph, randomizationParameters = randomizeTissueUsingDelaunayTriangulation(tissueContent, seed=startRng) # visualizeStepsInBetween=True
-        if startRng in visualizeRandomizationStepsForRng and tissueContent.GetTissueName() in visualizeRandomizationStepsForTissue:
+        visualizeStepsInBetween = startRng in visualizeRandomizationStepsForRng and tissueContent.GetTissueName() in visualizeRandomizationStepsForTissue
+        delaunayFaceGraph, randomizationParameters = randomizeTissueUsingDelaunayTriangulation(tissueContent, seed=startRng, visualizeStepsInBetween=visualizeStepsInBetween)
+        if visualizeStepsInBetween:
             plotStepsOfRandomizationFor(delaunayFaceGraph, randomizationParameters)
         nx.get_node_attributes(delaunayFaceGraph, "pos")
         propertiesOfRandomizedTissue = parameterizeDelaunayDerivedTissue(delaunayFaceGraph)

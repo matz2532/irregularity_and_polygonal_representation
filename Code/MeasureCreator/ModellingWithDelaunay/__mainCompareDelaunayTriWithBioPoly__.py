@@ -1,5 +1,6 @@
 #region Imports
 from pickle import NONE
+from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -48,7 +49,7 @@ def plotDelaunayTriangulationWithFaceMidPoints(delaunayFaceGraph, allCellCenters
             plt.plot(junctionsToPlot[:, 0], junctionsToPlot[:, 1], color="lightblue", label= "original edges" if isFirstCell else None, ax=ax)
             if isFirstCell:
                 isFirstCell = False
-    ax.plot(allCellCenters[:, 0], allCellCenters[:, 1], 'o', label="cell center")
+    ax.plot(allCellCenters[:, 0], allCellCenters[:, 1], 'o', label="random points")
     ylimDistance = np.max(allCellCenters, axis=0)[0] - np.min(allCellCenters, axis=0)[0]
     
     if addIndexOfCellCenters:
@@ -60,8 +61,11 @@ def plotDelaunayTriangulationWithFaceMidPoints(delaunayFaceGraph, allCellCenters
         for i, p in nx.get_node_attributes(delaunayFaceGraph, "pos").items():
             x, y = p
             ax.text(x, y, i, horizontalalignment='center', size='small')
-
-    plt.legend()
+    plt.axis("off")
+    line = Line2D([0], [0], label='Delaunay triangles', color='C0')
+    handles, labels = ax.get_legend_handles_labels()
+    handles.append(line)
+    plt.legend(handles=handles)
     plt.show()
 #endregion
 
