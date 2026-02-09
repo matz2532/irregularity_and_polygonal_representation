@@ -95,8 +95,15 @@ def assignJunctionsToCell(cellsOfJunctions):
 #endregion
 
 #region VisualizeRandomizationProcedure
-def plotStepsOfRandomizationFor(delaunayFaceGraph, randomizationParameters, ax: Axes=None):
-    if ax is None:
+def plotStepsOfRandomizationFor(delaunayFaceGraph, randomizationParameters, tissueContent, ax: Axes=None):
+    plotRandomPointsInCircle(randomizationParameters, ax)
+    plotTriangulationFromPoints(delaunayFaceGraph, randomizationParameters, ax)
+    plotTriWayJunctionEstimation(delaunayFaceGraph, randomizationParameters, ax)
+    plotRandomizedTissue(delaunayFaceGraph, randomizationParameters, ax)
+
+def plotRandomPointsInCircle(randomizationParameters, ax: Axes=None):
+    missingExternalAxes = ax is None
+    if missingExternalAxes:
         fig, ax = plt.subplots(figsize=(8,8), constrained_layout=True)
     perimeterOfRanomizedTissue = calculateCirclePointsFromArea(randomizationParameters[shapeParameterKey][shapeAreaKey])
     ax.plot(
@@ -105,7 +112,40 @@ def plotStepsOfRandomizationFor(delaunayFaceGraph, randomizationParameters, ax: 
     randomPoints = randomizationParameters[pointPositionKey]
     ax.scatter(randomPoints[:, 0], randomPoints[:, 1], c="C2")
     plt.axis("off")
-    plt.show()
+    if missingExternalAxes:
+        plt.show()
+
+def plotTriangulationFromPoints(delaunayFaceGraph, randomizationParameters, ax: Axes=None):
+    missingExternalAxes = ax is None
+    if missingExternalAxes:
+        fig, ax = plt.subplots(figsize=(8,8), constrained_layout=True)
+    randomPoints = randomizationParameters[pointPositionKey] 
+    tri = Delaunay(randomPoints)
+    ax.triplot(randomPoints[:, 0], randomPoints[:, 1], tri.simplices.copy(), zorder=0)
+    ax.scatter(randomPoints[:, 0], randomPoints[:, 1], c="C2", zorder=1)
+    nx.draw_networkx_nodes(delaunayFaceGraph, pos=nx.get_node_attributes(delaunayFaceGraph, "pos"), label="tri way junction", ax=ax, node_color="black", node_size=20)
+    plt.axis("off")
+    if missingExternalAxes:
+        plt.show()
+        
+def plotTriWayJunctionEstimation(delaunayFaceGraph, randomizationParameters, ax: Axes=None):
+    missingExternalAxes = ax is None
+    if missingExternalAxes:
+        fig, ax = plt.subplots(figsize=(8,8), constrained_layout=True)
+    randomPoints = randomizationParameters[pointPositionKey]
+    tri = Delaunay(randomPoints)
+    plotDelaunayTriangulationWithFaceMidPoints(delaunayFaceGraph, randomPoints, tri, ax=ax)
+    if missingExternalAxes:
+        plt.show()
+
+def plotRandomizedTissue(delaunayFaceGraph, randomizationParameters, ax: Axes=None):
+    missingExternalAxes = ax is None
+    if missingExternalAxes:
+        fig, ax = plt.subplots(figsize=(8,8), constrained_layout=True)
+    nx.draw_networkx_edges(delaunayFaceGraph, pos=nx.get_node_attributes(delaunayFaceGraph, "pos"), label="triangulated edges", ax=ax)
+    plt.axis("off")
+    if missingExternalAxes:
+        plt.show()
 #endregion
 
 """
@@ -126,8 +166,8 @@ def main():
     visualizeRandomizationStepsForRng = [42]
     for tissueContent in mfc:
         print(tissueContent.GetTissueName())
+        delaunayFaceGraph, randomizationParameters = randomizeTissueUsingDelaunayTriangulation(tissueContent, seed=startRng)
         visualizeStepsInBetween = startRng in visualizeRandomizationStepsForRng and tissueContent.GetTissueName() in visualizeRandomizationStepsForTissue
-        delaunayFaceGraph, randomizationParameters = randomizeTissueUsingDelaunayTriangulation(tissueContent, seed=startRng, visualizeStepsInBetween=visualizeStepsInBetween)
         if visualizeStepsInBetween:
             plotStepsOfRandomizationFor(delaunayFaceGraph, randomizationParameters)
         nx.get_node_attributes(delaunayFaceGraph, "pos")
